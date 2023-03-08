@@ -49,6 +49,7 @@ frameIntvTime = 0.01 # (sec) Time pause interval between two frames
 usePWM = 0 # Turn on PWM control, otherwise perform constant charge/discharge action for each frame
 
 DIOout = np.empty((0,Channel_Num), dtype=np.uint8)
+DIOout2 = np.empty((0,Channel_Num), dtype=np.uint8)
 if (usePWM):
     F_PWM = 1000  # PWM frequency (Output waveform sampling frequency, Hz)
 
@@ -225,7 +226,7 @@ if __name__ == '__main__':
 
         task1.WriteDigitalLines(numSampsPerChan=DIOoutLen, autoStart=False,
                                 timeout=nidaq.DAQmx_Val_WaitInfinitely, dataLayout=nidaq.DAQmx_Val_GroupByScanNumber,
-                                writeArray=DIOout, reserved=None, sampsPerChanWritten=None)
+                                writeArray=DIOout2, reserved=None, sampsPerChanWritten=None)
 
         # ------------ start ------------ #
         task1.StartTask()
