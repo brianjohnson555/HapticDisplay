@@ -7,7 +7,7 @@ Created on 2021.09.17 based on 'B3HV4GNDDAQ (Obsolete).py'
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-import PyDAQmx as nidaq
+import nidaqmx as nidaq
 import sys
 
 # MARCO
@@ -201,6 +201,8 @@ DIOout[-1,:] = 0 # Ensure all channels are turned off at the end
 
 DIOoutLen = DIOout.shape[0] # (= MeasureTime * F_PWM * int(F_CLK/F_PWM))
 print("DIOout Shape: ", DIOout.shape)
+print(DIOout[20000,:])
+print(DIOout[30000,:])
 
 measureTime = (DIOoutLen/F_CLK)
 print("Total time = %.3f sec" % measureTime)
@@ -226,7 +228,7 @@ if __name__ == '__main__':
 
         task1.WriteDigitalLines(numSampsPerChan=DIOoutLen, autoStart=False,
                                 timeout=nidaq.DAQmx_Val_WaitInfinitely, dataLayout=nidaq.DAQmx_Val_GroupByScanNumber,
-                                writeArray=DIOout2, reserved=None, sampsPerChanWritten=None)
+                                writeArray=DIOout, reserved=None, sampsPerChanWritten=None)
 
         # ------------ start ------------ #
         task1.StartTask()

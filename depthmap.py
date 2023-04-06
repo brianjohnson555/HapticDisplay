@@ -22,6 +22,7 @@ while True:
     # Load frame
     ret,img = cap.read()
     img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+    img = cv2.addWeighted(img,1.5,img,0,1)
 
     # Compute depth
     input_batch = transform(img).to(device)
@@ -56,10 +57,12 @@ while True:
     mini = cv2.resize(depth, (6,4), interpolation = cv2.INTER_AREA)
     # Show frames
     cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
-    cv2.imshow('Video',depth)
+    cv2.imshow('Video',img)
+    # cv2.namedWindow('Contrast',cv2.WINDOW_KEEPRATIO)
+    # cv2.imshow('Contrast',img2)
     cv2.namedWindow('Mini',cv2.WINDOW_KEEPRATIO)
-    cv2.imshow('Mini',mini)
-    cv2.drawContours(image=img, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
+    cv2.imshow('Mini',depth)
+    #cv2.drawContours(image=img, contours=contours, contourIdx=-1, color=(0, 255, 0), thickness=2, lineType=cv2.LINE_AA)
     #cv2.imshow('thresh',thresh_frame)
     
     if(cv2.waitKey(10) & 0xFF == ord('b')):
