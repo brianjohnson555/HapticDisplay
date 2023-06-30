@@ -22,9 +22,9 @@ def Test(episodes,env,model):
         print('Episode:{} Score:{}'.format(episode, score))
     env.close()
 
-PPO_path = os.path.join('Training,', 'Saved Models', 'PPO_model_cartpole')
+PPO_path = os.path.join('Training', 'Saved Models', 'PPO_model_cartpole')
 
-Training = False
+Training = True
 log_path = os.path.join('Training','Logs')
 if Training:
 

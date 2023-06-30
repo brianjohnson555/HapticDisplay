@@ -7,7 +7,7 @@ Created on 2021.09.17 based on 'B3HV4GNDDAQ (Obsolete).py'
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-import nidaqmx as nidaq
+import PyDAQmx as nidaq
 import sys
 
 # MARCO
@@ -49,7 +49,7 @@ frameIntvTime = 0.01 # (sec) Time pause interval between two frames
 usePWM = 0 # Turn on PWM control, otherwise perform constant charge/discharge action for each frame
 
 DIOout = np.empty((0,Channel_Num), dtype=np.uint8)
-DIOout2 = np.empty((0,Channel_Num), dtype=np.uint8)
+
 if (usePWM):
     F_PWM = 1000  # PWM frequency (Output waveform sampling frequency, Hz)
 
@@ -80,8 +80,8 @@ if (usePWM):
         DIOout = np.append(DIOout, dischargeBlock, axis=0)
 
 else: # DC activation signal for each frame
-    frameChargeRepNum =720 # Number of repetitions of charge per animation frame (per node) = 3600 (*NODE_NUM/F_CLK sec)
-    frameDischargeRepNum = 800 # Number of repetitions of discharge per animation frame (per node) = 4000  (*NODE_NUM/F_CLK sec)
+    frameChargeRepNum =1440 # Number of repetitions of charge per animation frame (per node) = 3600 (*NODE_NUM/F_CLK sec)
+    frameDischargeRepNum = 1600 # Number of repetitions of discharge per animation frame (per node) = 4000  (*NODE_NUM/F_CLK sec)
 
     if 0:
         animation = np.array([
@@ -141,37 +141,6 @@ else: # DC activation signal for each frame
             animation = np.append(animation, temp, axis=0)
             animation = np.append(animation, -1*np.ones((1,12)), axis=0)
         print(animation)
-    # ----------------------------------------------------------------
-
-    # animation = np.array([
-    # [1, 0, 0, 0,
-    # 0, 0, 0, 0,
-    # 0, 0, 0, 0],
-    #
-    # [0, 0, 0, 0,
-    #  0, 0, 0, 0,
-    #  1, 0, 0, 0],
-    #
-    # [-1, -1, -1, -1,
-    # -1, -1, -1, -1,
-    # -1, -1, -1, -1],
-    #
-    # [0, 0, 0, 0,
-    # 0, 0, 0, 1,
-    # 0, 0, 0, 0],
-    #
-    # [1, 0, 0, 0,
-    # 0, 0, 0, 0,
-    # 0, 0, 0, 1],
-    #
-    # [-1, -1, -1, -1,
-    # -1, -1, -1, -1,
-    # -1, -1, -1, -1]
-    # ])
-
-    #---------------------------------------------
-
-    # animation = np.tile(animation, (10, 1))
 
     frameNum = animation.shape[0]
 
@@ -194,15 +163,12 @@ else: # DC activation signal for each frame
             oneFrame[(dischargeNode+i)*2, DISCHARGE_XY[i][1]] = 1
 
         DIOout = np.append(DIOout, oneFrame, axis=0)
-        # DIOout = np.append(DIOout, np.zeros((int(frameIntvTime*F_CLK),10), dtype=np.uint8), axis=0)
 
 # Safety measure
 DIOout[-1,:] = 0 # Ensure all channels are turned off at the end
 
 DIOoutLen = DIOout.shape[0] # (= MeasureTime * F_PWM * int(F_CLK/F_PWM))
 print("DIOout Shape: ", DIOout.shape)
-print(DIOout[20000,:])
-print(DIOout[30000,:])
 
 measureTime = (DIOoutLen/F_CLK)
 print("Total time = %.3f sec" % measureTime)
