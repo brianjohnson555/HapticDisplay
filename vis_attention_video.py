@@ -6,6 +6,7 @@ from torchvision import transforms
 import numpy as np
 import timm
 import dino
+import matplotlib
 import matplotlib.pyplot as plt
 from PIL import Image
 import cv2
@@ -13,7 +14,11 @@ import time
 import urllib.request
 import keyboard
 import matplotlib.animation as animation
+from ffmpeg import FFmpeg
 from time import sleep
+from pyrecorder.recorder import Recorder
+from pyrecorder.writers.video import Video
+matplotlib.use("Agg")
 
 device = torch.device("cpu")
 
@@ -49,7 +54,7 @@ while True:
     # img = cv2.addWeighted(img,1.5,img,0,1)
     
     image = Image.fromarray(img)
-    Tx = transforms.Resize((10*9,10*16))(image)
+    Tx = transforms.Resize((25*9,25*16))(image)
     Tx2 = transforms.ToTensor()(Tx).unsqueeze_(0)
     Tx3 = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])(Tx2)
     Tx3.requires_grad = True
@@ -63,26 +68,14 @@ while True:
     
     nh = attentions.shape[1]
     attentions = attentions[0, :, 0, 1:].reshape(nh,-1)
-    val, idx = torch.sort(attentions)
-    val /= torch.sum(val, dim=1, keepdim=True)
-    cumval = torch.cumsum(val, dim=1)
     patch_size = 4
     w_featmap = Tx3.shape[-2] // patch_size
     h_featmap = Tx3.shape[-1] // patch_size
-    threshold = 0.6 # We visualize masks obtained by thresholding the self-attention maps to keep xx% of the mass.
-    th_attn = cumval > (1 - threshold)
-    idx2 = torch.argsort(idx)
-    for head in range(0,nh):
-        th_attn[head] = th_attn[head][idx2[head]]
-
-    th_attn = th_attn.reshape(nh, w_featmap//2, h_featmap//2).float()
-
-    # interpolate
-    th_attn = nn.functional.interpolate(th_attn.unsqueeze(0), scale_factor=patch_size, mode="nearest")[0].detach().numpy()
 
     attentions = attentions.reshape(nh, w_featmap//2, h_featmap//2)
     attentions = nn.functional.interpolate(attentions.unsqueeze(0), scale_factor=patch_size, mode="nearest")[0].detach().numpy()
     attentions_mean = np.mean(attentions, axis=0)
+
     # if (previous_frame is None):
     #     # First frame; there is no previous one yet
     #     previous_frame = img
@@ -99,42 +92,51 @@ while True:
     # contours, _ = cv2.findContours(image=im, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
 
     # mini = cv2.resize(depth, (6,4), interpolation = cv2.INTER_AREA)
-    attentions_list.append(attentions_mean)
-    frames_list.append(frame)
 
-    # Compute depth
+
+    # Compute depth:
     input_batch = transform(img).to(device)
     with torch.no_grad():
         prediction = midas(input_batch)
         prediction = torch.nn.functional.interpolate(
             prediction.unsqueeze(1),
-            size=(10*9, 10*16),
+            size=(20*9, 20*16),
             mode="bicubic",
             align_corners=False,
         ).squeeze()
     output = prediction.cpu().numpy()
     depth = cv2.normalize(output, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
+    
+    # Update:
+    attentions_list.append(attentions_mean)
+    frames_list.append(frame)
     depth_list.append(depth)
 
 ims = []
 figure = plt.figure()
 
-for i in range(0,len(attentions_list)):
-    figure.add_subplot(3,1,1)
-    im = plt.imshow(frames_list[i], animated=True)
-    figure.add_subplot(3,1,2)
+# writer = Video("animation_depth.mp4")
+# with Recorder(writer) as rec:
+for i in range(0,len(frames_list)):
+    # figure.add_subplot(3,1,1)
+    # im = plt.imshow(frames_list[i], animated=True)
+    # figure.add_subplot(2,1,1)
     im2 = plt.imshow(attentions_list[i], animated=True)
-    figure.add_subplot(3,1,3)
-    im3 = plt.imshow(depth_list[i], animated=True)
+    # figure.add_subplot(2,1,2)
+    # im3 = plt.imshow(depth_list[i], animated=True)
     # if i == 0:
     #     figure.add_subplot(2,1,1)
     #     plt.imshow(frames_list[i], animated=True)
     #     figure.add_subplot(2,1,2)
     #     plt.imshow(attentions_list[i], animated=True)
-    ims.append([im, im2, im3])
+    ims.append([im2])
+    # rec.record()
 
 
-ani = animation.ArtistAnimation(figure, ims, blit=True, interval=50)
+ani = animation.ArtistAnimation(figure, ims, blit=False, repeat=False)
 
-input('Ready to display')
-plt.show()
+# input('Ready to display')
+# plt.show()
+
+ani.save('animation_attention.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+plt.close()
