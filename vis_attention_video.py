@@ -18,24 +18,41 @@ from ffmpeg import FFmpeg
 from time import sleep
 from pyrecorder.recorder import Recorder
 from pyrecorder.writers.video import Video
-matplotlib.use("Agg")
+# matplotlib.use("Agg")
 
 device = torch.device("cpu")
 
 #model = timm.create_model('vit_small_patch16_224_dino',pretrained=True)
 model = torch.hub.load('facebookresearch/dino:main','dino_vits8')
+# model = torch.hub.load('facebookresearch/dinov2','dinov2_vits14')
 
 
 # Load MiDaS model onto CPU
 device = torch.device('cpu')
-midas = torch.hub.load("intel-isl/MiDaS","MiDaS_small")
+# midas = torch.hub.load('intel-isl/MiDaS','DPT_Hybrid')
+midas = torch.hub.load('intel-isl/MiDaS','MiDaS_small')
+# midas = torch.hub.load('intel-isl/MiDaS', 'custom', path='../utilites/dpt_beit_large_512.pt', force_reload=True)
 midas.to(device)
 midas.eval()
 midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
 transform = midas_transforms.small_transform
 
+def get_last_self_attention(self, x, masks=None):
+    if isinstance(x, list):
+        return self.forward_features_list(x, masks)
+        
+    x = self.prepare_tokens_with_masks(x, masks)
+    
+    # Run through model, at the last block just return the attention.
+    for i, blk in enumerate(self.blocks):
+        if i < len(self.blocks) - 1:
+            x = blk(x)
+        else: 
+            return blk(x, return_attention=True)
+
+
 # Setup frame capture
-cap = cv2.VideoCapture('video3.mp4') #use video
+cap = cv2.VideoCapture('video4.mp4') #use video
 #cap = cv2.VideoCapture(0) #stream from webcam
 previous_frame = None
 
@@ -54,7 +71,7 @@ while True:
     # img = cv2.addWeighted(img,1.5,img,0,1)
     
     image = Image.fromarray(img)
-    Tx = transforms.Resize((25*9,25*16))(image)
+    Tx = transforms.Resize((5*9,5*16))(image)
     Tx2 = transforms.ToTensor()(Tx).unsqueeze_(0)
     Tx3 = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])(Tx2)
     Tx3.requires_grad = True
@@ -115,28 +132,28 @@ while True:
 ims = []
 figure = plt.figure()
 
-# writer = Video("animation_depth.mp4")
-# with Recorder(writer) as rec:
+
 for i in range(0,len(frames_list)):
-    # figure.add_subplot(3,1,1)
+    # figure.add_subplot(2,1,1)
     # im = plt.imshow(frames_list[i], animated=True)
     # figure.add_subplot(2,1,1)
-    im2 = plt.imshow(attentions_list[i], animated=True)
+    # im2 = plt.imshow(attentions_list[i], animated=True)
     # figure.add_subplot(2,1,2)
-    # im3 = plt.imshow(depth_list[i], animated=True)
+    im3 = plt.imshow(depth_list[i], animated=True)
     # if i == 0:
-    #     figure.add_subplot(2,1,1)
-    #     plt.imshow(frames_list[i], animated=True)
-    #     figure.add_subplot(2,1,2)
-    #     plt.imshow(attentions_list[i], animated=True)
-    ims.append([im2])
-    # rec.record()
+    #     figure.add_subplot(3,1,1)
+    #     im = plt.imshow(frames_list[i], animated=True)
+    #     figure.add_subplot(3,1,2)
+    #     im2 = plt.imshow(attentions_list[i], animated=True)
+    #     figure.add_subplot(3,1,3)
+    #     im3 = plt.imshow(depth_list[i], animated=True)
+    ims.append([im3])
 
 
-ani = animation.ArtistAnimation(figure, ims, blit=False, repeat=False)
+ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
 
 # input('Ready to display')
 # plt.show()
 
-ani.save('animation_attention.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+ani.save('animation4_attentions.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
 plt.close()
