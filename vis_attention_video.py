@@ -56,6 +56,8 @@ previous_frame = None
 frames_list = []
 attentions_list = []
 depth_list = []
+combined_list = []
+Hasel_list = []
 
 while True: 
     # Load frame
@@ -68,7 +70,7 @@ while True:
     # img = cv2.addWeighted(img,1.5,img,0,1)
     
     image = Image.fromarray(img)
-    Tx = transforms.Resize((5*9,5*16))(image)
+    Tx = transforms.Resize((20*9,20*16))(image)
     Tx2 = transforms.ToTensor()(Tx).unsqueeze_(0)
     Tx3 = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])(Tx2)
     Tx3.requires_grad = True
@@ -87,25 +89,8 @@ while True:
     h_featmap = Tx3.shape[-1] // patch_size
 
     attentions = attentions.reshape(nh, w_featmap//2, h_featmap//2)
-    attentions = nn.functional.interpolate(attentions.unsqueeze(0), scale_factor=patch_size, mode="nearest")[0].detach().numpy()
+    attentions = nn.functional.interpolate(attentions.unsqueeze(0), scale_factor=1, mode="nearest")[0].detach().numpy()
     attentions_mean = np.mean(attentions, axis=0)
-
-    # if (previous_frame is None):
-    #     # First frame; there is no previous one yet
-    #     previous_frame = img
-    #     continue
-    # # calculate difference and update previous frame
-    # diff_frame = cv2.absdiff(src1=previous_frame, src2=img)
-    # previous_frame = img
-    # # 4. Dilute the image a bit to make differences more seeable; more suitable for contour detection
-    # kernel = np.ones((5, 5))
-    # diff_frame = cv2.dilate(diff_frame, kernel, 1)
-    # # 5. Only take different areas that are different enough (>20 / 255)
-    # thresh_frame = cv2.threshold(src=diff_frame, thresh=100, maxval=255, type=cv2.THRESH_BINARY)[1]
-    # im = cv2.cvtColor(thresh_frame, cv2.COLOR_BGR2GRAY)
-    # contours, _ = cv2.findContours(image=im, mode=cv2.RETR_EXTERNAL, method=cv2.CHAIN_APPROX_SIMPLE)
-
-    # mini = cv2.resize(depth, (6,4), interpolation = cv2.INTER_AREA)
 
 
     # Compute depth:
@@ -118,39 +103,69 @@ while True:
             mode="bicubic",
             align_corners=False,
         ).squeeze()
-    output = prediction.cpu().numpy()
-    depth = cv2.normalize(output, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
+    depth = prediction.cpu().numpy()
     
+    new_size = attentions_mean.shape
+
+    depth_re = cv2.resize(depth, dsize=(new_size[1], new_size[0]), interpolation=cv2.INTER_CUBIC)
+    depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
+    attentions_nm = cv2.normalize(attentions_mean, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
+
+    combined = depth_nm * attentions_nm
+    combined = (combined > 0.1) * combined
+    Hasel = cv2.resize(combined, dsize=(10, 6), interpolation=cv2.INTER_CUBIC)
+
     # Update:
     attentions_list.append(attentions_mean)
-    frames_list.append(frame)
     depth_list.append(depth)
+    frames_list.append(frame)
+    combined_list.append(combined)
+    Hasel_list.append(Hasel)
 
 ims = []
 figure = plt.figure()
-
-
 for i in range(0,len(frames_list)):
-    # figure.add_subplot(2,1,1)
-    # im = plt.imshow(frames_list[i], animated=True)
-    # figure.add_subplot(2,1,1)
-    # im2 = plt.imshow(attentions_list[i], animated=True)
-    # figure.add_subplot(2,1,2)
-    im3 = plt.imshow(depth_list[i], animated=True)
-    # if i == 0:
-    #     figure.add_subplot(3,1,1)
-    #     im = plt.imshow(frames_list[i], animated=True)
-    #     figure.add_subplot(3,1,2)
-    #     im2 = plt.imshow(attentions_list[i], animated=True)
-    #     figure.add_subplot(3,1,3)
-    #     im3 = plt.imshow(depth_list[i], animated=True)
-    ims.append([im3])
-
-
+    im = plt.imshow(attentions_list[i], animated=True)
+    ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+ani.save('animation4_attention20.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+plt.close()
+
+ims = []
+figure = plt.figure()
+for i in range(0,len(frames_list)):
+    im = plt.imshow(frames_list[i], animated=True)
+    ims.append([im])
+ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+ani.save('animation4_frames.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+plt.close()
+
+ims = []
+figure = plt.figure()
+for i in range(0,len(frames_list)):
+    im = plt.imshow(depth_list[i], animated=True)
+    ims.append([im])
+ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+ani.save('animation4_depth20.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+plt.close()
+
+ims = []
+figure = plt.figure()
+for i in range(0,len(frames_list)):
+    im = plt.imshow(combined_list[i], animated=True)
+    ims.append([im])
+ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+ani.save('animation4_combined2020.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+plt.close()
+
+ims = []
+figure = plt.figure()
+for i in range(0,len(frames_list)):
+    im = plt.imshow(Hasel_list[i], animated=True)
+    ims.append([im])
+ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+ani.save('animation4_HASEL_10_6.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+plt.close()
 
 # input('Ready to display')
 # plt.show()
-
-ani.save('animation4_attentions.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
-plt.close()
