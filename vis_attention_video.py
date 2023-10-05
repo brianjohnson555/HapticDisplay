@@ -14,10 +14,7 @@ import time
 import urllib.request
 import keyboard
 import matplotlib.animation as animation
-from ffmpeg import FFmpeg
 from time import sleep
-from pyrecorder.recorder import Recorder
-from pyrecorder.writers.video import Video
 # matplotlib.use("Agg")
 
 device = torch.device("cpu")
