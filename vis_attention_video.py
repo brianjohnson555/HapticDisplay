@@ -49,7 +49,7 @@ def get_last_self_attention(self, x, masks=None):
 
 
 # Setup frame capture
-cap = cv2.VideoCapture('video4.mp4') #use video
+cap = cv2.VideoCapture('video5.mp4') #use video
 #cap = cv2.VideoCapture(0) #stream from webcam
 previous_frame = None
 
@@ -70,7 +70,7 @@ while True:
     # img = cv2.addWeighted(img,1.5,img,0,1)
     
     image = Image.fromarray(img)
-    Tx = transforms.Resize((20*9,20*16))(image)
+    Tx = transforms.Resize((50*9,50*16))(image)
     Tx2 = transforms.ToTensor()(Tx).unsqueeze_(0)
     Tx3 = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])(Tx2)
     Tx3.requires_grad = True
@@ -128,7 +128,7 @@ for i in range(0,len(frames_list)):
     im = plt.imshow(attentions_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-ani.save('animation4_attention20.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+ani.save('animation5_attention20.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
 plt.close()
 
 ims = []
@@ -137,7 +137,7 @@ for i in range(0,len(frames_list)):
     im = plt.imshow(frames_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-ani.save('animation4_frames.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+ani.save('animation5_frames.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
 plt.close()
 
 ims = []
@@ -146,7 +146,7 @@ for i in range(0,len(frames_list)):
     im = plt.imshow(depth_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-ani.save('animation4_depth20.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+ani.save('animation5_depth20.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
 plt.close()
 
 ims = []
@@ -155,7 +155,7 @@ for i in range(0,len(frames_list)):
     im = plt.imshow(combined_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-ani.save('animation4_combined2020.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+ani.save('animation5_combined2020.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
 plt.close()
 
 ims = []
@@ -164,7 +164,7 @@ for i in range(0,len(frames_list)):
     im = plt.imshow(Hasel_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-ani.save('animation4_HASEL_10_6.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
+ani.save('animation5_HASEL_10_6.mp4', writer = 'ffmpeg', bitrate=1000, fps=15)
 plt.close()
 
 # input('Ready to display')
