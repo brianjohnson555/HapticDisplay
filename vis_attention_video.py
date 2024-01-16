@@ -14,7 +14,6 @@ import time
 import urllib.request
 import keyboard
 import matplotlib.animation as animation
-from time import sleep
 # matplotlib.use("Agg")
 
 device = torch.device("cpu")
@@ -53,7 +52,7 @@ def get_last_self_attention(self, x, masks=None):
 
 
 # Setup frame capture
-video = 'boat'
+video = 'truck'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 #cap = cv2.VideoCapture(0) #stream from webcam
 previous_frame = None
@@ -63,9 +62,7 @@ attentions_list = []
 depth_list = []
 combined_list = []
 Hasel_list = []
-imsize = [15, 30, 45]
-attentions_mean = [[], [], []]
-depth = [[], [], []]
+imsize = [5, 10, 15]
 
 while True: 
     # Load frame
@@ -80,9 +77,22 @@ while True:
     ### Compute attention ###    
     image = Image.fromarray(img)
     input_batch = transform(img).to(device)
+
+    attentions_mean = []
+    depth = []
+    combined = []
+    Hasel = []
+    frames = []
+
     for ii in range(0,len(imsize)):
-        Tx = transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])(transforms.ToTensor()(transforms.Resize((imsize[ii]*9,imsize[ii]*16))(image)).unsqueeze_(0))
+        Tx = nn.Sequential([
+            transforms.Resize((imsize[ii]*9,imsize[ii]*16))(image),
+            transforms.ToTensor(),
+            transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225]),
+        ])
         Tx.requires_grad = True
+
+        Tx_img = Tx(image)
 
         attentions = dino8.get_last_selfattention(Tx)
     
@@ -94,11 +104,11 @@ while True:
 
         attentions = attentions.reshape(nh, w_featmap//2, h_featmap//2)
         attentions = nn.functional.interpolate(attentions.unsqueeze(0), scale_factor=1, mode="nearest")[0].detach().numpy()
-        attentions_mean[ii] = np.mean(attentions, axis=0)
+        attentions_mean.append(np.mean(attentions, axis=0))
 
     ### Compute depth ###
-    # start_time = time.time()
-    # print("--- %s seconds ---" % (time.time() - start_time))
+        start_time = time.time()
+    
 
         with torch.no_grad():
             prediction = midas_s(input_batch)
@@ -108,24 +118,22 @@ while True:
                 mode="bicubic",
                 align_corners=False,
             ).squeeze()
-        depth[ii] = prediction.cpu().numpy()
-    
-        new_size = attentions_mean[0].shape
+        depth.append(prediction.cpu().numpy())
+        print("--- %s seconds ---" % (time.time() - start_time))
+        new_size = attentions_mean[ii].shape
 
         depth_re = cv2.resize(depth[ii], dsize=(new_size[1], new_size[0]), interpolation=cv2.INTER_CUBIC)
         depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
         attentions_nm = cv2.normalize(attentions_mean[ii], None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
-
-    print(type(depth_re))
-    print(type(depth_nm))
-    combined = depth_nm * attentions_nm
-    combined = (combined > 0.1) * combined
-    Hasel = cv2.resize(combined, dsize=(10, 6), interpolation=cv2.INTER_CUBIC)
+        combined.append(depth_nm * attentions_nm)
+        combined[ii] = (combined[ii] > 0.1) * combined[ii]
+        Hasel.append(cv2.resize(combined[ii], dsize=(10, 6), interpolation=cv2.INTER_CUBIC))
+        frames.append(frame)
 
     ### Update ###
     attentions_list.append(attentions_mean)
     depth_list.append(depth)
-    frames_list.append(frame)
+    frames_list.append(frames)
     combined_list.append(combined)
     Hasel_list.append(Hasel)
     print(len(frames_list))
@@ -135,14 +143,15 @@ name_list = ["frames", "attention", "depth", "combined", "HASEL"]
 
 for i in range(0,len(data_list)):
     print("Plotting %i list data" % (i))
-    ims = []
-    figure = plt.figure()
-    for j in range(0,len(frames_list)):
-        im = plt.imshow(data_list[i][j], animated=True)
-        ims.append([im])
-    ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-    filename = "animation_" + video + "_" + name_list[i] + ".mp4"
-    ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=15)
-    plt.close()
+    for k in range(0,len(imsize)):
+        ims = []
+        figure = plt.figure()
+        for j in range(0,len(frames_list)):
+            im = plt.imshow(data_list[i][j][k], animated=True)
+            ims.append([im])
+        ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+        filename = "animation_" + video + "_" + name_list[i] + "_" + str(imsize[k]) + ".mp4"
+        ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=15)
+        plt.close()
 
 print("Finished!")
