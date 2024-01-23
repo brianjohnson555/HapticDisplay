@@ -10,20 +10,25 @@ import numpy as np
 from PIL import Image
 import cv2
 
-###### INITIALIZATIONS ######
+################## INITIALIZATIONS ##################
 ## Setting up Tkinter
 window = tk.Tk()
-TKframe_images = []
-for ii in range(0,5):
+
+TKframe_images = [] # Create empty frames for figures
+for ii in range(0,6):
     TKframe_images.append(tk.Frame(master=window))
-TKframe_labels = []
+
+TKframe_labels = [] # Create empty frames for labels
 for ii in range(0,5):
     TKframe_labels.append(tk.Frame(master=window))
-TKframe_entries = []
+
+TKframe_entries = [] # Create empty frames for data entry slots
 for ii in range(0,5):
     TKframe_entries.append(tk.Frame(master=window))
-TKframe_buttons = [tk.Frame(master=window)]
 
+TKframe_buttons = [tk.Frame(master=window)] # Create empty frames for buttons
+
+# Place all frames in the grid
 TKframe_labels[0].grid(row=0, column=0, padx=5, pady=5)
 TKframe_labels[1].grid(row=1, column=0, padx=5, pady=5)
 TKframe_labels[2].grid(row=2, column=0, padx=5, pady=5)
@@ -40,7 +45,27 @@ TKframe_images[1].grid(row=0, column=3, rowspan=2)
 TKframe_images[2].grid(row=2, column=2, rowspan=2)
 TKframe_images[3].grid(row=2, column=3, rowspan=2)
 TKframe_images[4].grid(row=4, column=2, rowspan=2)
+TKframe_images[5].grid(row=4, column=3, rowspan=2)
 
+## Define figure plots
+fig1 = Figure(figsize=(5,3))
+plot1 = fig1.add_subplot(111)
+CANVAS1 = FigureCanvasTkAgg(fig1, master=TKframe_images[0])
+fig2 = Figure(figsize=(5,3))
+plot2 = fig2.add_subplot(111)
+CANVAS2 = FigureCanvasTkAgg(fig2, master=TKframe_images[1])
+fig3 = Figure(figsize=(5,3))
+plot3 = fig3.add_subplot(111)
+CANVAS3 = FigureCanvasTkAgg(fig3, master=TKframe_images[2])
+fig4 = Figure(figsize=(5,3))
+plot4 = fig4.add_subplot(111)
+CANVAS4 = FigureCanvasTkAgg(fig4, master=TKframe_images[3])
+fig5 = Figure(figsize=(5,3))
+plot5 = fig5.add_subplot(111)
+CANVAS5 = FigureCanvasTkAgg(fig5, master=TKframe_images[4])
+fig6 = Figure(figsize=(5,3))
+plot6 = fig6.add_subplot(111)
+CANVAS6 = FigureCanvasTkAgg(fig6, master=TKframe_images[5])
 
 ## Setting up torch device and model, video input
 device = torch.device("cpu")
@@ -51,29 +76,30 @@ midas_s = torch.hub.load('intel-isl/MiDaS','DPT_Hybrid')
 midas_transforms = torch.hub.load('intel-isl/MiDaS','transforms')
 midas_s.to(device)
 midas_s.eval()
-video = 'boat'
+video = 'street'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
-###### HYPERPARAMETERS ######
-FRAME_NUM = 1
-RESOLUTION_ATT = 150
-THRESHOLD_VAL = 0.1
-BIAS = 0.5
-DISPLAY_W = 10
-DISPLAY_H = 6
-ATTENTION = []
-DEPTH = []
-COMBINED = []
+################## HYPERPARAMETERS ##################
+FRAME_NUM = 1 # starting frame
+RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
+THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
+BIAS = 0.75 # bias towards attention for attention+depth combination
+DISPLAY_W = 10 # HASEL haptic display width
+DISPLAY_H = 6 # HASEL haptic display height
+ATTENTION = [] # will become torch tensor holding attention data
+DEPTH = [] # will become torch tensor holding depth data
+COMBINED = [] # will become 
 THRESHOLDED = []
 DOWNSAMPLED = []
 
-###### DEFINE FUNCTIONS ######
+################## DEFINE FUNCTIONS ##################
 ## Function to grab single video frame
 def grab_frame(cap=cap,frame_num=1):
     global IMG
     global FRAME
     for num in range(0, frame_num):
-        ret, img = cap.read()
+        ret = cap.grab()
+    ret, img = cap.retrieve()
     IMG = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
     FRAME = Image.fromarray(img)
     return FRAME, IMG
@@ -121,7 +147,7 @@ def get_combined():
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     attention_re = cv2.resize(attention, dsize=(720, 1280), interpolation=cv2.INTER_CUBIC)
     attention_nm = cv2.normalize(attention_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
-    combined = (depth_nm * (BIAS)*attention_nm)
+    combined = ((1-BIAS)*depth_nm + (BIAS)*attention_nm)
     combined = cv2.normalize(combined, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_64F)
     return combined
 
@@ -138,7 +164,7 @@ def get_downsample():
     threshold = THRESHOLDED
     return cv2.resize(threshold, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_CUBIC)
 
-## Function to plot the self attention and original frame together
+# Function to plot the self attention and original frame together
 def plot_overlay(canvas, plot, data, title="default"):
     global FRAME
     canvas.draw()
@@ -147,17 +173,24 @@ def plot_overlay(canvas, plot, data, title="default"):
     plot.imshow(data, alpha=0.6,extent=extent1)
     plot.set_title(title)
     canvas.draw()
-    # data.repeat(scale,axis=0).repeat(scale,axis=1)
 
-## Advance frame
-def update_frame():
+# Plot just one set of data (not overlaid)
+def plot_single(canvas, plot, data, title="default"):
+    canvas.draw()
+    extent1 = 0, 1280, 0, 720
+    plot.imshow(data, extent=extent1)
+    plot.set_title(title)
+    canvas.draw()
+
+# Advance frame by certain number of steps (default=1)
+def update_frame(frame_step=1):
     global FRAME_NUM
     global FRAME
-    FRAME_NUM += 1
+    FRAME_NUM += frame_step
     FRAME, IMG = grab_frame(frame_num=FRAME_NUM)
     update_all()
 
-## Update all plots
+# Update all plots
 def update_all():
     update_attentions()
     update_depth()
@@ -165,7 +198,7 @@ def update_all():
     update_threshold()
     update_downsample()
 
-## Update plot with new parameters
+# Update plot with new parameters
 def update_attentions():
     global RESOLUTION_ATT
     global ATTENTION
@@ -201,32 +234,22 @@ def update_downsample():
     DOWNSAMPLED = get_downsample()
     plot_overlay(CANVAS5, plot5, DOWNSAMPLED, f"Downsampled (display resolution={DISPLAY_H}x{DISPLAY_W})")
 
-###### First run of the algo ######
+
+################## First run of the algo ##################
 FRAME, IMG = grab_frame()
-fig1 = Figure(figsize=(5,3))
-plot1 = fig1.add_subplot(111)
-CANVAS1 = FigureCanvasTkAgg(fig1, master=TKframe_images[0])
-fig2 = Figure(figsize=(5,3))
-plot2 = fig2.add_subplot(111)
-CANVAS2 = FigureCanvasTkAgg(fig2, master=TKframe_images[1])
-fig3 = Figure(figsize=(5,3))
-plot3 = fig3.add_subplot(111)
-CANVAS3 = FigureCanvasTkAgg(fig3, master=TKframe_images[2])
-fig4 = Figure(figsize=(5,3))
-plot4 = fig4.add_subplot(111)
-CANVAS4 = FigureCanvasTkAgg(fig4, master=TKframe_images[3])
-fig5 = Figure(figsize=(5,3))
-plot5 = fig5.add_subplot(111)
-CANVAS5 = FigureCanvasTkAgg(fig5, master=TKframe_images[4])
+
+
+# First run:
 update_all()
 CANVAS1.get_tk_widget().pack()
 CANVAS2.get_tk_widget().pack()
 CANVAS3.get_tk_widget().pack()
 CANVAS4.get_tk_widget().pack()
 CANVAS5.get_tk_widget().pack()
+CANVAS6.get_tk_widget().pack()
 
-###### TKINTER LABELS AND INPUTS ######
-# 
+################## TKINTER LABELS AND INPUTS ###################
+# Set up labels
 label1 = tk.Label(text="Advance frame", master=TKframe_labels[0])
 label1.pack()
 label2 = tk.Label(text="Set attention resolution", master=TKframe_labels[1])
@@ -238,8 +261,7 @@ label4.pack()
 label5 = tk.Label(text="Set display grid (W x H)", master=TKframe_labels[4])
 label5.pack()
 
-
-# Set up user input
+# Set up user input with entries
 entry1 = tk.Entry(width=5, master=TKframe_entries[0])
 entry1.pack()
 entry2 = tk.Entry(width=5, master=TKframe_entries[1])
@@ -254,13 +276,15 @@ entry5.pack()
 # Advance frame button
 next_button = tk.Button(text="Next frame", master=TKframe_buttons[0])
 next_button.pack()
+next_10_button = tk.Button(text="Next 10th frame", master=TKframe_buttons[0])
+next_10_button.pack()
 
-###### EVENT HANDLES ######
-# Do this when Enter key is pressed on the Entry item
+################## EVENT HANDLES ##################
+### Do this when Enter key is pressed on the Entry item:
+# for attention resolution
 def handle_keypress_att(entry):
     global RESOLUTION_ATT
-    print("Here I am!")
-    if not entry1.get():
+    if not entry1.get(): # if user hasn't input anything, do nothing
         pass
     else:
         RESOLUTION_ATT = int(entry1.get())
@@ -269,6 +293,7 @@ def handle_keypress_att(entry):
     update_threshold()
     update_downsample()
 
+# for bias
 def handle_keypress_bias(entry):
     global BIAS
     if not entry2.get():
@@ -279,6 +304,7 @@ def handle_keypress_bias(entry):
     update_threshold()
     update_downsample()
 
+# for threshold value
 def handle_keypress_thresh(entry):
     global THRESHOLD_VAL
     if not entry3.get():
@@ -288,6 +314,7 @@ def handle_keypress_thresh(entry):
     update_threshold()
     update_downsample()
 
+# for haptic display width
 def handle_keypress_disp_W(entry):
     global DISPLAY_W
     if not entry4.get():
@@ -296,6 +323,7 @@ def handle_keypress_disp_W(entry):
         DISPLAY_W = int(entry4.get())
     update_downsample()
 
+# for haptic display height
 def handle_keypress_disp_H(entry):
     global DISPLAY_H
     if not entry5.get():
@@ -304,6 +332,7 @@ def handle_keypress_disp_H(entry):
         DISPLAY_H = int(entry5.get())
     update_downsample()
 
+# bind all entries to the events
 entry1.bind("<Return>", handle_keypress_att)
 entry2.bind("<Return>", handle_keypress_bias)
 entry3.bind("<Return>", handle_keypress_thresh)
@@ -312,9 +341,13 @@ entry5.bind("<Return>", handle_keypress_disp_H)
 
 # Do this when the "Next frame" button is pressed:
 def handle_buttonpress(event):
-    update_frame()
-next_button.bind("<Button>", handle_buttonpress)
+    update_frame(1)
+next_button.bind("<Button>", handle_buttonpress) # bind to Next Frame button
+
+def handle_buttonpress(event):
+    update_frame(10)
+next_10_button.bind("<Button>", handle_buttonpress) # bind to Next 10th Frame button
 
 
-###### RUN TKINTER ######
+################## RUN TKINTER ##################
 window.mainloop()
