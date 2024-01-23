@@ -1,6 +1,6 @@
 ## Importing packages
 import tkinter as tk
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg #interface matplotlib with tkinter
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import torch
@@ -76,7 +76,7 @@ midas_s = torch.hub.load('intel-isl/MiDaS','DPT_Hybrid')
 midas_transforms = torch.hub.load('intel-isl/MiDaS','transforms')
 midas_s.to(device)
 midas_s.eval()
-video = 'street'
+video = 'truck'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
 ################## HYPERPARAMETERS ##################
@@ -84,8 +84,8 @@ FRAME_NUM = 1 # starting frame
 RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
 THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
 BIAS = 0.75 # bias towards attention for attention+depth combination
-DISPLAY_W = 10 # HASEL haptic display width
-DISPLAY_H = 6 # HASEL haptic display height
+DISPLAY_W = 10 # HASEL haptic display width (pixels)
+DISPLAY_H = 6 # HASEL haptic display height (pixels)
 ATTENTION = [] # will become torch tensor holding attention data
 DEPTH = [] # will become torch tensor holding depth data
 COMBINED = [] # will become 
@@ -93,18 +93,18 @@ THRESHOLDED = []
 DOWNSAMPLED = []
 
 ################## DEFINE FUNCTIONS ##################
-## Function to grab single video frame
+# Grab video frame (next frame if frame_num=1 or nth frame if =n)
 def grab_frame(cap=cap,frame_num=1):
     global IMG
     global FRAME
-    for num in range(0, frame_num):
+    for num in range(0, frame_num): # iterate through the frame numbers to get the next desired frame
         ret = cap.grab()
-    ret, img = cap.retrieve()
-    IMG = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
-    FRAME = Image.fromarray(img)
+    ret, img = cap.retrieve() # retrieve the desired frame
+    IMG = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # color conversion
+    FRAME = Image.fromarray(img) # convert data type
     return FRAME, IMG
 
-## Function to get self attention from video frame using DINO
+# Get self attention from video frame using DINO
 def get_attention():
     global FRAME
     frame= FRAME
@@ -128,6 +128,7 @@ def get_attention():
     attentions_mean = (np.mean(attentions, axis=0))
     return attentions_mean
 
+# get depth estimation of frame using MiDaS
 def get_depth():
     global IMG
     img = IMG
@@ -135,9 +136,19 @@ def get_depth():
     frame_t = transform2(img)
     depth = midas_s(frame_t)
     depth = depth.cpu().detach().numpy().squeeze(0)
-    return depth
+    
+    ## EXPERIMENTAL: remove normal depth gradient from depth map
+    depth_nm = cv2.normalize(depth, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
+    xgrid = np.zeros(672, dtype=float)
+    ygrid = np.linspace(0, 1, num=384, dtype=float)
+    grad_array = np.meshgrid(xgrid, ygrid)[1]
+    depth_sub = (depth_nm - grad_array)
+    depth_sub = (depth_sub > 0) * depth_sub
 
-def get_combined():
+    return depth_sub
+
+# combine depth and attention maps together
+def get_combined(method='sum'):
     global BIAS
     global DEPTH
     global ATTENTION
@@ -147,16 +158,23 @@ def get_combined():
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     attention_re = cv2.resize(attention, dsize=(720, 1280), interpolation=cv2.INTER_CUBIC)
     attention_nm = cv2.normalize(attention_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
-    combined = ((1-BIAS)*depth_nm + (BIAS)*attention_nm)
+
+    if method=='multiply':
+        combined = depth_nm*attention_nm
+    elif method=='sum':
+        combined = ((1-BIAS)*depth_nm + (BIAS)*attention_nm)
     combined = cv2.normalize(combined, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_64F)
+
     return combined
 
+# threshold the combined map to threshold_val
 def get_threshold():
     global THRESHOLD_VAL
     global COMBINED
     combined = COMBINED
     return (combined > THRESHOLD_VAL) * combined
 
+# downsample the thresholded map to the grid size of the haptic display
 def get_downsample():
     global DISPLAY_H
     global DISPLAY_W
@@ -170,7 +188,7 @@ def plot_overlay(canvas, plot, data, title="default"):
     canvas.draw()
     extent1 = 0, 1280, 0, 720
     plot.imshow(FRAME, extent=extent1)
-    plot.imshow(data, alpha=0.6,extent=extent1)
+    plot.imshow(data, alpha=0.8,extent=extent1)
     plot.set_title(title)
     canvas.draw()
 
@@ -187,7 +205,7 @@ def update_frame(frame_step=1):
     global FRAME_NUM
     global FRAME
     FRAME_NUM += frame_step
-    FRAME, IMG = grab_frame(frame_num=FRAME_NUM)
+    FRAME, IMG = grab_frame(frame_num=frame_step)
     update_all()
 
 # Update all plots
@@ -197,8 +215,9 @@ def update_all():
     update_combined()
     update_threshold()
     update_downsample()
+    plot_single(CANVAS6, plot6, IMG,"Original frame")
 
-# Update plot with new parameters
+# Update attention plot with new results
 def update_attentions():
     global RESOLUTION_ATT
     global ATTENTION
@@ -206,12 +225,14 @@ def update_attentions():
     ATTENTION = get_attention()
     plot_overlay(CANVAS1, plot1, ATTENTION, f"Attention (resolution={RESOLUTION_ATT})")
 
+# update depth plot with new results
 def update_depth():
     global DEPTH
     global CANVAS2
     DEPTH = get_depth()
     plot_overlay(CANVAS2, plot2, DEPTH, f"Depth (model=Hybrid)")
 
+# update combined plot with new results
 def update_combined():
     global BIAS
     global COMBINED
@@ -219,6 +240,7 @@ def update_combined():
     COMBINED = get_combined()
     plot_overlay(CANVAS3, plot3, COMBINED, f"Combined (bias towards attention={BIAS})")
 
+# update thresholded plot with new results
 def update_threshold():
     global THRESHOLD_VAL
     global THRESHOLDED
@@ -226,6 +248,7 @@ def update_threshold():
     THRESHOLDED = get_threshold()
     plot_overlay(CANVAS4, plot4, THRESHOLDED, f"Threshold (cutoff:{THRESHOLD_VAL})")
 
+# update downsampled plot with new results
 def update_downsample():
     global DOWNSAMPLED
     global DISPLAY_H
@@ -237,9 +260,6 @@ def update_downsample():
 
 ################## First run of the algo ##################
 FRAME, IMG = grab_frame()
-
-
-# First run:
 update_all()
 CANVAS1.get_tk_widget().pack()
 CANVAS2.get_tk_widget().pack()
