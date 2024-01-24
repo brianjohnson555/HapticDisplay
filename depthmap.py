@@ -14,8 +14,8 @@ midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
 transform = midas_transforms.small_transform
 
 # Setup frame capture
-cap = cv2.VideoCapture('video2.mp4') #use video
-# cap = cv2.VideoCapture(0) #stream from webcam
+# cap = cv2.VideoCapture('video2.mp4') #use video
+cap = cv2.VideoCapture(0) #stream from webcam
 previous_frame = None
     
 while True: 

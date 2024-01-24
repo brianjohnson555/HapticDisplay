@@ -15,7 +15,7 @@ import cv2
 window = tk.Tk()
 
 TKframe_images = [] # Create empty frames for figures
-for ii in range(0,6):
+for ii in range(0,7):
     TKframe_images.append(tk.Frame(master=window))
 
 TKframe_labels = [] # Create empty frames for labels
@@ -28,7 +28,7 @@ for ii in range(0,5):
 
 TKframe_buttons = [tk.Frame(master=window)] # Create empty frames for buttons
 
-# Place all frames in the grid
+## Place all frames in the grid
 TKframe_labels[0].grid(row=0, column=0, padx=5, pady=5)
 TKframe_labels[1].grid(row=1, column=0, padx=5, pady=5)
 TKframe_labels[2].grid(row=2, column=0, padx=5, pady=5)
@@ -46,37 +46,33 @@ TKframe_images[2].grid(row=2, column=2, rowspan=2)
 TKframe_images[3].grid(row=2, column=3, rowspan=2)
 TKframe_images[4].grid(row=4, column=2, rowspan=2)
 TKframe_images[5].grid(row=4, column=3, rowspan=2)
+TKframe_images[6].grid(row=0, column=4, rowspan=2)
 
 ## Define figure plots
-fig1 = Figure(figsize=(5,3))
-plot1 = fig1.add_subplot(111)
-CANVAS1 = FigureCanvasTkAgg(fig1, master=TKframe_images[0])
-fig2 = Figure(figsize=(5,3))
-plot2 = fig2.add_subplot(111)
-CANVAS2 = FigureCanvasTkAgg(fig2, master=TKframe_images[1])
-fig3 = Figure(figsize=(5,3))
-plot3 = fig3.add_subplot(111)
-CANVAS3 = FigureCanvasTkAgg(fig3, master=TKframe_images[2])
-fig4 = Figure(figsize=(5,3))
-plot4 = fig4.add_subplot(111)
-CANVAS4 = FigureCanvasTkAgg(fig4, master=TKframe_images[3])
-fig5 = Figure(figsize=(5,3))
-plot5 = fig5.add_subplot(111)
-CANVAS5 = FigureCanvasTkAgg(fig5, master=TKframe_images[4])
-fig6 = Figure(figsize=(5,3))
-plot6 = fig6.add_subplot(111)
-CANVAS6 = FigureCanvasTkAgg(fig6, master=TKframe_images[5])
+figlist = []
+plotlist = []
+canvaslist = []
+for fignum in range(0,7): # seven figures in total (for now)
+    figlist.append(Figure(figsize=(5,3)))
+    plotlist.append(figlist[fignum].add_subplot(111))
+    canvaslist.append(FigureCanvasTkAgg(figlist[fignum], master=TKframe_images[fignum]))
 
 ## Setting up torch device and model, video input
 device = torch.device("cpu")
 dino8 = torch.hub.load('facebookresearch/dino:main','dino_vits8')
 dino8.to(device)
 dino8.eval()
-midas_s = torch.hub.load('intel-isl/MiDaS','DPT_Hybrid')
+midas_h = torch.hub.load('intel-isl/MiDaS','DPT_Hybrid')
+midas_l = torch.hub.load('intel-isl/MiDaS','DPT_Large')
+midas_s = torch.hub.load('intel-isl/MiDaS','MiDaS_small')
 midas_transforms = torch.hub.load('intel-isl/MiDaS','transforms')
+midas_h.to(device)
+midas_h.eval()
+midas_l.to(device)
+midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'truck'
+video = 'street'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
 ################## HYPERPARAMETERS ##################
@@ -140,12 +136,13 @@ def get_depth():
     ## EXPERIMENTAL: remove normal depth gradient from depth map
     depth_nm = cv2.normalize(depth, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     xgrid = np.zeros(672, dtype=float)
-    ygrid = np.linspace(0, 1, num=384, dtype=float)
+    # ygrid = np.logspace(-1, 0, num=384, dtype=float)
+    ygrid = depth_nm.mean(axis=1)
     grad_array = np.meshgrid(xgrid, ygrid)[1]
     depth_sub = (depth_nm - grad_array)
     depth_sub = (depth_sub > 0) * depth_sub
 
-    return depth_sub
+    return depth, depth_sub
 
 # combine depth and attention maps together
 def get_combined(method='sum'):
@@ -180,7 +177,7 @@ def get_downsample():
     global DISPLAY_W
     global THRESHOLDED
     threshold = THRESHOLDED
-    return cv2.resize(threshold, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_CUBIC)
+    return cv2.resize(threshold, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA)
 
 # Function to plot the self attention and original frame together
 def plot_overlay(canvas, plot, data, title="default"):
@@ -215,58 +212,50 @@ def update_all():
     update_combined()
     update_threshold()
     update_downsample()
-    plot_single(CANVAS6, plot6, IMG,"Original frame")
+    plot_single(canvaslist[5], plotlist[5], IMG,"Original frame")
 
 # Update attention plot with new results
 def update_attentions():
     global RESOLUTION_ATT
     global ATTENTION
-    global CANVAS1
     ATTENTION = get_attention()
-    plot_overlay(CANVAS1, plot1, ATTENTION, f"Attention (resolution={RESOLUTION_ATT})")
+    plot_overlay(canvaslist[0], plotlist[0], ATTENTION, f"STEP1: Attention (resolution={RESOLUTION_ATT})")
 
 # update depth plot with new results
 def update_depth():
     global DEPTH
-    global CANVAS2
-    DEPTH = get_depth()
-    plot_overlay(CANVAS2, plot2, DEPTH, f"Depth (model=Hybrid)")
+    depth_before, DEPTH = get_depth()
+    plot_overlay(canvaslist[1], plotlist[1], depth_before, f"STEP2: Depth (model=Hybrid)")
+    plot_overlay(canvaslist[6], plotlist[6], DEPTH, f"STEP3: Depth correction")
 
 # update combined plot with new results
 def update_combined():
     global BIAS
     global COMBINED
-    global CANVAS3
     COMBINED = get_combined()
-    plot_overlay(CANVAS3, plot3, COMBINED, f"Combined (bias towards attention={BIAS})")
+    plot_overlay(canvaslist[2], plotlist[2], COMBINED, f"STEP4: Combined (bias towards attention={BIAS})")
 
 # update thresholded plot with new results
 def update_threshold():
     global THRESHOLD_VAL
     global THRESHOLDED
-    global CANVAS4
     THRESHOLDED = get_threshold()
-    plot_overlay(CANVAS4, plot4, THRESHOLDED, f"Threshold (cutoff:{THRESHOLD_VAL})")
+    plot_overlay(canvaslist[3], plotlist[3], THRESHOLDED, f"STEP5: Threshold (cutoff:{THRESHOLD_VAL})")
 
 # update downsampled plot with new results
 def update_downsample():
     global DOWNSAMPLED
     global DISPLAY_H
     global DISPLAY_W
-    global CANVAS5
     DOWNSAMPLED = get_downsample()
-    plot_overlay(CANVAS5, plot5, DOWNSAMPLED, f"Downsampled (display resolution={DISPLAY_H}x{DISPLAY_W})")
+    plot_overlay(canvaslist[4], plotlist[4], DOWNSAMPLED, f"STEP6: Downsampled (display resolution={DISPLAY_H}x{DISPLAY_W})")
 
 
 ################## First run of the algo ##################
 FRAME, IMG = grab_frame()
 update_all()
-CANVAS1.get_tk_widget().pack()
-CANVAS2.get_tk_widget().pack()
-CANVAS3.get_tk_widget().pack()
-CANVAS4.get_tk_widget().pack()
-CANVAS5.get_tk_widget().pack()
-CANVAS6.get_tk_widget().pack()
+for fignum in range(0,len(figlist)):
+    canvaslist[fignum].get_tk_widget().pack()
 
 ################## TKINTER LABELS AND INPUTS ###################
 # Set up labels
