@@ -13,6 +13,7 @@ import cv2
 ################## INITIALIZATIONS ##################
 ## Setting up Tkinter
 window = tk.Tk()
+window.tk.call('tk', 'scaling', 1)
 
 TKframe_images = [] # Create empty frames for figures
 for ii in range(0,7):
@@ -74,7 +75,7 @@ midas_l.to(device)
 midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'street'
+video = 'race'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
 ################## HYPERPARAMETERS ##################
@@ -86,11 +87,11 @@ BIAS = 0.6 # bias towards attention for attention+depth combination
 SCALE = 4 # scaling of combined array (scale*[16, 9])
 DISPLAY_W = 10 # HASEL haptic display width (pixels)
 DISPLAY_H = 6 # HASEL haptic display height (pixels)
-ATTENTION = [] # will become torch tensor holding attention data
-DEPTH = [] # will become torch tensor holding depth data
-COMBINED = [] # will become 
-THRESHOLDED = []
-DOWNSAMPLED = []
+ATTENTION = [] # torch tensor holding attention data
+DEPTH = [] # torch tensor holding depth data
+COMBINED = [] # torch tensor holding combined (depth and attention) data
+THRESHOLDED = [] # torch tensor holding thresholded data
+DOWNSAMPLED = [] # torch tensor holding downsampled data
 
 ################## DEFINE FUNCTIONS ##################
 # Grab video frame (next frame if frame_num=1 or nth frame if =n)
