@@ -75,7 +75,7 @@ midas_l.to(device)
 midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'race'
+video = 'street'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
 ################## HYPERPARAMETERS ##################
@@ -89,6 +89,7 @@ DISPLAY_W = 10 # HASEL haptic display width (pixels)
 DISPLAY_H = 6 # HASEL haptic display height (pixels)
 ATTENTION = [] # torch tensor holding attention data
 DEPTH = [] # torch tensor holding depth data
+DEPTH_BEFORE = [] # torch tensor holding depth data before gradient correction
 COMBINED = [] # torch tensor holding combined (depth and attention) data
 THRESHOLDED = [] # torch tensor holding thresholded data
 DOWNSAMPLED = [] # torch tensor holding downsampled data
@@ -240,8 +241,9 @@ def update_attentions():
 def update_depth():
     global DEPTH
     global MODEL
-    depth_before, DEPTH = get_depth()
-    plot_overlay(canvaslist[1], plotlist[1], depth_before, f"STEP2: Depth (model={MODEL})")
+    global DEPTH_BEFORE
+    DEPTH_BEFORE, DEPTH = get_depth()
+    plot_overlay(canvaslist[1], plotlist[1], DEPTH_BEFORE, f"STEP2: Depth (model={MODEL})")
     plot_overlay(canvaslist[6], plotlist[6], DEPTH, f"STEP3: Depth correction")
 
 # update combined plot with new results
@@ -266,6 +268,23 @@ def update_downsample():
     DOWNSAMPLED = get_downsample()
     plot_overlay(canvaslist[4], plotlist[4], DOWNSAMPLED, f"STEP6: Downsampled (display resolution={DISPLAY_H}x{DISPLAY_W})")
 
+# save outputs from all plots
+def save_output():
+    global IMG
+    global FRAME_NUM
+    global ATTENTION
+    global COMBINED
+    global THRESHOLDED
+    global DEPTH
+    global DEPTH_BEFORE
+    global DOWNSAMPLED
+    datadict = {"image": IMG, "attention": ATTENTION, "depth_cor": DEPTH, "depth": DEPTH_BEFORE, "combined": COMBINED, "thresholded": THRESHOLDED, "downsampled": DOWNSAMPLED}
+    
+    for label in list(datadict):
+        data_re = cv2.resize(datadict[label], dsize=(1280, 720), interpolation=cv2.INTER_NEAREST)
+        filename = "OutputImages/output_" + str(FRAME_NUM) + "_" + label + ".png"
+        # img = Image.fromarray(datadict[label].detach().numpy()[0])
+        plt.imsave(filename, data_re)
 
 ################## First run of the algo ##################
 FRAME, IMG = grab_frame()
@@ -297,6 +316,8 @@ next_button = tk.Button(text="Next frame", master=TKframe_buttons[0])
 next_button.pack()
 next_10_button = tk.Button(text="Next 10th frame", master=TKframe_buttons[0])
 next_10_button.pack()
+save_button = tk.Button(text="Save outputs", master=TKframe_buttons[0])
+save_button.pack()
 
 # MiDaS model select buttons (place in Attention entry frame)
 midas_l_button = tk.Button(text="MiDas Large", master=TKframe_entries[0])
@@ -387,25 +408,31 @@ def handle_buttonpressnext10(event):
     update_frame(10)
 next_10_button.bind("<Button>", handle_buttonpressnext10) # bind to Next 10th Frame button
 
+# Do this when "Save output" button is pressed:
+def handle_buttonpresssave(event):
+    save_output()
+save_button.bind("<Button>", handle_buttonpresssave) # bind to Save  button
+
+
 # Do this when the MiDaS model buttons are pressed:
 
 def handle_buttonpress_midas_l(event):
     global MODEL
     MODEL = 'large'
     update_depth()
-midas_l_button.bind("<Button>", handle_buttonpress_midas_l) # bind to Next Frame button
+midas_l_button.bind("<Button>", handle_buttonpress_midas_l) # bind to button
 
 def handle_buttonpress_midas_h(event):
     global MODEL
     MODEL = 'hybrid'
     update_depth()
-midas_h_button.bind("<Button>", handle_buttonpress_midas_h) # bind to Next Frame button
+midas_h_button.bind("<Button>", handle_buttonpress_midas_h) # bind to button
 
 def handle_buttonpress_midas_s(event):
     global MODEL
     MODEL = 'small'
     update_depth()
-midas_s_button.bind("<Button>", handle_buttonpress_midas_s) # bind to Next Frame button
+midas_s_button.bind("<Button>", handle_buttonpress_midas_s) # bind to button
 
 ################## RUN TKINTER ##################
 window.mainloop()
