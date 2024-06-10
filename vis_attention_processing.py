@@ -22,7 +22,7 @@ midas_l.to(device)
 midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'street'
+video = 'truck'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
 frame_num = 1
@@ -34,8 +34,8 @@ MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
 THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
 BIAS = 0.6 # bias towards attention for attention+depth combination
 SCALE = 4 # scaling of combined array (scale*[16, 9])
-DISPLAY_W = 7 # HASEL haptic display width (pixels)
-DISPLAY_H = 2 # HASEL haptic display height (pixels)
+DISPLAY_W = 5 # HASEL haptic display width (pixels)
+DISPLAY_H = 4 # HASEL haptic display height (pixels)
 
 ################## FUNCTIONS ##################
 # Grab video frame (next frame if frame_num=1 or nth frame if =n)
@@ -158,8 +158,8 @@ plt.close()
 filename_data = "data" + video + "_output.txt"
 with open(filename_data, 'w') as fo:
     for idx, item in enumerate(output_list):
-        for row in range(2):
-            for column in range(7):
+        for row in range(DISPLAY_H):
+            for column in range(DISPLAY_W):
                 fo.write(str(item[row, column]) + ', ')
         fo.write('\n')
 

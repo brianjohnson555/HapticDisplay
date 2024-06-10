@@ -5,11 +5,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 import urllib.request
 import serial
-### USER SETTINGS
-SERIAL_ACTIVE = False
+###### USER SETTINGS ######
+SERIAL_ACTIVE = True
 NUM_SWITCHBOARDS = 2
-COM1 = "COM9"
-COM2 = "COM12"
+COM1 = "COM9" #close end
+COM2 = "COM10" #far end
 
 # Load MiDaS model onto CPU
 device = torch.device('cpu')
@@ -62,12 +62,16 @@ while True:
     grad_array = np.meshgrid(xgrid, ygrid)[1] # form gradient array w/ same size as depth
     depth_sub = (depth_nm - grad_array)
     depth_sub = (depth_sub > 0) * depth_sub # take only positive values
-    depth_re = cv2.resize(depth_sub, dsize=(7, 4), interpolation=cv2.INTER_CUBIC)
+    depth_re = cv2.resize(depth_sub, dsize=(5, 4), interpolation=cv2.INTER_CUBIC)
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     threshold = 0.25
     output = (depth_nm > threshold) * depth_nm
 
-    print(output.shape)
+    output[output==0] = 0.01
+    output_rec = np.reciprocal(output)
+    output_scale = (output_rec*100)
+    output_new = output_scale.astype(int)
+    output_new[output_new>500] = 0
 
     if (previous_frame is None):
         # First frame; there is no previous one yet
@@ -84,14 +88,15 @@ while True:
 
     if SERIAL_ACTIVE:
         if NUM_SWITCHBOARDS>1:
-            period1 = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-            period2 = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-            packet1 = make_packet(period1)
-            packet2 = make_packet(period2)
+            
+            period1 = np.concatenate([output_new[0,0:5], output_new[1,0:5]])
+            period2 = np.concatenate([output_new[3,0:5], output_new[2,0:5]])
+            packet1 = make_packet(period2)
+            packet2 = make_packet(period1)
             ser[0].write(packet1)
             ser[1].write(packet2)
         else:
-            period
+            period = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
             packet = make_packet()
             ser[0].write(packet)
     
@@ -99,6 +104,8 @@ while True:
         break
 
 if SERIAL_ACTIVE:
-    ser.write('D'.encode()) # disable HV
+    for switchboard in ser:
+        switchboard.write('D'.encode()) # Disable HV
     time.sleep(0.1)  
-    ser.close()
+    for switchboard in ser:
+        switchboard.close()
