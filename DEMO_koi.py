@@ -1,3 +1,11 @@
+###### USER SETTINGS ######
+# SERIAL_ACTIVE = True
+# NUM_SWITCHBOARDS = 2
+FILENAME = 'datakoi_output.txt'
+COM1 = "COM9" #bottom
+COM2 = "COM12" #top
+
+###### INITIALIZATIONS ######
 import cv2
 import torch
 import time
@@ -5,17 +13,23 @@ import numpy as np
 import matplotlib.pyplot as plt
 import urllib.request
 import serial
-
 from numpy import genfromtxt
 
-###### USER SETTINGS ######
-FILENAME = 'datakoi_output.txt'
-COM1 = 'COM9'
-COM2 = 'COM10'
+###### MAIN ######
+# Set up pixel to switchboard mapping:
+# bot: |2|4|6|8|10|
+# bot: |1|3|5|7|9|
+# top: |2|4|6|8|10|
+# top: |1|3|5|7|9|
+def map_pixels(output):
+    periods_bot = np.array([output[1,0], output[0,0], output[1,1], output[0,1], output[1,2], output[0,2], output[1,3], output[0,3], output[1,4], output[0,4]])
+    periods_top = np.array([output[3,0], output[2,0], output[3,1], output[2,1], output[3,2], output[2,2], output[3,3], output[2,3], output[3,4], output[2,4]])
+    return periods_bot, periods_top
 
-
+# Load data
 data=genfromtxt(FILENAME,delimiter=',')
 
+# Set up serial list
 ser = [serial.Serial(COM1, 9600, timeout=0, bytesize=serial.EIGHTBITS),
        serial.Serial(COM2, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
 
@@ -24,7 +38,7 @@ def make_packet(periods):
     packetlist.append(('P').encode()) # encode start of period array
     for period in periods:
         packetlist.append((period.item()).to_bytes(2, byteorder='little')) # convert to 16bit
-    packet = b''.join(packetlist) #
+    packet = b''.join(packetlist) # add space
     return packet
 
 
@@ -38,20 +52,21 @@ while True:
 
     output = data # Need to read each line of data, and loop when it runs out
 
-    output[output==0] = 0.01
-    output_rec = np.reciprocal(output)
-    output_scale = (output_rec*100)
-    output_new = output_scale.astype(int)
-    output_new[output_new>500] = 0
+    ## LINEAR MAPPING FROM INTENSITY TO FREQUENCY (TO DISPLAY)
+    mapped_freq = 20*output # mapped frequency (Hz)
+    mapped_freq[mapped_freq==0] = 0.01
+    mapped_per = np.reciprocal(mapped_freq) # mapped period (sec)
+    mapped_per_ms = 1000*mapped_per # mapped period (ms)
+    mapped_per_ms = mapped_per_ms.astype(int)
+    mapped_per_ms[mapped_per_ms>500] = 0 # anything above 500 ms = 0 (below 2 Hz = 0)
 
-
-    periods.append(np.concatenate([output_new[0,0:5], output_new[1,0:5]]))
-    periods.append(np.concatenate([output_new[3,0:5], output_new[2,0:5]]))
-    packets.append(make_packet(periods[0]))
-    packets.append(make_packet(periods[1]))
-    ser[0].write(packets[0])
-    ser[1].write(packets[1])
+    periods_bot, periods_top = map_pixels(mapped_per_ms)
+    packet_bot = make_packet(periods_bot)
+    packet_top = make_packet(periods_top)
+    ser[0].write(packet_bot)
+    ser[1].write(packet_top)
     time.sleep(0.05)
+
     if(cv2.waitKey(10) & 0xFF == ord('b')):
         break
     

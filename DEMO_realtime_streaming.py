@@ -1,3 +1,11 @@
+###### USER SETTINGS ######
+SERIAL_ACTIVE = True
+SAVE_VIDEO = False
+NUM_SWITCHBOARDS = 2
+COM1 = "COM9" #bottom
+COM2 = "COM12" #top
+
+###### INITIALIZATIONS ######
 import cv2
 import torch
 import time
@@ -5,12 +13,19 @@ import numpy as np
 import matplotlib.pyplot as plt
 import urllib.request
 import serial
-###### USER SETTINGS ######
-SERIAL_ACTIVE = False
-SAVE_VIDEO = False
-NUM_SWITCHBOARDS = 2
-COM1 = "COM9" #close end
-COM2 = "COM10" #far end
+
+###### MAIN ######
+# Set up pixel to switchboard mapping:
+# bot: |2|4|6|8|10|
+# bot: |1|3|5|7|9|
+# top: |2|4|6|8|10|
+# top: |1|3|5|7|9|
+
+def map_pixels(output):
+    periods_bot = np.array([output[1,0], output[0,0], output[1,1], output[0,1], output[1,2], output[0,2], output[1,3], output[0,3], output[1,4], output[0,4]])
+    periods_top = np.array([output[3,0], output[2,0], output[3,1], output[2,1], output[3,2], output[2,2], output[3,3], output[2,3], output[3,4], output[2,4]])
+    return periods_bot, periods_top
+
 
 # Load MiDaS model onto CPU
 device = torch.device('cpu')
@@ -32,7 +47,7 @@ if SERIAL_ACTIVE:
         packetlist.append(('P').encode()) # encode start of period array
         for period in periods:
             packetlist.append((period.item()).to_bytes(2, byteorder='little')) # convert to 16bit
-        packet = b''.join(packetlist) #
+        packet = b''.join(packetlist) # add space
         return packet
     
     if NUM_SWITCHBOARDS > 1:
@@ -60,6 +75,7 @@ while True:
     depth_size_x = 256
     depth = midas(frame) # evaluate using small model
     depth = depth.cpu().detach().numpy().squeeze(0)
+
     # remove normal depth gradient from depth map
     depth_nm = cv2.normalize(depth, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     xgrid = np.zeros(depth_size_x, dtype=float)
@@ -67,16 +83,21 @@ while True:
     grad_array = np.meshgrid(xgrid, ygrid)[1] # form gradient array w/ same size as depth
     depth_sub = (depth_nm - grad_array)
     depth_sub = (depth_sub > 0) * depth_sub # take only positive values
+
+    # resize and threshold
     depth_re = cv2.resize(depth_sub, dsize=(1*5, 1*4), interpolation=cv2.INTER_CUBIC)
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     threshold = 0.25
     output = (depth_nm > threshold) * depth_nm
 
-    output[output==0] = 0.01
-    output_rec = np.reciprocal(output)
-    output_scale = (output_rec*100)
-    output_new = output_scale.astype(int)
-    output_new[output_new>500] = 0
+    ## LINEAR MAPPING FROM INTENSITY TO FREQUENCY (TO DISPLAY)
+    mapped_freq = 20*output # mapped frequency (Hz)
+    mapped_freq[mapped_freq==0] = 0.01
+    mapped_per = np.reciprocal(mapped_freq) # mapped period (sec)
+    mapped_per_ms = 1000*mapped_per # mapped period (ms)
+    mapped_per_ms = mapped_per_ms.astype(int)
+    mapped_per_ms[mapped_per_ms>500] = 0 # anything above 500 ms = 0 (below 2 Hz = 0)
+
 
     if (previous_frame is None):
         # First frame; there is no previous one yet
@@ -92,24 +113,21 @@ while True:
         outlist.append(imgcolor)
         outlist2.append(output)
 
-    periods = np.array([1, 2, 0, 0, 0, 0, 0, 0, 0, 0])
-
     if SERIAL_ACTIVE:
         if NUM_SWITCHBOARDS>1:
             
-            period1 = np.concatenate([output_new[0,0:5], output_new[1,0:5]])
-            period2 = np.concatenate([output_new[3,0:5], output_new[2,0:5]])
-            packet1 = make_packet(period2)
-            packet2 = make_packet(period1)
-            ser[0].write(packet1)
-            ser[1].write(packet2)
+            periods_bot, periods_top = map_pixels(mapped_per_ms)
+            packet_bot = make_packet(periods_bot)
+            packet_top = make_packet(periods_top)
+            ser[0].write(packet_bot)
+            ser[1].write(packet_top)
         else:
             period = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
             packet = make_packet()
             ser[0].write(packet)
     
     if(cv2.waitKey(10) & 0xFF == ord('b')):
-        break
+        break # BREAK OUT OF LOOP WHEN "B" KEY IS PRESSED!
 
 
 if SAVE_VIDEO:
@@ -139,4 +157,4 @@ if SERIAL_ACTIVE:
         switchboard.write('D'.encode()) # Disable HV
     time.sleep(0.1)  
     for switchboard in ser:
-        switchboard.close()
+        switchboard.close() # close serial port
