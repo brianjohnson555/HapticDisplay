@@ -22,7 +22,7 @@ midas_l.to(device)
 midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'truck'
+video = 'koi'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
 frame_num = 1
@@ -32,7 +32,7 @@ output_list = []
 RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
 MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
 THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
-BIAS = 0.6 # bias towards attention for attention+depth combination
+BIAS = 0.8 # bias towards attention for attention+depth combination
 SCALE = 4 # scaling of combined array (scale*[16, 9])
 DISPLAY_W = 5 # HASEL haptic display width (pixels)
 DISPLAY_H = 4 # HASEL haptic display height (pixels)
@@ -152,7 +152,7 @@ for i in range(0,len(output_list)):
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
 filename = "animation_" + video + "_output.mp4"
-ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=15)
+ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=30)
 plt.close()
 
 filename_data = "data" + video + "_output.txt"

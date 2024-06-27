@@ -13,7 +13,7 @@ import cv2
 ################## INITIALIZATIONS ##################
 ## Setting up Tkinter
 window = tk.Tk()
-window.tk.call('tk', 'scaling', 0.8)
+window.tk.call('tk', 'scaling', 0.9)
 
 TKframe_images = [] # Create empty frames for figures
 for ii in range(0,7):
@@ -75,7 +75,7 @@ midas_l.to(device)
 midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'game'
+video = 'koi'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
 ################## HYPERPARAMETERS ##################
