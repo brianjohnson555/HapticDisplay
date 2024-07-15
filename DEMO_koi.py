@@ -3,7 +3,8 @@
 # NUM_SWITCHBOARDS = 2
 FILENAME = 'datakoi_output.txt'
 COM1 = "COM9" #bottom
-COM2 = "COM12" #top
+COM2 = "COM13" #top
+SERIAL_ACTIVE = True
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -31,21 +32,22 @@ def map_pixels(output):
 data=genfromtxt(FILENAME,delimiter=',')[:,0:20]
 
 # Set up serial list
-ser = [serial.Serial(COM1, 9600, timeout=0, bytesize=serial.EIGHTBITS),
-       serial.Serial(COM2, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
+if SERIAL_ACTIVE:
+    ser = [serial.Serial(COM1, 9600, timeout=0, bytesize=serial.EIGHTBITS), 
+           serial.Serial(COM2, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
 
 def make_packet(periods):
     packetlist = []
     packetlist.append(('P').encode()) # encode start of period array
     for period in periods:
         packetlist.append((period.item()).to_bytes(2, byteorder='little')) # convert to 16bit
-    packet = b''.join(packetlist) # add space
+    packet = b''.join(packetlist) # convert list to bytes
     return packet
 
-
-ser[0].write('E'.encode()) # Enable HV
-ser[1].write('E'.encode()) # Enable HV
-time.sleep(0.25)
+if SERIAL_ACTIVE:
+    ser[0].write('E'.encode()) # Enable HV
+    ser[1].write('E'.encode()) # Enable HV
+    time.sleep(0.25)
 
 
 while True:
@@ -63,18 +65,22 @@ while True:
                 dataindex=0 # loop back to start when you run out of data
 
             ## LINEAR MAPPING FROM INTENSITY TO FREQUENCY (TO DISPLAY)
-            mapped_freq = 30*output # mapped frequency (Hz)
+            mapped_freq = 24*output # mapped frequency (Hz)
             mapped_freq[mapped_freq==0] = 0.01
             mapped_per = np.reciprocal(mapped_freq) # mapped period (sec)
             mapped_per_ms = 1000*mapped_per # mapped period (ms)
             mapped_per_ms = mapped_per_ms.astype(int)
+            mapped_per_ms[mapped_per_ms<50] = 50 # anything below 20 ms = 20
             mapped_per_ms[mapped_per_ms>500] = 0 # anything above 500 ms = 0 (below 2 Hz = 0)
+
 
             periods_bot, periods_top = map_pixels(mapped_per_ms)
             packet_bot = make_packet(periods_bot)
             packet_top = make_packet(periods_top)
-            ser[0].write(packet_bot)
-            ser[1].write(packet_top)
+
+            if SERIAL_ACTIVE:
+                ser[0].write(packet_bot)
+                ser[1].write(packet_top)
 
             cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
             cv2.imshow('Video',img)
@@ -89,12 +95,9 @@ while True:
             break
     if isClose:
         break
-
-        
-        
     
-
-ser[0].write('D'.encode()) # disable HV  
-ser[1].write('D'.encode()) # disable HV  
-time.sleep(0.5)  
-# ser.close()
+if SERIAL_ACTIVE:
+    ser[0].write('D'.encode()) # disable HV  
+    ser[1].write('D'.encode()) # disable HV  
+    time.sleep(0.5)  
+    # ser.close()

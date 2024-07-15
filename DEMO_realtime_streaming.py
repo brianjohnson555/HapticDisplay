@@ -2,8 +2,8 @@
 SERIAL_ACTIVE = True
 SAVE_VIDEO = False
 NUM_SWITCHBOARDS = 2
-COM1 = "COM9" #bottom
-COM2 = "COM12" #top
+COM1 = "COM13" #bottom
+COM2 = "COM9" #top
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -47,7 +47,7 @@ if SERIAL_ACTIVE:
         packetlist.append(('P').encode()) # encode start of period array
         for period in periods:
             packetlist.append((period.item()).to_bytes(2, byteorder='little')) # convert to 16bit
-        packet = b''.join(packetlist) # add space
+        packet = b''.join(packetlist) # aconvert list to bytes
         return packet
     
     if NUM_SWITCHBOARDS > 1:
@@ -87,11 +87,11 @@ while True:
     # resize and threshold
     depth_re = cv2.resize(depth_sub, dsize=(1*5, 1*4), interpolation=cv2.INTER_CUBIC)
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
-    threshold = 0.25
+    threshold = 0.26
     output = (depth_nm > threshold) * depth_nm
 
     ## LINEAR MAPPING FROM INTENSITY TO FREQUENCY (TO DISPLAY)
-    mapped_freq = 20*output # mapped frequency (Hz)
+    mapped_freq = 10*output # mapped frequency (Hz)
     mapped_freq[mapped_freq==0] = 0.01
     mapped_per = np.reciprocal(mapped_freq) # mapped period (sec)
     mapped_per_ms = 1000*mapped_per # mapped period (ms)
