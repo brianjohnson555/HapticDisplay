@@ -85,8 +85,8 @@ MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
 THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
 BIAS = 0.6 # bias towards attention for attention+depth combination
 SCALE = 4 # scaling of combined array (scale*[16, 9])
-DISPLAY_W = 10 # HASEL haptic display width (pixels)
-DISPLAY_H = 6 # HASEL haptic display height (pixels)
+DISPLAY_W = 7 # HASEL haptic display width (pixels)
+DISPLAY_H = 4 # HASEL haptic display height (pixels)
 ATTENTION = [] # torch tensor holding attention data
 DEPTH = [] # torch tensor holding depth data
 DEPTH_BEFORE = [] # torch tensor holding depth data before gradient correction
@@ -193,7 +193,22 @@ def get_downsample():
     global DISPLAY_W
     global THRESHOLDED
     threshold = THRESHOLDED
-    return cv2.resize(threshold, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA)
+    downsampled = np.zeros((DISPLAY_H, DISPLAY_W))
+    interval_H = int(np.floor(threshold.shape[0]/DISPLAY_H))
+    interval_W = int(np.floor(threshold.shape[1]/DISPLAY_W))
+    for rr in range(0, DISPLAY_H):
+        for cc in range(0, DISPLAY_W):
+            frame_slice = threshold[rr*interval_H:(rr+1)*interval_H, cc*interval_W:(cc+1)*interval_W]
+            mean_slice = np.mean(frame_slice)
+            std_slice = np.std(frame_slice)
+            max_slice = np.max(frame_slice)
+            if mean_slice+3*std_slice > max_slice:
+                downsampled[rr, cc] = max_slice
+            else:
+                downsampled[rr, cc] = mean_slice
+
+    return downsampled
+    # return cv2.resize(threshold, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA)
 
 # Function to plot the self attention and original frame together
 def plot_overlay(canvas, plot, data, title="default"):

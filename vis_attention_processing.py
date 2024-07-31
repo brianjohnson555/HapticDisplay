@@ -28,14 +28,15 @@ cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 frame_num = 1
 output_list = []
 
-################## HYPERPARAMETERS ##################
-RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
+################## PARAMETERS ##################
+RESOLUTION_ATT = 100 # resolution of get_attention for DINO model
 MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
-THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
-BIAS = 0.8 # bias towards attention for attention+depth combination
+THRESHOLD_VAL = 0.35 # threshold of attention+depth combination
+BIAS = 0.75 # bias towards attention for attention+depth combination
 SCALE = 4 # scaling of combined array (scale*[16, 9])
-DISPLAY_W = 5 # HASEL haptic display width (pixels)
+DISPLAY_W = 7 # HASEL haptic display width (pixels)
 DISPLAY_H = 4 # HASEL haptic display height (pixels)
+FRAME_SKIP = 5 # interval for how often to calculate algorithm (then interpolate between)
 
 ################## FUNCTIONS ##################
 # Grab video frame (next frame if frame_num=1 or nth frame if =n)
@@ -125,23 +126,49 @@ def get_threshold(combined):
 def get_downsample(thresholded):
     global DISPLAY_H
     global DISPLAY_W
-    return cv2.resize(thresholded, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA)
+    downsampled = np.zeros((DISPLAY_H, DISPLAY_W))
+    interval_H = int(np.floor(thresholded.shape[0]/DISPLAY_H))
+    interval_W = int(np.floor(thresholded.shape[1]/DISPLAY_W))
+    for rr in range(0, DISPLAY_H):
+        for cc in range(0, DISPLAY_W):
+            frame_slice = thresholded[rr*interval_H:(rr+1)*interval_H, cc*interval_W:(cc+1)*interval_W]
+            mean_slice = np.mean(frame_slice)
+            std_slice = np.std(frame_slice)
+            max_slice = np.max(frame_slice)
+            if mean_slice+3*std_slice > max_slice:
+                downsampled[rr, cc] = max_slice
+            else:
+                downsampled[rr, cc] = mean_slice
+
+    return downsampled
+    # return cv2.resize(thresholded, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA)
 
 
 print("Running...")
 while True: 
+        # grab next frame from video
         frame, img = grab_frame(cap)
         if frame is None:
-            break
-        attention = get_attention(frame)
-        depth = get_depth(img)
-        combined = get_combined(depth, attention)
-        thresholded = get_threshold(combined)
-        output = get_downsample(thresholded)
+            break # no more frames, finish loop
+        if frame_num%FRAME_SKIP==1: #### ONLY PROCESS EVERY x FRAMES!
+            # get frame attention
+            attention = get_attention(frame)
+            # get frame depth
+            depth = get_depth(img)
+            # combine depth and attention maps
+            combined = get_combined(depth, attention)
+            # threshold the combined frame
+            thresholded = get_threshold(combined)
+            # downsample to haptic display resolution
+            output = get_downsample(thresholded)
+            output_list.append(output)
 
         frame_num += 1
         print(frame_num)
-        output_list.append(output)
+
+# interpolate values:
+# from scipy.interpolate import UnivariateSpline
+# old_indices = np.arange(0, len(output_list))
 
 print("Plotting...")
 
