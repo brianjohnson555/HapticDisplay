@@ -126,6 +126,7 @@ def get_threshold(combined):
 def get_downsample(thresholded):
     global DISPLAY_H
     global DISPLAY_W
+    ### new code for interpolation:
     downsampled = np.zeros((DISPLAY_H, DISPLAY_W))
     interval_H = int(np.floor(thresholded.shape[0]/DISPLAY_H))
     interval_W = int(np.floor(thresholded.shape[1]/DISPLAY_W))
@@ -135,13 +136,14 @@ def get_downsample(thresholded):
             mean_slice = np.mean(frame_slice)
             std_slice = np.std(frame_slice)
             max_slice = np.max(frame_slice)
-            if mean_slice+3*std_slice > max_slice:
+            if mean_slice+3*std_slice > max_slice: # I'm doing some weird selection of max vs. mean depending on std of the frame slice
                 downsampled[rr, cc] = max_slice
             else:
                 downsampled[rr, cc] = mean_slice
 
     return downsampled
-    # return cv2.resize(thresholded, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA)
+    ### original code for interpolation:
+    # return cv2.resize(thresholded, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA) 
 
 
 print("Running...")
@@ -161,14 +163,30 @@ while True:
             thresholded = get_threshold(combined)
             # downsample to haptic display resolution
             output = get_downsample(thresholded)
+
+            if output_list:
+                last_output = output_list[-1]
+                for frame in range(1, FRAME_SKIP):
+                    interp_vec = np.zeros((DISPLAY_H, DISPLAY_W))
+                    for row in range(DISPLAY_H):
+                        for col in range(DISPLAY_W):
+                            interp_vec[row, col] = np.linspace(last_output[row, col], output[row, col], FRAME_SKIP+1)[frame]
+                    output_list.append(interp_vec)
+
             output_list.append(output)
+            print(len(output_list))
 
         frame_num += 1
-        print(frame_num)
+        
 
 # interpolate values:
 # from scipy.interpolate import UnivariateSpline
 # old_indices = np.arange(0, len(output_list))
+
+x = np.linspace(0, 2*np.pi, 10)
+y = np.sin(x)
+xvals = np.linspace(0, 2*np.pi, 50)
+yinterp = np.interp(xvals, x, y)
 
 print("Plotting...")
 
