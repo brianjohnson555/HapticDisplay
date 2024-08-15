@@ -75,7 +75,7 @@ midas_l.to(device)
 midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'koi'
+video = 'truck'
 cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
 
 ################## HYPERPARAMETERS ##################
@@ -148,6 +148,7 @@ def get_depth():
             depth = midas_l(frame) # evaluate using large model
 
     depth = depth.cpu().detach().numpy().squeeze(0)
+    print("dep_Max:", np.amax(depth), " dep_Min:", np.amin(depth))
     
     # remove normal depth gradient from depth map
     depth_nm = cv2.normalize(depth, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
@@ -167,6 +168,7 @@ def get_combined(method='sum'):
     global SCALE
     depth = DEPTH
     attention = ATTENTION
+    print("att_Max:", np.amax(attention), " att_Min:", np.amin(attention))
     depth_re = cv2.resize(depth, dsize=(16*SCALE, 9*SCALE), interpolation=cv2.INTER_CUBIC)
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     attention_re = cv2.resize(attention, dsize=(16*SCALE, 9*SCALE), interpolation=cv2.INTER_CUBIC)
@@ -177,7 +179,6 @@ def get_combined(method='sum'):
     elif method=='sum':
         combined = ((1-BIAS)*depth_nm + (BIAS)*attention_nm)
     combined = cv2.normalize(combined, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_64F)
-
     return combined
 
 # threshold the combined map to threshold_val
@@ -192,23 +193,26 @@ def get_downsample():
     global DISPLAY_H
     global DISPLAY_W
     global THRESHOLDED
-    threshold = THRESHOLDED
+    ### new code for interpolation:
+    thresholded = THRESHOLDED
     downsampled = np.zeros((DISPLAY_H, DISPLAY_W))
-    interval_H = int(np.floor(threshold.shape[0]/DISPLAY_H))
-    interval_W = int(np.floor(threshold.shape[1]/DISPLAY_W))
+    interval_H = int(np.floor(thresholded.shape[0]/DISPLAY_H))
+    interval_W = int(np.floor(thresholded.shape[1]/DISPLAY_W))
     for rr in range(0, DISPLAY_H):
         for cc in range(0, DISPLAY_W):
-            frame_slice = threshold[rr*interval_H:(rr+1)*interval_H, cc*interval_W:(cc+1)*interval_W]
+            frame_slice = thresholded[rr*interval_H:(rr+1)*interval_H, cc*interval_W:(cc+1)*interval_W]
             mean_slice = np.mean(frame_slice)
             std_slice = np.std(frame_slice)
             max_slice = np.max(frame_slice)
-            if mean_slice+3*std_slice > max_slice:
+            if mean_slice+3*std_slice > max_slice: # I'm doing some weird selection of max vs. mean depending on std of the frame slice
                 downsampled[rr, cc] = max_slice
             else:
                 downsampled[rr, cc] = mean_slice
 
+    print("Down_Max:", np.amax(downsampled), " Down_Min:", np.amin(downsampled))
     return downsampled
-    # return cv2.resize(threshold, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA)
+    ### original code for interpolation:
+    # return cv2.resize(thresholded, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA) 
 
 # Function to plot the self attention and original frame together
 def plot_overlay(canvas, plot, data, title="default"):
