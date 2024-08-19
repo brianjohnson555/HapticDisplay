@@ -2,8 +2,8 @@
 FILENAME = "datakoi_output.txt"
 VIDEONAME = "video_koi.mp4"
 COM_A = "COM9"
-COM_B = "COM13"
-COM_C = "COM12"
+COM_B = "COM15"
+COM_C = "COM16"
 SERIAL_ACTIVE = True
 
 ###### INITIALIZATIONS ######
@@ -19,7 +19,8 @@ from numpy import genfromtxt
 
 ###### MAIN ######
 # Load data
-data=genfromtxt(FILENAME,delimiter=',')
+data=genfromtxt(FILENAME,delimiter=',')[:,0:28]
+data_length = data.shape[0]
 
 # Set up serial list
 if SERIAL_ACTIVE:
@@ -38,7 +39,7 @@ while True:
     while True:
         ret,img = cap.read() # read frame from video
 
-        if(ret==True): # if frame exists, run; otherwise, video is finished->loop back to beginning
+        if ret and dataindex<data_length: # if frame exists, run; otherwise, video is finished->loop back to beginning
             intensity_array = data[dataindex,:] # Read each line of data
             dataindex += 1
             duty_array, period_array = algo_functions.map_intensity(intensity_array) # map from algo intensity to duty cycle/period
@@ -49,7 +50,7 @@ while True:
 
             # Display video:
             cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
-            cv2.imshow('Video',img)
+            cv2.imshow('Video',cv2.flip(img, -1))
             # time.sleep(0.05)
 
             if(cv2.waitKey(10) & 0xFF == ord('b')): # if user pressed 'b' for break

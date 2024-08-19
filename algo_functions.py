@@ -23,7 +23,7 @@ def make_packets(duties, periods):
     packetlist = []
     packetlist.append(('T').encode()) # encode start of period array
     for period in periods:
-        packetlist.append((2*period.item()).to_bytes(2, byteorder='little')) # convert to 16bit, factor of 2 for period in MCU
+        packetlist.append((period.item()).to_bytes(2, byteorder='little')) # convert to 16bit, factor of 2 for period in MCU
     packet_period = b''.join(packetlist) # combine packetlist as bytes
 
     return packet_duty, packet_period
