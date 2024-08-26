@@ -1,9 +1,9 @@
 ###### USER SETTINGS ######
 SERIAL_ACTIVE = True
 SAVE_VIDEO = False
-NUM_SWITCHBOARDS = 2
-COM1 = "COM13" #bottom
-COM2 = "COM9" #top
+COM_A = "COM9"
+COM_B = "COM15"
+COM_C = "COM16"
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -11,15 +11,18 @@ import torch
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-import urllib.request
+import utils.algo_functions as algo_functions
 import serial
 
 ###### MAIN ######
-# Set up pixel to switchboard mapping:
-# bot: |2|4|6|8|10|
-# bot: |1|3|5|7|9|
-# top: |2|4|6|8|10|
-# top: |1|3|5|7|9|
+
+if SERIAL_ACTIVE:
+    ser = [serial.Serial(COM_A, 9600, timeout=0, bytesize=serial.EIGHTBITS), 
+           serial.Serial(COM_B, 9600, timeout=0, bytesize=serial.EIGHTBITS),
+           serial.Serial(COM_C, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
+    
+    # ENABLE HV!
+    algo_functions.HV_enable(ser)
 
 def map_pixels(output):
     periods_bot = np.array([output[1,0], output[0,0], output[1,1], output[0,1], output[1,2], output[0,2], output[1,3], output[0,3], output[1,4], output[0,4]])
@@ -40,26 +43,6 @@ cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) #stream from webcam
 previous_frame = None
 
 # Setup serial connection
-if SERIAL_ACTIVE: 
-    
-    def make_packet(periods): # Build a packet of period data to send to USB
-        packetlist = []
-        packetlist.append(('P').encode()) # encode start of period array
-        for period in periods:
-            packetlist.append((period.item()).to_bytes(2, byteorder='little')) # convert to 16bit
-        packet = b''.join(packetlist) # aconvert list to bytes
-        return packet
-    
-    if NUM_SWITCHBOARDS > 1:
-        ser = [serial.Serial(COM1, 9600, timeout=0, bytesize=serial.EIGHTBITS),
-                serial.Serial(COM2, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
-    else:
-        ser = [serial.Serial(COM1, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
-
-    for switchboard in ser:
-        switchboard.write('E'.encode()) # Enable HV
-        time.sleep(0.1)
-
 if SAVE_VIDEO:
     outlist = []
     outlist2 = []
@@ -85,19 +68,10 @@ while True:
     depth_sub = (depth_sub > 0) * depth_sub # take only positive values
 
     # resize and threshold
-    depth_re = cv2.resize(depth_sub, dsize=(1*5, 1*4), interpolation=cv2.INTER_CUBIC)
+    depth_re = cv2.resize(depth_sub, dsize=(1*7, 1*4), interpolation=cv2.INTER_CUBIC)
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     threshold = 0.26
     output = (depth_nm > threshold) * depth_nm
-
-    ## LINEAR MAPPING FROM INTENSITY TO FREQUENCY (TO DISPLAY)
-    mapped_freq = 10*output # mapped frequency (Hz)
-    mapped_freq[mapped_freq==0] = 0.01
-    mapped_per = np.reciprocal(mapped_freq) # mapped period (sec)
-    mapped_per_ms = 1000*mapped_per # mapped period (ms)
-    mapped_per_ms = mapped_per_ms.astype(int)
-    mapped_per_ms[mapped_per_ms>500] = 0 # anything above 500 ms = 0 (below 2 Hz = 0)
-
 
     if (previous_frame is None):
         # First frame; there is no previous one yet
@@ -114,17 +88,9 @@ while True:
         outlist2.append(output)
 
     if SERIAL_ACTIVE:
-        if NUM_SWITCHBOARDS>1:
-            
-            periods_bot, periods_top = map_pixels(mapped_per_ms)
-            packet_bot = make_packet(periods_bot)
-            packet_top = make_packet(periods_top)
-            ser[0].write(packet_bot)
-            ser[1].write(packet_top)
-        else:
-            period = np.array([1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
-            packet = make_packet()
-            ser[0].write(packet)
+            duty_array, period_array = algo_functions.map_intensity(output)
+            # pack and write data to HV switches:
+            algo_functions.packet_and_write(ser, duty_array, period_array)
     
     if(cv2.waitKey(10) & 0xFF == ord('b')):
         break # BREAK OUT OF LOOP WHEN "B" KEY IS PRESSED!
@@ -138,7 +104,7 @@ if SAVE_VIDEO:
         im = plt.imshow(outlist[i], animated=True)
         ims.append([im])
     ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-    filename = "camera_output.mp4"
+    filename = "OutputVideos/streaming_output_cam.mp4"
     ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=10)
     plt.close()
 
@@ -148,13 +114,11 @@ if SAVE_VIDEO:
         im = plt.imshow(outlist2[i], animated=True)
         ims.append([im])
     ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-    filename = "algo_output.mp4"
+    filename = "OutputVideos/streaming_output_algo.mp4"
     ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=10)
     plt.close()
 
 if SERIAL_ACTIVE:
-    for switchboard in ser:
-        switchboard.write('D'.encode()) # Disable HV
-    time.sleep(0.1)  
-    for switchboard in ser:
-        switchboard.close() # close serial port
+    # DISABLE HV!
+    algo_functions.HV_disable(ser)
+    time.sleep(0.5)

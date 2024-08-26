@@ -22,8 +22,8 @@ midas_l.to(device)
 midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'koi'
-cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
+video = 'truck'
+cap = cv2.VideoCapture("InputVideos/video_" + video + ".mp4") #use video
 
 frame_num = 1
 output_list = []
@@ -196,11 +196,11 @@ for i in range(0,len(output_list)):
     im = plt.imshow(output_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-filename = "animation_" + video + "_output.mp4"
+filename = "OutputVideos/animation_" + video + "_output.mp4"
 ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=30)
 plt.close()
 
-filename_data = "data" + video + "_output.txt"
+filename_data = "InputData/data" + video + "_output.txt"
 with open(filename_data, 'w') as fo:
     for idx, item in enumerate(output_list):
         for row in range(DISPLAY_H):

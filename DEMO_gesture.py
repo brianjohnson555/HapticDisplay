@@ -1,55 +1,60 @@
-import numpy as np
-import math
+###### USER SETTINGS ######
+COM_A = "COM9"
+COM_B = "COM15"
+COM_C = "COM16"
+SERIAL_ACTIVE = False
+
+###### INITIALIZATIONS ######
 import cv2
-import mediapipe as mp
-from mediapipe.tasks import python
-from mediapipe.tasks.python import vision
-from matplotlib import pyplot as plt
 import time
+import serial
+import numpy as np
+import utils.algo_functions as algo_functions # my custom file
+import utils.algo_gesture as algo_gesture # my custom file
 
-model_path = 'gesture_recognizer.task'
+###### MAIN ######
 
-BaseOptions = mp.tasks.BaseOptions
-GestureRecognizer = mp.tasks.vision.GestureRecognizer
-GestureRecognizerOptions = mp.tasks.vision.GestureRecognizerOptions
-GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
-VisionRunningMode = mp.tasks.vision.RunningMode
+if SERIAL_ACTIVE:
+    ser = [serial.Serial(COM_A, 9600, timeout=0, bytesize=serial.EIGHTBITS), 
+           serial.Serial(COM_B, 9600, timeout=0, bytesize=serial.EIGHTBITS),
+           serial.Serial(COM_C, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
+    # ENABLE HV!
+    algo_functions.HV_enable(ser)
 
-# Create a gesture recognizer instance with the live stream mode:
-class callback:
-    stored_result = None
-    def get_result(self, result: GestureRecognizerResult, output_image: mp.Image, timestamp_ms: int):
-        if result.gestures:
-            self.stored_result = str(result.gestures[0][0].category_name)
-        else:
-            self.stored_result = 'Null'
-
-s = callback()
-
-options = GestureRecognizerOptions(
-    base_options=BaseOptions(model_asset_path=model_path),
-    running_mode=VisionRunningMode.LIVE_STREAM,
-    result_callback=s.get_result)
-
+# initialize camera and gesture model:
 cap = cv2.VideoCapture(0) #stream from webcam
+GestureRecognizer, call_back = algo_gesture.initialize_gesture_recognizer()
+gesture_count = algo_gesture.GestureCount() # keep track of each recurrance of gestures
 
-with GestureRecognizer.create_from_options(options) as recognizer:
+with GestureRecognizer as recognizer:
     while True:
-        ret,img = cap.read()
+        ret, frame = cap.read()
         frame_timestamp_ms = int(np.floor(time.time() * 1000))
-        mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=img)
+        algo_gesture.recognize_gesture(recognizer, frame_timestamp_ms, frame) # run code to recognize gesture in camera frame using livestream method
+        intensity_array = algo_gesture.gesture_update_loop(gesture_count, call_back.gesture)
+        duty_array, period_array = algo_functions.map_intensity(intensity_array) # map from algo intensity to duty cycle/period
 
-        recognizer.recognize_async(mp_image, frame_timestamp_ms)
-        
-        img_anno = cv2.putText(img, 
-                               s.stored_result, 
-                               org=(20, 100), 
+        if SERIAL_ACTIVE:
+            # pack and write data to HV switches:
+            algo_functions.packet_and_write(ser, duty_array, period_array)
+
+        frame_annotated = cv2.putText(frame, 
+                               str(gesture_count.active_gesture), 
+                               org=(20, 200), 
                                fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
                                fontScale=2, 
                                color=(255,0,0), 
-                               thickness=2)
+                               thickness=2) # add current gesture annotation to image
         cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
         cv2.resizeWindow('Video', 4*192, 4*108)
-        cv2.imshow('Video',img_anno)
+        cv2.imshow('Video',frame_annotated)
+
         if(cv2.waitKey(10) & 0xFF == ord('b')):
             break # BREAK OUT OF LOOP WHEN "b" KEY IS PRESSED!
+
+
+if SERIAL_ACTIVE:
+    # DISABLE HV!
+    algo_functions.HV_disable(ser)
+    time.sleep(0.5)
+

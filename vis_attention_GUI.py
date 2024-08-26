@@ -76,7 +76,7 @@ midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
 video = 'truck'
-cap = cv2.VideoCapture("video_" + video + ".mp4") #use video
+cap = cv2.VideoCapture("InputVideos/video_" + video + ".mp4") #use video
 
 ################## HYPERPARAMETERS ##################
 FRAME_NUM = 1 # starting frame

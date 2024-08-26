@@ -1,6 +1,6 @@
 ###### USER SETTINGS ######
-FILENAME = "datakoi_output.txt"
-VIDEONAME = "video_koi.mp4"
+FILENAME = "InputData/datakoi_output.txt"
+VIDEONAME = "InputVideos/video_koi.mp4"
 COM_A = "COM9"
 COM_B = "COM15"
 COM_C = "COM16"
@@ -8,13 +8,9 @@ SERIAL_ACTIVE = True
 
 ###### INITIALIZATIONS ######
 import cv2
-import torch
 import time
-import numpy as np
-import matplotlib.pyplot as plt
-import urllib.request
 import serial
-import algo_functions # my custom file, must be in the same directory
+import utils.algo_functions as algo_functions # my custom file
 from numpy import genfromtxt
 
 ###### MAIN ######
@@ -40,8 +36,8 @@ while True:
         ret,img = cap.read() # read frame from video
 
         if ret and dataindex<data_length: # if frame exists, run; otherwise, video is finished->loop back to beginning
-            intensity_array = data[dataindex,:] # Read each line of data
-            dataindex += 1
+            intensity_array = data[dataindex,:] # read each line of data
+            dataindex += 1 # update data index
             duty_array, period_array = algo_functions.map_intensity(intensity_array) # map from algo intensity to duty cycle/period
 
             if SERIAL_ACTIVE:
