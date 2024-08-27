@@ -15,20 +15,10 @@ import utils.algo_functions as algo_functions
 import serial
 
 ###### MAIN ######
-
-if SERIAL_ACTIVE:
-    ser = [serial.Serial(COM_A, 9600, timeout=0, bytesize=serial.EIGHTBITS), 
-           serial.Serial(COM_B, 9600, timeout=0, bytesize=serial.EIGHTBITS),
-           serial.Serial(COM_C, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
-    
-    # ENABLE HV!
-    algo_functions.HV_enable(ser)
-
 def map_pixels(output):
     periods_bot = np.array([output[1,0], output[0,0], output[1,1], output[0,1], output[1,2], output[0,2], output[1,3], output[0,3], output[1,4], output[0,4]])
     periods_top = np.array([output[3,0], output[2,0], output[3,1], output[2,1], output[3,2], output[2,2], output[3,3], output[2,3], output[3,4], output[2,4]])
     return periods_bot, periods_top
-
 
 # Load MiDaS model onto CPU
 device = torch.device('cpu')
@@ -38,14 +28,19 @@ midas.eval()
 midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
 transform = midas_transforms.small_transform
 
-# Setup frame capture
+# Set up frame capture
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) #stream from webcam
 previous_frame = None
 
-# Setup serial connection
+# Set up USB:
+serial_ports = [COM_A, COM_B, COM_C]
+USB_writer = algo_functions.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 if SAVE_VIDEO:
     outlist = []
     outlist2 = []
+
+# Enable HV!!!
+USB_writer.HV_enable()
     
 while True: 
     # Load frame
@@ -71,7 +66,7 @@ while True:
     depth_re = cv2.resize(depth_sub, dsize=(1*7, 1*4), interpolation=cv2.INTER_CUBIC)
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     threshold = 0.26
-    output = (depth_nm > threshold) * depth_nm
+    algo_output = (depth_nm > threshold) * depth_nm
 
     if (previous_frame is None):
         # First frame; there is no previous one yet
@@ -85,13 +80,11 @@ while True:
     # cv2.imshow('Output',output)
     if SAVE_VIDEO:
         outlist.append(imgcolor)
-        outlist2.append(output)
+        outlist2.append(algo_output)
 
-    if SERIAL_ACTIVE:
-            duty_array, period_array = algo_functions.map_intensity(output)
-            # pack and write data to HV switches:
-            algo_functions.packet_and_write(ser, duty_array, period_array)
-    
+    haptic_output = algo_functions.map_intensity(algo_output) # map from algo intensity to duty cycle/period
+    USB_writer.write_to_USB(haptic_output)
+
     if(cv2.waitKey(10) & 0xFF == ord('b')):
         break # BREAK OUT OF LOOP WHEN "B" KEY IS PRESSED!
 
@@ -118,7 +111,6 @@ if SAVE_VIDEO:
     ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=10)
     plt.close()
 
-if SERIAL_ACTIVE:
-    # DISABLE HV!
-    algo_functions.HV_disable(ser)
-    time.sleep(0.5)
+# Disable HV!!!
+USB_writer.HV_disable()
+time.sleep(0.5)

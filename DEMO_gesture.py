@@ -14,32 +14,30 @@ import utils.algo_gesture as algo_gesture # my custom file
 
 ###### MAIN ######
 
-if SERIAL_ACTIVE:
-    ser = [serial.Serial(COM_A, 9600, timeout=0, bytesize=serial.EIGHTBITS), 
-           serial.Serial(COM_B, 9600, timeout=0, bytesize=serial.EIGHTBITS),
-           serial.Serial(COM_C, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
-    # ENABLE HV!
-    algo_functions.HV_enable(ser)
+# Set up USBWriter:
+serial_ports = [COM_A, COM_B, COM_C]
+USB_writer = algo_functions.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+
+# Enable HV!!!
+USB_writer.HV_enable()
 
 # initialize camera and gesture model:
 cap = cv2.VideoCapture(0) #stream from webcam
-GestureRecognizer, call_back = algo_gesture.initialize_gesture_recognizer()
-gesture_count = algo_gesture.GestureCount() # keep track of each recurrance of gestures
+gesture = algo_gesture.Gesture() # keep track of each recurrance of gestures
+recognizer = algo_gesture.Recognizer(gesture)
 
-with GestureRecognizer as recognizer:
+with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs "with...as" in order to run properly (enter()/exit())
     while True:
         ret, frame = cap.read()
         frame_timestamp_ms = int(np.floor(time.time() * 1000))
-        algo_gesture.recognize_gesture(recognizer, frame_timestamp_ms, frame) # run code to recognize gesture in camera frame using livestream method
-        intensity_array = algo_gesture.gesture_update_loop(gesture_count, call_back.gesture)
-        duty_array, period_array = algo_functions.map_intensity(intensity_array) # map from algo intensity to duty cycle/period
-
-        if SERIAL_ACTIVE:
-            # pack and write data to HV switches:
-            algo_functions.packet_and_write(ser, duty_array, period_array)
+        gesture.get_latest_gesture(gesture_recognizer, frame_timestamp_ms, frame)
+        gesture.update()
+        intensity_array = gesture.output_latest
+        haptic_output = algo_functions.map_intensity(intensity_array) # map from algo intensity to duty cycle/period
+        USB_writer.write_to_USB(haptic_output)
 
         frame_annotated = cv2.putText(frame, 
-                               str(gesture_count.active_gesture), 
+                               str(gesture.gesture_active), 
                                org=(20, 200), 
                                fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
                                fontScale=2, 
@@ -53,8 +51,7 @@ with GestureRecognizer as recognizer:
             break # BREAK OUT OF LOOP WHEN "b" KEY IS PRESSED!
 
 
-if SERIAL_ACTIVE:
-    # DISABLE HV!
-    algo_functions.HV_disable(ser)
-    time.sleep(0.5)
-
+    
+# Disable HV!!!
+USB_writer.HV_disable()
+time.sleep(0.5)

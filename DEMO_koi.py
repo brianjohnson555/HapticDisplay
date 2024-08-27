@@ -18,14 +18,12 @@ from numpy import genfromtxt
 data=genfromtxt(FILENAME,delimiter=',')[:,0:28]
 data_length = data.shape[0]
 
-# Set up serial list
-if SERIAL_ACTIVE:
-    ser = [serial.Serial(COM_A, 9600, timeout=0, bytesize=serial.EIGHTBITS), 
-           serial.Serial(COM_B, 9600, timeout=0, bytesize=serial.EIGHTBITS),
-           serial.Serial(COM_C, 9600, timeout=0, bytesize=serial.EIGHTBITS)]
-    
-    # ENABLE HV!
-    algo_functions.HV_enable(ser)
+# Set up USBWriter:
+serial_ports = [COM_A, COM_B, COM_C]
+USB_writer = algo_functions.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+
+# Enable HV!!!
+USB_writer.HV_enable()
 
 while True:
     isClose=False # break condition
@@ -38,11 +36,8 @@ while True:
         if ret and dataindex<data_length: # if frame exists, run; otherwise, video is finished->loop back to beginning
             intensity_array = data[dataindex,:] # read each line of data
             dataindex += 1 # update data index
-            duty_array, period_array = algo_functions.map_intensity(intensity_array) # map from algo intensity to duty cycle/period
-
-            if SERIAL_ACTIVE:
-                # pack and write data to HV switches:
-                algo_functions.packet_and_write(ser, duty_array, period_array)
+            haptic_output = algo_functions.map_intensity(intensity_array) # map from algo intensity to duty cycle/period
+            USB_writer.write_to_USB(haptic_output)
 
             # Display video:
             cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
@@ -58,7 +53,6 @@ while True:
     if isClose: 
         break # user pressed 'b', stop script
     
-if SERIAL_ACTIVE:
-    # DISABLE HV!
-    algo_functions.HV_disable(ser)
-    time.sleep(0.5)
+# Disable HV!!!
+USB_writer.HV_disable()
+time.sleep(0.5)
