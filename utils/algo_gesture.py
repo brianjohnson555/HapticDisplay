@@ -87,6 +87,7 @@ class Gesture:
             self.output_latest = self.output_list.pop() # take output from latest value in list
 
     def initialize_active_gesture(self):
+        frame_rate = 24
         if self.gesture_active=='None':
             self.output_list = []
         elif self.gesture_active=='Closed_Fist':
@@ -98,13 +99,15 @@ class Gesture:
         elif self.gesture_active=='Thumb_Down':
             self.output_list = []
         elif self.gesture_active=='Thumb_Up':
-            self.output_list = []
+            self.output_list = sequence_thumb_up(frame_rate)
         elif self.gesture_active=='Victory':
             self.output_list = []
         elif self.gesture_active=='ILoveYou':
             self.output_list = []
 
 ############################# haptic actuation sequences ################################
-def sequence_thumb_up():
+def sequence_thumb_up(frame_rate: int):
+    sequence_length_s = 2
+    total_frames = int(sequence_length_s*frame_rate)
     output_list = []
     return output_list
