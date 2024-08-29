@@ -6,6 +6,7 @@ import numpy as np
 from PIL import Image
 import cv2
 import matplotlib.animation as animation
+plt.rcParams['animation.ffmpeg_path'] = "C:/ffmpeg/bin/ffmpeg.exe" ### NOTE: specific to your computer!
 
 ## Setting up torch device and model, video input
 device = torch.device("cpu")
@@ -147,7 +148,7 @@ def get_downsample(thresholded):
 
 
 print("Running...")
-while True: 
+while frame_num<20: 
         # grab next frame from video
         frame, img = grab_frame(cap)
         if frame is None:

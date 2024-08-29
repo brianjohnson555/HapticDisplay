@@ -1,5 +1,6 @@
 import numpy as np
 import serial
+from scipy import signal
 
 class USBWriter:
     def __init__(self, serial_ports, serial_active:bool=True):
@@ -32,6 +33,7 @@ class USBWriter:
         ## Assumes a linear/reshape-based encoding starting from top-left of display:
         # duty_array and period_array expect shape is (7,4)
             ##### CURRENT SETUP:
+            #            !(top left of screen in landscape mode)
             # C2|B5|A8|A1
             # C3|B6|A9|A2
             # C4|B7|A10|A3
@@ -95,4 +97,41 @@ def map_intensity(intensity_array):
     output = {"duty": duty_array, "period": period_array}
     return output
 
+def preprogram_output(total_time, frame_rate, input_fun, **kwargs):
+    total_frames = total_time*frame_rate # get total frame count
+    t = np.arange(start=0, stop=total_time, step=1/frame_rate) # make time vector
+    # output_list = []
+
+    output = input_fun(t, **kwargs) # run input function to generate output
+    output_list = list(np.unstack(output, axis=2))
+
+    return output_list
+
+
+############### INPUT FUNCTIONS ################
+
+def input_ramp(t, direction='left',scale=1, freq=1):
+    output = np.zeros((4,7,t.size))
+    ## I need to improve this part, remove for loops
+    if direction=='left':
+        for c in range(7):
+            output[:,c,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*(t+scale*c)) # need to make sure never exceeds range 0-1
+    elif direction=='right':
+        for c in range(7):
+            output[:,c,:] = 0.5 + 0.5*signal.sawtooth(-freq*2*np.pi*(t+scale*c)) # need to make sure never exceeds range 0-1
+    elif direction=='up':
+        for r in range(4):
+            output[r,:,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*(t+scale*r)) # need to make sure never exceeds range 0-1
+    elif direction=='down':
+        for r in range(4):
+            output[r,:,:] = 0.5 + 0.5*signal.sawtooth(-freq*2*np.pi*(t+scale*r)) # need to make sure never exceeds range 0-1
+    return output
+
+def input_ramp_global(t, freq=1):
+    output = np.zeros((4,7,t.size))
+    ## I need to improve this part, remove for loops
+    for r in range(4):
+        for c in range(7):
+            output[r,c,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*t) # need to make sure never exceeds range 0-1
+    return output
 

@@ -1,5 +1,6 @@
 import numpy as np
 import mediapipe as mp
+import utils.algo_functions as algo_functions
 
 # Google AI gesture recognizer setup:
 class Recognizer:
@@ -22,21 +23,24 @@ class Recognizer:
 
 # Create class to track gesture data
 class Gesture:
-    count_dict = {'None': 0, 
-                  'Closed_Fist': 0, 
-                  'Open_Palm': 0, 
-                  'Pointing_Up': 0, 
-                  'Thumb_Down': 0,
-                  'Thumb_Up': 0,
-                  'Victory': 0,
-                  'ILoveYou': 0,
-                  'Total': 0}
-    gesture_latest = 'None'
-    gesture_active = 'None'
-    max_count = 30 # maximum cycles to count before rest
-    margin = 0.5 # percentage of total gestures to count as 'active' gesture
-    output_list = []
-    output_latest = np.zeros((7,4))
+    def __init__(self):
+        self.count_dict = {'None': 0,
+                           'Closed_Fist': 0, 
+                           'Open_Palm': 0, 
+                           'Pointing_Up': 0, 
+                           'Thumb_Down': 0,
+                           'Thumb_Up': 0,
+                           'Victory': 0,
+                           'ILoveYou': 0,
+                           'Total': 0}
+        self.output_dict = self.initialize_active_gesture()
+        self.gesture_latest = 'None'
+        self.gesture_active = 'None'
+        self.max_count = 30 # maximum cycles to count before rest
+        self.margin = 0.5 # percentage of total gestures to count as 'active' gesture
+        self.frame_rate = 24
+        self.output_list = []
+        self.output_latest = np.zeros((4,7))
 
     def update(self):
         self.update_gesture_count()
@@ -70,7 +74,7 @@ class Gesture:
         else:
             self.gesture_active = 'None'
 
-        self.initialize_active_gesture()
+        self.run_active_gesture()
 
     def update_gesture_count(self):
         if not self.output_list: # only run if output list is empty
@@ -82,28 +86,24 @@ class Gesture:
 
     def update_output(self):
         if not self.output_list: #if output_list is empty, set output to zeros
-            self.output_latest = np.zeros((7,4))
+            self.output_latest = np.zeros((4,7))
         else:
             self.output_latest = self.output_list.pop() # take output from latest value in list
 
     def initialize_active_gesture(self):
-        frame_rate = 24
-        if self.gesture_active=='None':
-            self.output_list = []
-        elif self.gesture_active=='Closed_Fist':
-            self.output_list = []
-        elif self.gesture_active=='Open_Palm':
-            self.output_list = []
-        elif self.gesture_active=='Pointing_Up':
-            self.output_list = []
-        elif self.gesture_active=='Thumb_Down':
-            self.output_list = []
-        elif self.gesture_active=='Thumb_Up':
-            self.output_list = sequence_thumb_up(frame_rate)
-        elif self.gesture_active=='Victory':
-            self.output_list = []
-        elif self.gesture_active=='ILoveYou':
-            self.output_list = []
+        output_dict = {}
+        output_dict['None'] = np.zeros((4,7))
+        output_dict['Closed_Fist'] = np.zeros((4,7))
+        output_dict['Open_Palm'] = np.zeros((4,7))
+        output_dict['Pointing_Up'] = np.zeros((4,7))
+        output_dict['Thumb_Down'] = np.zeros((4,7))
+        output_dict['Thumb_Up'] = np.zeros((4,7))
+        output_dict['Victory'] = np.zeros((4,7))
+        output_dict['ILoveYou'] = np.zeros((4,7))
+        return output_dict
+
+    def run_active_gesture(self):
+        self.output_list = self.output_dict[self.gesture_active]
 
 ############################# haptic actuation sequences ################################
 def sequence_thumb_up(frame_rate: int):
