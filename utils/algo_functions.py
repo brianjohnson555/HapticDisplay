@@ -98,40 +98,86 @@ def map_intensity(intensity_array):
     return output
 
 def preprogram_output(total_time, frame_rate, input_fun, **kwargs):
-    total_frames = total_time*frame_rate # get total frame count
     t = np.arange(start=0, stop=total_time, step=1/frame_rate) # make time vector
-    # output_list = []
 
     output = input_fun(t, **kwargs) # run input function to generate output
+    max_val = np.max(output)
+    output = output/max_val
     output_list = list(np.unstack(output, axis=2))
 
     return output_list
 
 
 ############### INPUT FUNCTIONS ################
+############### INPUT FUNCTIONS ################
+############### INPUT FUNCTIONS ################
 
-def input_ramp(t, direction='left',scale=1, freq=1):
+def input_sawtooth(t, direction='left',scale=1, freq=1):
     output = np.zeros((4,7,t.size))
-    ## I need to improve this part, remove for loops
     if direction=='left':
         for c in range(7):
-            output[:,c,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*(t+scale*c)) # need to make sure never exceeds range 0-1
+            output[:,c,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*(t+scale*c))
     elif direction=='right':
         for c in range(7):
-            output[:,c,:] = 0.5 + 0.5*signal.sawtooth(-freq*2*np.pi*(t+scale*c)) # need to make sure never exceeds range 0-1
+            output[:,c,:] = 0.5 + 0.5*signal.sawtooth(-freq*2*np.pi*(t+scale*c))
     elif direction=='up':
         for r in range(4):
-            output[r,:,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*(t+scale*r)) # need to make sure never exceeds range 0-1
+            output[r,:,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*(t+scale*r))
     elif direction=='down':
         for r in range(4):
-            output[r,:,:] = 0.5 + 0.5*signal.sawtooth(-freq*2*np.pi*(t+scale*r)) # need to make sure never exceeds range 0-1
+            output[r,:,:] = 0.5 + 0.5*signal.sawtooth(-freq*2*np.pi*(t+scale*r))
     return output
 
-def input_ramp_global(t, freq=1):
+def input_sawtooth_global(t, freq=1):
     output = np.zeros((4,7,t.size))
     ## I need to improve this part, remove for loops
     for r in range(4):
         for c in range(7):
-            output[r,c,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*t) # need to make sure never exceeds range 0-1
+            output[r,c,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*t)
     return output
 
+def input_sine(t, direction='left',scale=1, freq=1):
+    output = np.zeros((4,7,t.size))
+    if direction=='left':
+        for c in range(7):
+            output[:,c,:] = 0.5 + 0.5*np.sin(freq*2*np.pi*(t+scale*c))
+    elif direction=='right':
+        for c in range(7):
+            output[:,c,:] = 0.5 + 0.5*np.sin(-freq*2*np.pi*(t+scale*c))
+    elif direction=='up':
+        for r in range(4):
+            output[r,:,:] = 0.5 + 0.5*np.sin(freq*2*np.pi*(t+scale*r))
+    elif direction=='down':
+        for r in range(4):
+            output[r,:,:] = 0.5 + 0.5*np.sin(-freq*2*np.pi*(t+scale*r))
+    return output
+
+def input_sine_global(t, freq=1):
+    output = np.zeros((4,7,t.size))
+    ## I need to improve this part, remove for loops
+    for r in range(4):
+        for c in range(7):
+            output[r,c,:] = 0.5 + 0.5*np.sin(freq*2*np.pi*t) # need to make sure never exceeds range 0-1
+    return output
+
+def input_checker_square(t, freq=1):
+    output = np.zeros((4,7,t.size))
+    ## I need to improve this part, remove for loops
+    for r in range(4):
+        for c in range(7):
+            if (r%2==0 and c%2==0) or (r%2==1 and c%2==1): #if both r, c are even or odd:
+                output[r,c,:] = 0.5 + 0.5*signal.square(freq*2*np.pi*t) # need to make sure never exceeds range 0-1
+            else:
+                output[r,c,:] = 0.5 - 0.5*signal.square(freq*2*np.pi*t) # need to make sure never exceeds range 0-1
+    return output
+
+def input_checker_sine(t, freq=1):
+    output = np.zeros((4,7,t.size))
+    ## I need to improve this part, remove for loops
+    for r in range(4):
+        for c in range(7):
+            if (r%2==0 and c%2==0) or (r%2==1 and c%2==1): #if both r, c are even or odd:
+                output[r,c,:] = 0.5 + 0.5*np.sin(freq*2*np.pi*t) # need to make sure never exceeds range 0-1
+            else:
+                output[r,c,:] = 0.5 - 0.5*np.sin(freq*2*np.pi*t) # need to make sure never exceeds range 0-1
+    return output

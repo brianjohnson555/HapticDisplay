@@ -93,11 +93,11 @@ class Gesture:
     def initialize_active_gesture(self):
         output_dict = {}
         output_dict['None'] = np.zeros((4,7))
-        output_dict['Closed_Fist'] = np.zeros((4,7))
+        output_dict['Closed_Fist'] = algo_functions.preprogram_output(3, 24, algo_functions.input_checker, freq=3)
         output_dict['Open_Palm'] = np.zeros((4,7))
         output_dict['Pointing_Up'] = np.zeros((4,7))
-        output_dict['Thumb_Down'] = np.zeros((4,7))
-        output_dict['Thumb_Up'] = np.zeros((4,7))
+        output_dict['Thumb_Down'] = algo_functions.preprogram_output(3, 24, algo_functions.input_sawtooth, direction='left',scale=0.1, freq=3)
+        output_dict['Thumb_Up'] = algo_functions.preprogram_output(3, 24, algo_functions.input_sawtooth, direction='right',scale=0.1, freq=3)
         output_dict['Victory'] = np.zeros((4,7))
         output_dict['ILoveYou'] = np.zeros((4,7))
         return output_dict
@@ -105,9 +105,3 @@ class Gesture:
     def run_active_gesture(self):
         self.output_list = self.output_dict[self.gesture_active]
 
-############################# haptic actuation sequences ################################
-def sequence_thumb_up(frame_rate: int):
-    sequence_length_s = 2
-    total_frames = int(sequence_length_s*frame_rate)
-    output_list = []
-    return output_list
