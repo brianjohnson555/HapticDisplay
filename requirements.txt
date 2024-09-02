@@ -1,0 +1,17 @@
+dino==0.0.6
+keyboard==0.13.5
+matplotlib==3.9.2
+mediapipe==0.10.14
+nidaqmx==1.0.1
+numpy==2.1.0
+opencv_contrib_python==4.10.0.84
+opencv_python==4.7.0.72
+Pillow==9.4.0
+Pillow==10.4.0
+PyDAQmx==1.4.6
+PyDAQmx==1.4.6
+pyserial==3.5
+scipy==1.14.1
+timm==0.6.13
+torch==2.0.0
+torchvision==0.15.1

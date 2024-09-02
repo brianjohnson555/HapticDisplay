@@ -1,9 +1,19 @@
+#!/usr/bin/env python
+
+"""This demo script runs an example of real-time visual-haptic streaming.
+
+The script creates a video of the computer webcam view, which should be lined up to 
+match the position of the haptic display on the screen. The algorithm estimates a 
+depth-map of each frame of the webcam image, and the mapping function maps depth to
+frequency/duty cycle."""
+
 ###### USER SETTINGS ######
-SERIAL_ACTIVE = True
-SAVE_VIDEO = False
-COM_A = "COM9"
-COM_B = "COM15"
-COM_C = "COM16"
+SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
+VIEW_INTENSITY = False # if True, opens a video showing the depth/intensity map
+SAVE_VIDEO = False # if True, saves a video file of both the camera view and the intensity map
+COM_A = "COM9" # port for MINI switches 1-10
+COM_B = "COM15" # port for MINI switches 11-20
+COM_C = "COM16" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -12,9 +22,10 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 import utils.algo_functions as algo_functions
-import serial
 
 ###### MAIN ######
+# TODO: Need to make all of this work with new algo_functions codes.
+
 def map_pixels(output):
     periods_bot = np.array([output[1,0], output[0,0], output[1,1], output[0,1], output[1,2], output[0,2], output[1,3], output[0,3], output[1,4], output[0,4]])
     periods_top = np.array([output[3,0], output[2,0], output[3,1], output[2,1], output[3,2], output[2,2], output[3,3], output[2,3], output[3,4], output[2,4]])
@@ -30,7 +41,6 @@ transform = midas_transforms.small_transform
 
 # Set up frame capture
 cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) #stream from webcam
-previous_frame = None
 
 # Set up USB:
 serial_ports = [COM_A, COM_B, COM_C]
@@ -67,17 +77,13 @@ while True:
     depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
     threshold = 0.26
     algo_output = (depth_nm > threshold) * depth_nm
-
-    if (previous_frame is None):
-        # First frame; there is no previous one yet
-        previous_frame = img
-        continue
     
     # Show frames
     cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
     cv2.imshow('Video',img)
-    # cv2.namedWindow('Output',cv2.WINDOW_KEEPRATIO)
-    # cv2.imshow('Output',output)
+    if VIEW_INTENSITY:
+        cv2.namedWindow('Output',cv2.WINDOW_KEEPRATIO)
+        cv2.imshow('Output',algo_output)
     if SAVE_VIDEO:
         outlist.append(imgcolor)
         outlist2.append(algo_output)

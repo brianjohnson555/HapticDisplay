@@ -1,9 +1,21 @@
+#!/usr/bin/env python
+
+"""Sets up Recognizer and Gesture classes + methods for gesture-based demo.
+
+The Recognizer is based on a Google AI gesture_recognizer pre-trained model. There are 8
+possible gestures recognized by the model: 'none', 'closed fist', 'open palm', 'pointing 
+up', 'thumb down', 'thumb up', 'victory' (v-sign), and 'I love you' (in ASL)."""
+
 import numpy as np
 import mediapipe as mp
 import utils.algo_functions as algo_functions
+model_asset_path='utils\gesture_recognizer.task'
 
 # Google AI gesture recognizer setup:
 class Recognizer:
+    """Initiates a pre-trained gesture recognition model. Calling GestureRecognizerResult
+     retrieves the detected gesture of the input image. This uses a callback function
+     which is defined in the Gesture class."""
     def __init__(self, gesture_data):
         # from Google AI tutorial:
         self.GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
@@ -14,8 +26,9 @@ class Recognizer:
         # initialize recognizer:
         self.recognizer = self.initialize_gesture_recognizer(gesture_data)
 
-    def initialize_gesture_recognizer(self, gesture_data): #expects Gesture class object
-        options = self.GestureRecognizerOptions(base_options=self.BaseOptions(model_asset_path='utils\gesture_recognizer.task'), # path for gesture recognizer file
+    def initialize_gesture_recognizer(self, gesture_data):
+        """Initializes the recognizer model using gesture_data, a Gesture class object with callback."""
+        options = self.GestureRecognizerOptions(base_options=self.BaseOptions(model_asset_path), # path for gesture recognizer file
                                         running_mode=self.VisionRunningMode.LIVE_STREAM, 
                                         result_callback=gesture_data.gesture_callback_from_recognizer)
         
@@ -23,6 +36,24 @@ class Recognizer:
 
 # Create class to track gesture data
 class Gesture:
+    """Contains all current gesture information and controls outputs to the haptic display.
+    
+    The class method gesture_callback_from_recognizer() must be an input in the initialization
+     of the Recognizer class. It is the callback function used to retrieve the detected 
+     gesture.
+     
+    The general method flow is as follows:
+     1. __init__() called upon initialize of Gesture object.
+     2. When get_latest_gesture() is called using a Recognizer class object, the Recognizer 
+     calls gesture_callback_from_recognizer() and the latest detected gesture is retrieved.
+     3. This automatically calls update(), which calls update_output() and update_gesture_count().
+      4a. update_output() pops the latest intensity array from output_list, or sends zero array if empty.
+      4b. update_gesture_count() adds to the count_dict['Total'] value. When the value exceeds
+       max_count, it calls update_active_gesture().
+      5. update_active_gesture() determines which gesture is 'active' base on the margin variable.
+       After determining gesture_active, it calls run_active_gesture().
+      6. run_active_gesture() populates the output_list with the corresponding sequence of outputs
+       specified in output_dict. The list will be popped next time update()/update_output() is called."""
     def __init__(self):
         self.count_dict = {'None': 0,
                            'Closed_Fist': 0, 
@@ -33,33 +64,41 @@ class Gesture:
                            'Victory': 0,
                            'ILoveYou': 0,
                            'Total': 0}
-        self.output_dict = self.initialize_active_gesture()
-        self.gesture_latest = 'None'
-        self.gesture_active = 'None'
-        self.max_count = 30 # maximum cycles to count before rest
+        self.output_dict = self.initialize_active_gesture() # dictionary with pre-allocated output sequences
+        self.gesture_latest = 'None' # latest gesture detected by the Recognizer class
+        self.gesture_active = 'None' # gesture which is currently being executed (for output_list)
+        self.max_count = 30 # maximum cycles to count before obtaining gesture_active
         self.margin = 0.5 # percentage of total gestures to count as 'active' gesture
-        self.frame_rate = 24
-        self.output_list = []
-        self.output_latest = np.zeros((4,7))
+        self.frame_rate = 24 # frame rate of video stream
+        self.output_list = [] # list of current haptic intensities
+        self.output_latest = np.zeros((4,7)) # haptic intensity passed to the display (HV!)
 
     def update(self):
-        self.update_gesture_count()
+        """Updates the intensity array output to the haptic display and updates gesture count
+         if no more outputs are available."""
         self.update_output()
+        if not self.output_list: # only run if output list is empty
+            self.update_gesture_count()
 
     def get_latest_gesture(self, recognizer, frame_timestamp_ms, frame):
+        "Calls the Recognizer class object in livestream mode to obtain detected gesture on image frame."
         # recognizer has type: Recognizer.GestureRecognizer
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
         recognizer.recognize_async(mp_image, frame_timestamp_ms)
         # recognizer initiates callback function, so it is equivalent here to running self.gesture_callback_from_recognizer()
+        self.update() # update obtained gesture info!
 
     def gesture_callback_from_recognizer(self, result, output_image: mp.Image, timestamp_ms: int): #I'm not sure why, but the 3 inputs are required to work properly (even if unused)
+        """Callback function for the Recognizer class object to retrieve gesture info."""
         # result has type: Recognizer.GestureRecognizerResult
         if result.gestures: # if gesture was detected (not empty)
+            # result.gesture contains lots of info, we only need the name of the detected gesture:
             self.gesture_latest = str(result.gestures[0][0].category_name)
-        else:
+        else: # no gesture was detected
             self.gesture_latest = 'None'
 
     def update_active_gesture(self):
+        """Sets the active gesture based on the gesture that exceeds margin value"""
         top_gesture = None
         top_gesture_count = 0
 
@@ -77,20 +116,26 @@ class Gesture:
         self.run_active_gesture()
 
     def update_gesture_count(self):
-        if not self.output_list: # only run if output list is empty
-            self.count_dict[self.gesture_latest]+=1
-            self.count_dict['Total']+=1
+        """Updates the total gesture count to determine when to check for active gestures.
+        The purpose of this method and the update_active_gesture() method are to make sure the
+        active gesture is one which is intentionally shown by the user in the video (i.e. ignores
+        gesture detection errors or 'noise' in the detection method.)"""
+        self.count_dict[self.gesture_latest]+=1
+        self.count_dict['Total']+=1
 
-            if self.count_dict['Total']>=self.max_count:
-                self.update_active_gesture()
+        if self.count_dict['Total']>=self.max_count:
+            self.update_active_gesture()
 
     def update_output(self):
+        """Sets the intensity array output to be mapped into haptic feedback (HV!)"""
         if not self.output_list: #if output_list is empty, set output to zeros
             self.output_latest = np.zeros((4,7))
         else:
             self.output_latest = self.output_list.pop() # take output from latest value in list
 
     def initialize_active_gesture(self):
+        """Pre-allocates the output intensity sequence for each active gesture. The sequence is
+         generated by generator functions in util.algo_functions."""
         output_dict = {}
         output_dict['None'] = np.zeros((4,7))
         output_dict['Closed_Fist'] = algo_functions.preprogram_output(3, 24, algo_functions.input_checker, freq=3)
@@ -103,5 +148,6 @@ class Gesture:
         return output_dict
 
     def run_active_gesture(self):
+        """Populates the output list with the pre-allocated output sequence for the given gesture."""
         self.output_list = self.output_dict[self.gesture_active]
 
