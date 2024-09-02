@@ -24,7 +24,7 @@ midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
 video = 'truck'
-cap = cv2.VideoCapture("InputVideos/video_" + video + ".mp4") #use video
+cap = cv2.VideoCapture("algo_input_videoss/video_" + video + ".mp4") #use video
 
 frame_num = 1
 output_list = []
@@ -201,7 +201,7 @@ filename = "OutputVideos/animation_" + video + "_output.mp4"
 ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=30)
 plt.close()
 
-filename_data = "InputData/data" + video + "_output.txt"
+filename_data = "algo_input_data/data" + video + "_output.txt"
 with open(filename_data, 'w') as fo:
     for idx, item in enumerate(output_list):
         for row in range(DISPLAY_H):

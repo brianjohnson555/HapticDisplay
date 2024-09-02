@@ -1,6 +1,6 @@
 ###### USER SETTINGS ######
-FILENAME = "InputData/datakoi_output.txt"
-VIDEONAME = "InputVideos/video_koi.mp4"
+FILENAME = "algo_input_data/datakoi_output.txt"
+VIDEONAME = "algo_input_videos/video_koi.mp4"
 COM_A = "COM9"
 COM_B = "COM15"
 COM_C = "COM16"
