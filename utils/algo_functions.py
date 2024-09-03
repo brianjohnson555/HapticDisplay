@@ -48,13 +48,13 @@ class USBWriter:
             for ser in self.serial_list:
                 ser.close()
 
-    def write_to_USB(self, output = dict(duty=np.zeros((7,4)), period=np.zeros((7,4)))):
+    def write_to_USB(self, output = dict(duty=np.zeros((4,7)), period=np.zeros((4,7)))):
         """Writes the duty cycle and period data to USB.
         
         Inputs:
-        -output: dict with keys 'duty' and 'period', each one containing np.ndarray of shape (7,4)
+        -output: dict with keys 'duty' and 'period', each one containing np.ndarray of shape (4,7)
         
-        The mapping from the (7,4) array to the USB is explained in README.md of this repository.
+        The mapping from the (4,7) array to the USB is explained in README.md of this repository.
         The write process is done in the order given by serial_list, which assumes the order is
         [MINI rack A, MINI rack B, MINI rack C]."""
 
@@ -108,11 +108,11 @@ class IntensityMap:
 
     scaling_factor = 2
 
-    def map_0_24Hz(self, intensity_array: np.ndarray = np.zeros((7,4))):
+    def map_0_24Hz(self, intensity_array: np.ndarray = np.zeros((4,7))):
         """Converts intensity 0-1 to range of 0-24 Hz with duty 33-74%.
         
         Inputs:
-        -intensity_array: np.ndarray of shape (7,4) containing intensity of the frame. Default is zero array."""
+        -intensity_array: np.ndarray of shape (4,7) containing intensity of the frame. Default is zero array."""
 
         # map frequencies:
         mapped_freq = 24*intensity_array # mapped frequency (Hz)
@@ -131,6 +131,67 @@ class IntensityMap:
         period_array = self.scaling_factor*period_array # scaling factor (see function description)
         output = {"duty": duty_array, "period": period_array}
         return output
+    
+    def map_0_200Hz(self, intensity_array: np.ndarray = np.zeros((4,7))):
+        """Converts intensity 0-1 to range of 0-200 Hz with duty 20-75%.
+        
+        Inputs:
+        -intensity_array: np.ndarray of shape (4,7) containing intensity of the frame. Default is zero array."""
+
+        # map frequencies:
+        mapped_freq = 200*intensity_array # mapped frequency (Hz)
+        mapped_freq[mapped_freq==0] = 0.001 # can't be zero (div/0 when inverting to period)
+        period_array = np.reciprocal(mapped_freq) # mapped period (sec)
+        period_array = 1000*period_array # mapped period (ms)
+        period_array = period_array.astype(int)
+        period_array[period_array<5] = 5 # anything below 5 ms -> 5 ms (above 200 Hz -> 200 Hz)
+        period_array[period_array>500] = 0 # anything above 500 ms -> 0 (below 2 Hz = 0)
+
+        # map duty cycles:
+        duty_array = (mapped_freq.astype(int)**0.25)/5 # map duty cycle directly based on frequency
+        # Max duty = (200Hz^0.25)/5 = 75%
+        # Min duty = (1Hz^0.25)/5 = 20%
+        
+        period_array = self.scaling_factor*period_array # scaling factor (see function description)
+        output = {"duty": duty_array, "period": period_array}
+        return output
+    
+    def map_0_24Hz_constant_duty(self, intensity_array: np.ndarray = np.zeros((4,7))):
+        """Converts intensity 0-1 to range of 0-24 Hz with constant duty of 50%.
+        
+        Inputs:
+        -intensity_array: np.ndarray of shape (4,7) containing intensity of the frame. Default is zero array."""
+
+        # map frequencies:
+        mapped_freq = 24*intensity_array # mapped frequency (Hz)
+        mapped_freq[mapped_freq==0] = 0.001 # can't be zero (div/0 when inverting to period)
+        period_array = np.reciprocal(mapped_freq) # mapped period (sec)
+        period_array = 1000*period_array # mapped period (ms)
+        period_array = period_array.astype(int)
+        period_array[period_array<42] = 42 # anything below 42 ms -> 42 ms (above 24 Hz -> 24 Hz)
+        period_array[period_array>500] = 0 # anything above 500 ms -> 0 (below 2 Hz = 0)
+
+        # map duty cycles:
+        duty_array = 0.5*np.ones((4,7)) # constant 50%
+        
+        period_array = self.scaling_factor*period_array # scaling factor (see function description)
+        output = {"duty": duty_array, "period": period_array}
+        return output
+    
+    def map_duty_constant_10Hz(self, intensity_array: np.ndarray = np.zeros((4,7))):
+        """Converts intensity 0-1 to a constant 10 Hz with duty of 0-75%.
+        
+        Inputs:
+        -intensity_array: np.ndarray of shape (4,7) containing intensity of the frame. Default is zero array."""
+
+        # map frequencies:
+        period_array = 100*np.ones((4,7)) # mapped period, constant 10 Hz (ms)
+        # map duty cycles:
+        duty_array = 0.75*intensity_array # intensity 1->0.75, 0->0 (linear scaling)
+        
+        period_array = self.scaling_factor*period_array # scaling factor (see function description)
+        output = {"duty": duty_array, "period": period_array}
+        return output
 
 ############### INPUT FUNCTIONS + CLASS ################
 class IntensityGenerator:
@@ -138,7 +199,7 @@ class IntensityGenerator:
     
     Use this to create pre-programmed output sequences for the haptic display."""
 
-    def __init__(self, total_time, frame_rate):
+    def __init__(self, total_time=3, frame_rate=24):
         """Inputs:
         -total_time: total time (seconds) of output to generate
         -frame_rate: frame rate for generated output"""
@@ -148,7 +209,7 @@ class IntensityGenerator:
         """Normalizes and list-izes the output sequence.
         
         Inputs:
-        -output_array: np.ndarray of shape (7,4,n) for n total number of frames in the sequence.
+        -output_array: np.ndarray of shape (4,7,n) for n total number of frames in the sequence.
         
         The output is normalize based on the maximum value in the entire output_array. This ensures the
         returned list never exceeds a value of 1.
@@ -261,4 +322,16 @@ class IntensityGenerator:
                     output[r,c,:] = 0.5 + 0.5*np.sin(freq*2*np.pi*self.t) # need to make sure never exceeds range 0-1
                 else:
                     output[r,c,:] = 0.5 - 0.5*np.sin(freq*2*np.pi*self.t) # need to make sure never exceeds range 0-1
+        return self.make_output(output)
+    
+    def ramp(self, direction=1):
+        """Linear ramp from 0 to 1.
+        
+        Inputs:
+        -direction: 1 for increasing ramp, -1 for decreasing ramp"""
+
+        output = np.zeros((4,7,self.t.size))
+        for r in range(4):
+            for c in range(7):
+                output[r,c,:] = 0.5 + 0.5*signal.sawtooth(direction*(1/self.t[-1])*2*np.pi*self.t)
         return self.make_output(output)
