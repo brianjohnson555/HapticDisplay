@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """This demo script runs an example of real-time visual-haptic streaming.
 

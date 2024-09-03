@@ -61,17 +61,42 @@ All code is written with the following conventions, which should be maintained w
 
 ### Script headers
 Each script starts with a docstring denoted by triple quotes `""" ... """` which describes
-the basic purpose of the script.
+the basic purpose of the script. If the script is intended to be modified/worked with directly (demo scripts, etc.), then the following sections are also added using line comments (see **`DEMO_gesture.py`** for example):
 
-If the script is intended to be modified/worked with directly (demo scripts, etc.), then the following sections are also added using line comments (see **`DEMO_gesture.py`** for example):
+```python
+#!/usr/bin/env python3  <--- this makes sure the Python3 interpreter is used. Not strictly necessary for us.
 
-`###### USER SETTINGS ######` (Put user parameters here)
+"""Script description goes here."""
 
-`###### INITIALIZATIONS ######` (Put all package import calls here)
+###### USER SETTINGS ######
+USER_PARAM = True # if True, does x; if False, does y
 
-`###### MAIN ######` (Rest of the code goes here)
+###### INITIALIZATIONS ######
+import numpy as np
+import matplotlib.pyplot as plt
+# etc.
 
-### Script/variable/class names
+###### MAIN ######
+# rest of the code goes here
+```
+
+### Function/class headers
+Like scripts, each new class, class method, or function must contain a docstring `""" ... """` that
+descripts what the thing does. The docstring should also contain a list of required inputs. For example:
+
+```python
+class MyClass:
+"""Description of class."""
+
+def __init__(self, var1: int, var2: str):
+    """Description of method.
+
+    Inputs:
+    -var1: int which does xyz
+    -var2: str which does abc"""
+```
+
+### Script/variable/function/class names
 Follow the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html#316-naming): `module_name`, `package_name`, `ClassName`, `method_name`, `function_name`, `local_var_name`, etc.
 
 ### User parameters

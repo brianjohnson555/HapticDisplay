@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """This demo script simultaneously displays the koi fish video will writing haptic output
 to the haptic display via USB. Both the video and haptic output will loop continuously
