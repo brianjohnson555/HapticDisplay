@@ -46,7 +46,7 @@ The **`figure_generation/`** directory can be used to write code to generate fig
 
 Since the haptic display is a 7x4 array (28 pixels) and we use 3 MINI switch racks (30 switches), the following wiring scheme is adopted to map from intensity array (np.ndarray) indices to the physical pixels:
 
-|  |  |  | Landscape mode |  |  |  |
+| Screen top left |  |  | Landscape mode |  |  |  |
 |:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|:--------:|
 | [0,0]=A1 | [0,1]=A2 | [0,2]=A3 | [0,3]=A4 | [0,4]=A5 | [0,5]=A6 | [0,6]=A7 |
 | [1,0]=A8 | [1,1]=A9 | [1,2]=A10 | [1,3]=B1 | [1,4]=B2 | [1,5]=B3 | [1,6]=B4 |

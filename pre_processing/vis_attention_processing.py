@@ -197,7 +197,7 @@ for i in range(0,len(output_list)):
     im = plt.imshow(output_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-filename = "OutputVideos/animation_" + video + "_output.mp4"
+filename = "output_videos/animation_" + video + "_output.mp4"
 ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=30)
 plt.close()
 
