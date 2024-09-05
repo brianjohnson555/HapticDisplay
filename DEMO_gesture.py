@@ -20,8 +20,9 @@ import cv2
 import time
 import serial
 import numpy as np
-import utils.algo_functions as algo_functions # my custom file
-import utils.algo_gesture as algo_gesture # my custom file
+import visual_haptic_utils.haptic_funcs as haptic_funcs # my custom file
+import visual_haptic_utils.USB_writer as USB_writer # my custom file
+import visual_haptic_utils.algo_gesture as algo_gesture # my custom file
 import matplotlib.pyplot as plt
 
 ## debug:
@@ -32,7 +33,7 @@ import matplotlib.pyplot as plt
 
 # Set up USBWriter:
 serial_ports = [COM_A, COM_B, COM_C]
-USB_writer = algo_functions.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 if SAVE_VIDEO:
     outlist_image = []
     outlist_haptic = []
@@ -44,7 +45,7 @@ USB_writer.HV_enable()
 cap = cv2.VideoCapture(0) #stream from webcam
 gesture = algo_gesture.Gesture() # keep track of each recurrance of gestures
 recognizer = algo_gesture.Recognizer(gesture)
-intensity_map = algo_functions.IntensityMap()
+haptic_map = haptic_funcs.HapticMap()
 
 with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs "with...as" in order to run properly (enter()/exit())
     while True:
@@ -53,7 +54,7 @@ with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs 
         gesture.get_latest_gesture(gesture_recognizer, frame_timestamp_ms, frame)
 
         intensity_array = gesture.output_latest
-        haptic_output = intensity_map.map_0_24Hz(intensity_array) # map from algo intensity to duty cycle/period
+        haptic_output = haptic_map.linear_map(intensity_array) # map from algo intensity to duty cycle/period
         USB_writer.write_to_USB(haptic_output)
 
         frame_annotated = cv2.putText(frame, 

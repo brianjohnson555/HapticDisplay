@@ -18,7 +18,8 @@ COM_C = "COM16" # port for MINI swiches 21-28
 ###### INITIALIZATIONS ######
 import cv2
 import time
-import utils.algo_functions as algo_functions # my custom file
+import visual_haptic_utils.haptic_funcs as haptic_funcs # my custom file
+import visual_haptic_utils.USB_writer as USB_writer # my custom file
 from numpy import genfromtxt
 
 ###### MAIN ######
@@ -26,9 +27,10 @@ from numpy import genfromtxt
 data=genfromtxt(FILENAME,delimiter=',')[:,0:28]
 data_length = data.shape[0]
 
-# Set up USBWriter:
+# Set up USBWriter and intensity map:
 serial_ports = [COM_A, COM_B, COM_C]
-USB_writer = algo_functions.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+haptic_map = haptic_funcs.HapticMap()
 
 # Enable HV!!!
 USB_writer.HV_enable()
@@ -44,7 +46,7 @@ while True:
         if ret and dataindex<data_length: # if frame exists, run; otherwise, video is finished->loop back to beginning
             intensity_array = data[dataindex,:] # read each line of data
             dataindex += 1 # update data index
-            haptic_output = algo_functions.map_intensity(intensity_array) # map from algo intensity to duty cycle/period
+            haptic_output = haptic_map.linear_map(intensity_array) # map from algo intensity to duty cycle/period
             USB_writer.write_to_USB(haptic_output)
 
             # Display video:

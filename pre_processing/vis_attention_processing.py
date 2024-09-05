@@ -1,176 +1,64 @@
-import matplotlib.pyplot as plt
-import torch
-import torch.nn as nn
-from torchvision import transforms
-import numpy as np
-from PIL import Image
-import cv2
-import matplotlib.animation as animation
-plt.rcParams['animation.ffmpeg_path'] = "C:/ffmpeg/bin/ffmpeg.exe" ### NOTE: specific to your computer!
+#!/usr/bin/env python3
 
-## Setting up torch device and model, video input
-device = torch.device("cpu")
-dino8 = torch.hub.load('facebookresearch/dino:main','dino_vits8')
-dino8.to(device)
-dino8.eval()
-midas_h = torch.hub.load('intel-isl/MiDaS','DPT_Hybrid')
-midas_l = torch.hub.load('intel-isl/MiDaS','DPT_Large')
-midas_s = torch.hub.load('intel-isl/MiDaS','MiDaS_small')
-midas_transforms = torch.hub.load('intel-isl/MiDaS','transforms')
-midas_h.to(device)
-midas_h.eval()
-midas_l.to(device)
-midas_l.eval()
-midas_s.to(device)
-midas_s.eval()
-video = 'truck'
-cap = cv2.VideoCapture("algo_input_videoss/video_" + video + ".mp4") #use video
+"""This script processes input video through the visual-haptic algorithm.
 
-frame_num = 1
-output_list = []
+NOTE: Work in progress!"""
 
-################## PARAMETERS ##################
+###### USER SETTINGS ######
+VIDEO = "truck" # pick video suffix from algo_input_videos/ folder
 RESOLUTION_ATT = 100 # resolution of get_attention for DINO model
 MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
 THRESHOLD_VAL = 0.35 # threshold of attention+depth combination
 BIAS = 0.75 # bias towards attention for attention+depth combination
 SCALE = 4 # scaling of combined array (scale*[16, 9])
-DISPLAY_W = 7 # HASEL haptic display width (pixels)
-DISPLAY_H = 4 # HASEL haptic display height (pixels)
+DISPLAY_DIMS = (4,7) # HASEL haptic display dimensions, H x W (pixels)
 FRAME_SKIP = 5 # interval for how often to calculate algorithm (then interpolate between)
+DEVICE = "cpu"
 
-################## FUNCTIONS ##################
-# Grab video frame (next frame if frame_num=1 or nth frame if =n)
-def grab_frame(cap=cap):
-    frame = None
-    img = None
-    ret = cap.grab()
-    if ret is False:
-        return frame, img
-    ret, img = cap.retrieve() # retrieve the desired frame
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB) # color conversion
-    frame = Image.fromarray(img) # convert data type
-    return frame, img
+###### INITIALIZATIONS ######
+import matplotlib.pyplot as plt
+import torch
+import numpy as np
+import cv2
+import matplotlib.animation as animation
+import sys
+import os.path
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
+import visual_haptic_utils.algo_preprocessing as algo
 
-# Get self attention from video frame using DINO
-def get_attention(frame):
-    global RESOLUTION_ATT
-    transform1 = transforms.Compose([           
-                                transforms.Resize((RESOLUTION_ATT,int(np.floor(RESOLUTION_ATT*1.7777)))),
-                                # transforms.CenterCrop(resolution), #should be multiple of model patch_size                 
-                                transforms.ToTensor(),                    
-                                #transforms.Normalize(mean=0.5, std=0.2)
-                                ])
-    frame_t = transform1(frame).unsqueeze(0)
-    attentions = dino8.get_last_selfattention(frame_t)
-    nh = attentions.shape[1]
-    attentions = attentions[0, :, 0, 1:].reshape(nh,-1)
-    patch_size = 4
-    w_featmap = frame_t.shape[-2] // patch_size
-    h_featmap = frame_t.shape[-1] // patch_size
+###### MAIN ######
+## Setting up torch device and model, video input
+device = torch.device(DEVICE)
+cap = cv2.VideoCapture("algo_input_videos/video_" + VIDEO + ".mp4") #use video
+model = algo.VisualHapticModel(device=device,
+                               resolution_attention=RESOLUTION_ATT,
+                               depth_model_type=MODEL,
+                               threshold_value=THRESHOLD_VAL,
+                               bias=BIAS,
+                               scaling_factor=SCALE,
+                               display_dim=DISPLAY_DIMS)
 
-    attentions = attentions.reshape(nh, w_featmap//2, h_featmap//2)
-    attentions = nn.functional.interpolate(attentions.unsqueeze(0), scale_factor=1, mode="nearest")[0].detach().numpy()
-    attentions_mean = (np.mean(attentions, axis=0))
-    return attentions_mean
-
-# get depth estimation of frame using MiDaS
-def get_depth(img):
-    global MODEL
-    if MODEL == 'small':
-        frame = midas_transforms.small_transform(img) # use small image transform
-        depth_size_x = 256
-        depth = midas_s(frame) # evaluate using small model
-    else:
-        frame = midas_transforms.dpt_transform(img) # use DPT image transform
-        depth_size_x = 672
-        if MODEL == 'hybrid':
-            depth = midas_h(frame) # evaluate using hybrid model
-        else:
-            depth = midas_l(frame) # evaluate using large model
-
-    depth = depth.cpu().detach().numpy().squeeze(0)
-    
-    # remove normal depth gradient from depth map
-    depth_nm = cv2.normalize(depth, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
-    xgrid = np.zeros(depth_size_x, dtype=float)
-    ygrid = depth_nm.mean(axis=1) # make mean-depth-based gradient
-    grad_array = np.meshgrid(xgrid, ygrid)[1] # form gradient array w/ same size as depth
-    depth_sub = (depth_nm - grad_array)
-    depth_sub = (depth_sub > 0) * depth_sub # take only positive values
-
-    return depth_sub
-
-# combine depth and attention maps together
-def get_combined(depth, attention, method='sum'):
-    global BIAS
-    global SCALE
-    depth_re = cv2.resize(depth, dsize=(16*SCALE, 9*SCALE), interpolation=cv2.INTER_CUBIC)
-    depth_nm = cv2.normalize(depth_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
-    attention_re = cv2.resize(attention, dsize=(16*SCALE, 9*SCALE), interpolation=cv2.INTER_CUBIC)
-    attention_nm = cv2.normalize(attention_re, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
-
-    if method=='multiply':
-        combined = depth_nm*attention_nm
-    elif method=='sum':
-        combined = ((1-BIAS)*depth_nm + (BIAS)*attention_nm)
-    combined = cv2.normalize(combined, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_64F)
-
-    return combined
-
-# threshold the combined map to threshold_val
-def get_threshold(combined):
-    global THRESHOLD_VAL
-    return (combined > THRESHOLD_VAL) * combined
-
-# downsample the thresholded map to the grid size of the haptic display
-def get_downsample(thresholded):
-    global DISPLAY_H
-    global DISPLAY_W
-    ### new code for interpolation:
-    downsampled = np.zeros((DISPLAY_H, DISPLAY_W))
-    interval_H = int(np.floor(thresholded.shape[0]/DISPLAY_H))
-    interval_W = int(np.floor(thresholded.shape[1]/DISPLAY_W))
-    for rr in range(0, DISPLAY_H):
-        for cc in range(0, DISPLAY_W):
-            frame_slice = thresholded[rr*interval_H:(rr+1)*interval_H, cc*interval_W:(cc+1)*interval_W]
-            mean_slice = np.mean(frame_slice)
-            std_slice = np.std(frame_slice)
-            max_slice = np.max(frame_slice)
-            if mean_slice+3*std_slice > max_slice: # I'm doing some weird selection of max vs. mean depending on std of the frame slice
-                downsampled[rr, cc] = max_slice
-            else:
-                downsampled[rr, cc] = mean_slice
-
-    return downsampled
-    ### original code for interpolation:
-    # return cv2.resize(thresholded, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA) 
-
+frame_num = 1
+output_list = []
 
 print("Running...")
-while frame_num<20: 
+while True: 
         # grab next frame from video
-        frame, img = grab_frame(cap)
+        frame = algo.grab_video_frame(cap)
+
         if frame is None:
             break # no more frames, finish loop
         if frame_num%FRAME_SKIP==1: #### ONLY PROCESS EVERY x FRAMES!
-            # get frame attention
-            attention = get_attention(frame)
-            # get frame depth
-            depth = get_depth(img)
-            # combine depth and attention maps
-            combined = get_combined(depth, attention)
-            # threshold the combined frame
-            thresholded = get_threshold(combined)
-            # downsample to haptic display resolution
-            output = get_downsample(thresholded)
 
-            if output_list:
+            output = model.single_run(frame) # run the visual-haptic algorithm
+
+            if output_list:#skip first iteration
                 last_output = output_list[-1]
                 for frame in range(1, FRAME_SKIP):
-                    interp_vec = np.zeros((DISPLAY_H, DISPLAY_W))
-                    for row in range(DISPLAY_H):
-                        for col in range(DISPLAY_W):
+                    interp_vec = np.zeros(DISPLAY_DIMS)
+                    for row in range(DISPLAY_DIMS[0]):
+                        for col in range(DISPLAY_DIMS[1]):
                             interp_vec[row, col] = np.linspace(last_output[row, col], output[row, col], FRAME_SKIP+1)[frame]
                     output_list.append(interp_vec)
 
@@ -178,16 +66,6 @@ while frame_num<20:
             print(len(output_list))
 
         frame_num += 1
-        
-
-# interpolate values:
-# from scipy.interpolate import UnivariateSpline
-# old_indices = np.arange(0, len(output_list))
-
-x = np.linspace(0, 2*np.pi, 10)
-y = np.sin(x)
-xvals = np.linspace(0, 2*np.pi, 50)
-yinterp = np.interp(xvals, x, y)
 
 print("Plotting...")
 
@@ -197,15 +75,15 @@ for i in range(0,len(output_list)):
     im = plt.imshow(output_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-filename = "output_videos/animation_" + video + "_output.mp4"
+filename = "output_videos/animation_" + VIDEO + "_output.mp4"
 ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=30)
 plt.close()
 
-filename_data = "algo_input_data/data" + video + "_output.txt"
+filename_data = "algo_input_data/data" + VIDEO + "_output.txt"
 with open(filename_data, 'w') as fo:
     for idx, item in enumerate(output_list):
-        for row in range(DISPLAY_H):
-            for column in range(DISPLAY_W):
+        for row in range(DISPLAY_DIMS[0]):
+            for column in range(DISPLAY_DIMS[1]):
                 fo.write(str(item[row, column]) + ', ')
         fo.write('\n')
 

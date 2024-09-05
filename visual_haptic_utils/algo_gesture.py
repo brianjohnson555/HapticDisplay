@@ -2,13 +2,17 @@
 
 """Sets up Recognizer and Gesture classes + methods for gesture-based demo.
 
-The Recognizer is based on a Google AI gesture_recognizer pre-trained model. There are 8
+- Recognizer: based on a Google AI gesture_recognizer pre-trained model. There are 8
 possible gestures recognized by the model: 'none', 'closed fist', 'open palm', 'pointing 
-up', 'thumb down', 'thumb up', 'victory' (v-sign), and 'I love you' (in ASL)."""
+up', 'thumb down', 'thumb up', 'victory' (v-sign), and 'I love you' (in ASL).
+
+- Gesture: handles functions that call the Recognizer, tracks/updates a count of recognized
+gestures, determines which detected gesture to set as the active output, and creates a unique
+corresponding intensity output sequence for each gesture."""
 
 import numpy as np
 import mediapipe as mp
-import utils.algo_functions as algo_functions
+import visual_haptic_utils.haptic_funcs as haptic_funcs
 model_asset_path='utils\gesture_recognizer.task'
 
 # Google AI gesture recognizer setup:
@@ -43,7 +47,7 @@ class Recognizer:
         return self.GestureRecognizer.create_from_options(options)
 
 # Create class to track gesture data
-input_generator = algo_functions.IntensityGenerator(3, 24)
+input_generator = haptic_funcs.IntensityGenerator(3, 24)
 class Gesture:
     """Contains all current gesture information and controls outputs to the haptic display.
     

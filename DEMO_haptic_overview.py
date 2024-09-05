@@ -16,8 +16,8 @@ import cv2
 import time
 import serial
 import numpy as np
-import utils.algo_functions as algo_functions # my custom file
-import utils.algo_gesture as algo_gesture # my custom file
+import visual_haptic_utils.haptic_funcs as haptic_funcs # my custom file
+import visual_haptic_utils.USB_writer as USB_writer # my custom file
 import matplotlib.pyplot as plt
 
 ## debug:
@@ -28,15 +28,15 @@ import matplotlib.pyplot as plt
 
 # Set up USBWriter:
 serial_ports = [COM_A, COM_B, COM_C]
-USB_writer = algo_functions.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 
 # Enable HV!!!
 USB_writer.HV_enable()
 
 # initialize camera and gesture model:
 frame_rate = 24
-generator = algo_functions.IntensityGenerator(total_time=5, frame_rate=frame_rate)
-intensity_map = algo_functions.IntensityMap()
+generator = haptic_funcs.IntensityGenerator(total_time=5, frame_rate=frame_rate)
+haptic_map = haptic_funcs.HapticMap()
 
 output_list = []
 output_list.extend(generator.ramp(1))
@@ -49,7 +49,7 @@ while len(output_list)>1:
     t_start = time.time()
 
     intensity_array = output_list.pop(0)
-    haptic_output = intensity_map.map_0_24Hz(intensity_array) # map from algo intensity to duty cycle/period
+    haptic_output = haptic_map.linear_map(intensity_array) # map from algo intensity to duty cycle/period
     USB_writer.write_to_USB(haptic_output)
 
     cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)

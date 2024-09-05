@@ -21,7 +21,8 @@ import torch
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-import utils.algo_functions as algo_functions
+import visual_haptic_utils.haptic_funcs as haptic_funcs
+import visual_haptic_utils.USB_writer as USB_writer # my custom file
 
 ###### MAIN ######
 # TODO: Need to make all of this work with new algo_functions codes.
@@ -44,7 +45,9 @@ cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) #stream from webcam
 
 # Set up USB:
 serial_ports = [COM_A, COM_B, COM_C]
-USB_writer = algo_functions.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+haptic_map = haptic_funcs.HapticMap()
+
 if SAVE_VIDEO:
     outlist = []
     outlist2 = []
@@ -88,12 +91,11 @@ while True:
         outlist.append(imgcolor)
         outlist2.append(algo_output)
 
-    haptic_output = algo_functions.map_intensity(algo_output) # map from algo intensity to duty cycle/period
+    haptic_output = haptic_map.linear_map(algo_output) # map from algo intensity to duty cycle/period
     USB_writer.write_to_USB(haptic_output)
 
     if(cv2.waitKey(10) & 0xFF == ord('b')):
         break # BREAK OUT OF LOOP WHEN "B" KEY IS PRESSED!
-
 
 if SAVE_VIDEO:
     import matplotlib.animation as animation

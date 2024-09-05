@@ -1,4 +1,22 @@
-## Importing packages
+#!/usr/bin/env python3
+
+"""This is a experimental script which runs the visual-haptic algorithm through a 
+GUI so that each step can be visualized and parameters can easily be tuned.
+
+The user settings can be updated through the GUI for each frame of the input video."""
+
+###### USER SETTINGS ######
+VIDEO_PATH = "algo_input_videos/video_truck.mp4" # path of desired test video
+FRAME_NUM = 1 # starting frame
+RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
+MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
+THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
+BIAS = 0.6 # bias towards attention for attention+depth combination
+SCALE = 4 # scaling of combined array (scale*[16, 9])
+DISPLAY_W = 7 # HASEL haptic display width (pixels)
+DISPLAY_H = 4 # HASEL haptic display height (pixels)
+
+###### INITIALIZATIONS ######
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg #interface matplotlib with tkinter
 import matplotlib.pyplot as plt
@@ -10,7 +28,9 @@ import numpy as np
 from PIL import Image
 import cv2
 
-################## INITIALIZATIONS ##################
+###### MAIN ######
+
+################## TKINTER (graphics) INITIALIZATION ##################
 ## Setting up Tkinter
 window = tk.Tk()
 window.tk.call('tk', 'scaling', 0.9)
@@ -75,18 +95,10 @@ midas_l.to(device)
 midas_l.eval()
 midas_s.to(device)
 midas_s.eval()
-video = 'truck'
-cap = cv2.VideoCapture("algo_input_videos/video_" + video + ".mp4") #use video
+cap = cv2.VideoCapture(VIDEO_PATH) #use video
 
-################## HYPERPARAMETERS ##################
-FRAME_NUM = 1 # starting frame
-RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
-MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
-THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
-BIAS = 0.6 # bias towards attention for attention+depth combination
-SCALE = 4 # scaling of combined array (scale*[16, 9])
-DISPLAY_W = 7 # HASEL haptic display width (pixels)
-DISPLAY_H = 4 # HASEL haptic display height (pixels)
+################## DEFINE FUNCTIONS ##################
+
 ATTENTION = [] # torch tensor holding attention data
 DEPTH = [] # torch tensor holding depth data
 DEPTH_BEFORE = [] # torch tensor holding depth data before gradient correction
@@ -94,7 +106,6 @@ COMBINED = [] # torch tensor holding combined (depth and attention) data
 THRESHOLDED = [] # torch tensor holding thresholded data
 DOWNSAMPLED = [] # torch tensor holding downsampled data
 
-################## DEFINE FUNCTIONS ##################
 # Grab video frame (next frame if frame_num=1 or nth frame if =n)
 def grab_frame(cap=cap,frame_num=1):
     global IMG
