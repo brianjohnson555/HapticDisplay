@@ -6,10 +6,10 @@ It is a preprogrammed input sequence across a range of frequencies and duty cycl
 signal patterns (checkerboard, sine wave, etc)."""
 
 ###### USER SETTINGS ######
-SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
-COM_A = "COM9" # port for MINI switches 1-10
-COM_B = "COM15" # port for MINI switches 11-20
-COM_C = "COM16" # port for MINI swiches 21-28
+SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
+COM_A = "COM15" # port for MINI switches 1-10
+COM_B = "COM9" # port for MINI switches 11-20
+# COM_C = "COM16" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -27,8 +27,9 @@ import matplotlib.pyplot as plt
 ###### MAIN ######
 
 # Set up USBWriter:
-serial_ports = [COM_A, COM_B, COM_C]
+serial_ports = [COM_A, COM_B]
 USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+time.sleep(0.5)
 
 # Enable HV!!!
 USB_writer.HV_enable()
@@ -49,11 +50,13 @@ while len(output_list)>1:
     t_start = time.time()
 
     intensity_array = output_list.pop(0)
-    haptic_output = haptic_map.linear_map(intensity_array) # map from algo intensity to duty cycle/period
+    haptic_output = haptic_map.linear_map(intensity_array, 
+                                          freq_range=(0,200), 
+                                          duty_range=(25,75)) # map from algo intensity to duty cycle/period
     USB_writer.write_to_USB(haptic_output)
 
     cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
-    cv2.resizeWindow('Video', 4*192, 4*108)
+    cv2.resizeWindow('Video', 1920, 1080)
     cv2.imshow('Video',intensity_array)
 
     t_end=time.time()

@@ -16,18 +16,20 @@ class USBWriter:
         -serial_active: bool which allows USBWriter to be enabled or disabled via user parameter in the main
         demo script without having to modify code elsewhere. If False, no HV will be enabled and no data sent to USB"""
         self.serial_active = serial_active # USBWriter will only write to USB if serial_active = True
-        self.serial_list = self.initialize_ports(serial_ports) #expects a list with each list object being a serial object
+        self.serial_list = []
+        self.initialize_ports(serial_ports) #expects a list with each list object being a serial object
 
     def initialize_ports(self, serial_ports: list):
         """Connects to USB serial ports.
         
         Inputs:
         serial_ports: list of serial ports imported from __init__()"""
-        serial_list = []
+        # serial_list = []
         if self.serial_active:
             for port in serial_ports:
-                serial_list.append(serial.Serial(port, 9600, timeout=0, bytesize=serial.EIGHTBITS))
-        self.serial_list = serial_list
+                self.serial_list.append(serial.Serial(port, 9600, timeout=0, bytesize=serial.EIGHTBITS))
+
+        # self.serial_list = serial_list
 
     def HV_enable(self):
         """Enables HV on all MINI switches."""

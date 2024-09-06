@@ -26,17 +26,34 @@ def make_packets(duties, periods):
     return packet_duty, packet_period
 
 ser.write('E'.encode()) # Enable HV
-time.sleep(0.5)
+time.sleep(0.05)
 
-periods = np.array([2000, 0, 0, 0, 0, 0, 0, 0, 0, 10])
-duties = np.array([0.5, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-
-
+period = 10*2
+duty = 0.05
+periods = np.array([period, period, period, period, period, period, period, period, period, period])
+duties = np.array([duty, duty, duty, duty, duty, duty, duty, duty, duty, duty])
 packet_duty, packet_period = make_packets(duties, periods)
 ser.write(packet_duty)
 ser.write(packet_period)
-time.sleep(5)
+time.sleep(3)
+
+period = 10*2
+duty = 0.2
+periods = np.array([period, period, period, period, period, period, period, period, period, period])
+duties = np.array([duty, duty, duty, duty, duty, duty, duty, duty, duty, duty])
+packet_duty, packet_period = make_packets(duties, periods)
+ser.write(packet_duty)
+ser.write(packet_period)
+time.sleep(3)
     
+period = 10*2
+duty = 0.5
+periods = np.array([period, period, period, period, period, period, period, period, period, period])
+duties = np.array([duty, duty, duty, duty, duty, duty, duty, duty, duty, duty])
+packet_duty, packet_period = make_packets(duties, periods)
+ser.write(packet_duty)
+ser.write(packet_period)
+time.sleep(3)
 
 ser.write('D'.encode()) # disable HV  
 time.sleep(0.5)  
