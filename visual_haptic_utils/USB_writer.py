@@ -8,7 +8,7 @@ import serial
 class USBWriter:
     """USBWriter class handles packing data and writing to USB serial to control MINI switches."""
 
-    def __init__(self, serial_ports: list, serial_active:bool=True):
+    def __init__(self, serial_ports: list = [], serial_active:bool=False):
         """Initializes the input ports for serial connection.
 
         Inputs:
@@ -24,12 +24,10 @@ class USBWriter:
         
         Inputs:
         serial_ports: list of serial ports imported from __init__()"""
-        # serial_list = []
+
         if self.serial_active:
             for port in serial_ports:
                 self.serial_list.append(serial.Serial(port, 9600, timeout=0, bytesize=serial.EIGHTBITS))
-
-        # self.serial_list = serial_list
 
     def HV_enable(self):
         """Enables HV on all MINI switches."""
@@ -49,7 +47,7 @@ class USBWriter:
             for ser in self.serial_list:
                 ser.close()
 
-    def write_to_USB(self, output = dict(duty=np.zeros((4,7)), period=np.zeros((4,7)))):
+    def write_to_USB(self, duty_array, period_array):
         """Writes the duty cycle and period data to USB.
         
         Inputs:
@@ -60,8 +58,8 @@ class USBWriter:
         [MINI rack A, MINI rack B, MINI rack C]."""
 
         # reshape array to flat list, then append 0s to end for 30 switches
-        duty_flat = np.append(np.reshape(output["duty"],(1,28)), [0, 0])
-        period_flat = np.append(np.reshape(output["period"],(1,28)), [0, 0])
+        duty_flat = np.append(np.reshape(duty_array,(1,28)), [0, 0])
+        period_flat = np.append(np.reshape(period_array,(1,28)), [0, 0])
         ind = 0
         if self.serial_active:
             for ser in self.serial_list:

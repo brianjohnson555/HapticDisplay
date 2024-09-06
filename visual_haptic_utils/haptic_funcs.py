@@ -8,6 +8,7 @@ There are 2 classes defined in this script:
 
 import numpy as np
 from scipy import signal
+import visual_haptic_utils.USB_writer as USB_writer
 
 ############### INTENSITY MAPPINGS + CLASS ################
 
@@ -21,31 +22,41 @@ class HapticMap:
 
     scaling_factor = 2
 
-    def linear_map(self, intensity_array: np.ndarray = np.zeros((4,7)), freq_range:tuple = (0,24), duty_range:tuple = (25,75)):
+    def linear_map(self, intensity_arrays = np.zeros((4,7)), freq_range:tuple = (0,24), duty_range:tuple = (0.05,0.5)):
         """Converts intensity 0-1 to range specified in inputs via linear mapping.
         
         Inputs:
-        -intensity_array: np.ndarray of shape (4,7) containing intensity of the frame. Default is zero array.
+        -intensity_array_list: single np.ndarray of shape (4,7) or list of np.ndarrays containing intensity of
+         the frame. Default is zero array. 
         -freq_range: tuple containing min and max frequency (Hz)
         -duty_range: tuple containing min and max duty cycle ratio (%)
         
         Using default values, intensity 0-1 will be mapped to 0-24 Hz, 25%-75%"""
 
         # map frequencies:
-        mapped_freq = (freq_range[1]-freq_range[0])*intensity_array + freq_range[0]*np.ones(shape=intensity_array.shape) # linear mapped frequency (Hz)
-        mapped_freq[mapped_freq==0] = 0.001 # can't be zero (div/0 when inverting to period)
-        period_array = np.reciprocal(mapped_freq) # mapped period (sec)
-        period_array = 1000*period_array # mapped period (ms)
-        period_array = period_array.astype(int)
-        period_array[period_array<np.floor(1000/freq_range[1])] = np.floor(1000/freq_range[1]) # threshold anything above freq limit
-        period_array[period_array>500] = 0 # anything below 2 Hz = 0
+        if type(intensity_arrays)==np.ndarray:
+            intensity_array = [intensity_arrays] #convert to list
 
-        # map duty cycles:
-        duty_array = (duty_range[1]-duty_range[0])*intensity_array + duty_range[0]*np.ones(shape=intensity_array.shape) # linear mapped duty (%)
-        
-        period_array = self.scaling_factor*period_array # scaling factor (see function description)
-        output = {"duty": duty_array, "period": period_array}
-        return output
+        period_array_list = []
+        duty_array_list = []
+
+        for intensity_array in intensity_arrays:
+            mapped_freq = (freq_range[1]-freq_range[0])*intensity_array + freq_range[0]*np.ones(shape=intensity_array.shape) # linear mapped frequency (Hz)
+            mapped_freq[mapped_freq==0] = 0.001 # can't be zero (div/0 when inverting to period)
+            period_array = np.reciprocal(mapped_freq) # mapped period (sec)
+            period_array = 1000*period_array # mapped period (ms)
+            period_array = period_array.astype(int)
+            period_array[period_array<np.floor(1000/freq_range[1])] = np.floor(1000/freq_range[1]) # threshold anything above freq limit
+            period_array[period_array>500] = 0 # anything below 2 Hz = 0
+
+            # map duty cycles:
+            duty_array = (duty_range[1]-duty_range[0])*intensity_array + duty_range[0]*np.ones(shape=intensity_array.shape) # linear mapped duty (%)
+            period_array = self.scaling_factor*period_array # scaling factor (see function description)
+            # append
+            duty_array_list.append(duty_array)
+            period_array_list.append(period_array)
+
+        return duty_array_list, period_array_list
 
 ############### INPUT FUNCTIONS + CLASS ################
 class IntensityGenerator:
@@ -189,3 +200,24 @@ class IntensityGenerator:
             for c in range(7):
                 output[r,c,:] = 0.5 + 0.5*signal.sawtooth(direction*(1/self.t[-1])*2*np.pi*self.t)
         return self.make_output(output)
+    
+
+############### ADDITIONAL FUNCTIONS ####################
+# initialize camera and gesture model:
+frame_rate = 24
+generator = IntensityGenerator(total_time=5, frame_rate=frame_rate)
+haptic_map = HapticMap()
+
+output_list = []
+output_list.extend(generator.ramp(1))
+output_list.extend(generator.ramp(-1))
+output_list.extend(generator.sine_global(freq=1))
+output_list.extend(generator.checker_sine(freq=0.5))
+output_list.extend(generator.checker_square(freq=0.5))
+
+duty_array_list, period_array_list = haptic_map.linear_map(output_list,
+                                                           freq_range=(0,200),
+                                                           duty_range=(0.05,0.5))
+
+def process_all():
+    

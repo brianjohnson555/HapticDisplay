@@ -6,7 +6,7 @@ It is a preprogrammed input sequence across a range of frequencies and duty cycl
 signal patterns (checkerboard, sine wave, etc)."""
 
 ###### USER SETTINGS ######
-SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
+SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
 COM_A = "COM15" # port for MINI switches 1-10
 COM_B = "COM9" # port for MINI switches 11-20
 # COM_C = "COM16" # port for MINI swiches 21-28
@@ -46,24 +46,29 @@ output_list.extend(generator.sine_global(freq=1))
 output_list.extend(generator.checker_sine(freq=0.5))
 output_list.extend(generator.checker_square(freq=0.5))
 
+duty_array_list, period_array_list = haptic_map.linear_map(output_list,
+                                                           freq_range=(0,200),
+                                                           duty_range=(0.05,0.5))
+
 while len(output_list)>1:
     t_start = time.time()
-
+    # get latest intensity
     intensity_array = output_list.pop(0)
-    haptic_output = haptic_map.linear_map(intensity_array, 
-                                          freq_range=(0,200), 
-                                          duty_range=(25,75)) # map from algo intensity to duty cycle/period
-    USB_writer.write_to_USB(haptic_output)
-
+    # map intensities to freq, duty cycle
+    duty_array = duty_array_list.pop(0)
+    period_array = period_array_list.pop(0)
+    # send to USB
+    USB_writer.write_to_USB(duty_array, period_array)
+    # create display video
     cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
     cv2.resizeWindow('Video', 1920, 1080)
     cv2.imshow('Video',intensity_array)
-
+    # get elapsed time
     t_end=time.time()
     t_elapsed = t_end-t_start
-
+    # maintain constant loop frame rate (24 fps)
     if t_elapsed<1/frame_rate:
-        time.sleep(1/frame_rate-(t_elapsed)) #maintain constant loop frame rate (24 fps)
+        time.sleep(1/frame_rate-(t_elapsed)) 
 
     if(cv2.waitKey(10) & 0xFF == ord('b')):
         break # BREAK OUT OF LOOP WHEN "b" KEY IS PRESSED!
