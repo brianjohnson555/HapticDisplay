@@ -9,7 +9,7 @@ signal patterns (checkerboard, sine wave, etc)."""
 SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
 COM_A = "COM15" # port for MINI switches 1-10
 COM_B = "COM9" # port for MINI switches 11-20
-# COM_C = "COM16" # port for MINI swiches 21-28
+COM_C = "COM16" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -27,46 +27,69 @@ import matplotlib.pyplot as plt
 ###### MAIN ######
 
 # Set up USBWriter:
-serial_ports = [COM_A, COM_B]
-USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+serial_ports = [COM_A, COM_B, COM_C]
+serial_writer = USB_writer.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 time.sleep(0.5)
 
 # Enable HV!!!
-USB_writer.HV_enable()
+serial_writer.HV_enable()
 
-# initialize camera and gesture model:
+# prepare preprogrammed sequence:
 frame_rate = 24
 generator = haptic_funcs.IntensityGenerator(total_time=5, frame_rate=frame_rate)
 haptic_map = haptic_funcs.HapticMap()
+packet_sequence = []
+intensity_sequence = []
 
-output_list = []
-output_list.extend(generator.ramp(1))
-output_list.extend(generator.ramp(-1))
-output_list.extend(generator.sine_global(freq=1))
-output_list.extend(generator.checker_sine(freq=0.5))
-output_list.extend(generator.checker_square(freq=0.5))
-
-duty_array_list, period_array_list = haptic_map.linear_map(output_list,
+duty_array_list, period_array_list = haptic_map.linear_map_sequence(generator.ramp(1),
                                                            freq_range=(0,200),
                                                            duty_range=(0.05,0.5))
+packet_sequence.extend(USB_writer.make_packet_sequence(duty_array_list, period_array_list))
+intensity_sequence.extend(generator.ramp(1))
 
-while len(output_list)>1:
+duty_array_list, period_array_list = haptic_map.linear_map_sequence(generator.ramp(-1),
+                                                           freq_range=(0,200),
+                                                           duty_range=(0.05,0.5))
+packet_sequence.extend(USB_writer.make_packet_sequence(duty_array_list, period_array_list))
+intensity_sequence.extend(generator.ramp(-1))
+
+duty_array_list, period_array_list = haptic_map.linear_map_sequence(generator.sine_global(freq=1),
+                                                           freq_range=(0,50),
+                                                           duty_range=(0.05,0.5))
+packet_sequence.extend(USB_writer.make_packet_sequence(duty_array_list, period_array_list))
+intensity_sequence.extend(generator.sine_global(freq=1))
+
+duty_array_list, period_array_list = haptic_map.linear_map_sequence(generator.checker_sine(freq=0.5),
+                                                           freq_range=(0,20),
+                                                           duty_range=(0.5,0.5))
+packet_sequence.extend(USB_writer.make_packet_sequence(duty_array_list, period_array_list))
+intensity_sequence.extend(generator.checker_sine(freq=0.5))
+
+duty_array_list, period_array_list = haptic_map.linear_map_sequence(generator.checker_sine(freq=0.5),
+                                                           freq_range=(20,20),
+                                                           duty_range=(0.05,0.6))
+packet_sequence.extend(USB_writer.make_packet_sequence(duty_array_list, period_array_list))
+intensity_sequence.extend(generator.checker_sine(freq=0.5))
+
+# reverse lists so that pop() will draw from first item in time (faster pop):
+packet_sequence.reverse() 
+intensity_sequence.reverse()
+
+while len(packet_sequence)>1:
     t_start = time.time()
-    # get latest intensity
-    intensity_array = output_list.pop(0)
-    # map intensities to freq, duty cycle
-    duty_array = duty_array_list.pop(0)
-    period_array = period_array_list.pop(0)
-    # send to USB
-    USB_writer.write_to_USB(duty_array, period_array)
-    # create display video
+    # get latest USB packet and intensity:
+    packet_list = packet_sequence.pop()
+    intensity_array = intensity_sequence.pop()
+    # send to USB:
+    serial_writer.write_packets_to_USB(packet_list)
+    # create display video:
     cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
     cv2.resizeWindow('Video', 1920, 1080)
     cv2.imshow('Video',intensity_array)
-    # get elapsed time
+    # get elapsed time:
     t_end=time.time()
     t_elapsed = t_end-t_start
-    # maintain constant loop frame rate (24 fps)
+    # maintain constant loop frame rate:
     if t_elapsed<1/frame_rate:
         time.sleep(1/frame_rate-(t_elapsed)) 
 
@@ -74,5 +97,5 @@ while len(output_list)>1:
         break # BREAK OUT OF LOOP WHEN "b" KEY IS PRESSED!
     
 # Disable HV!!!
-USB_writer.HV_disable()
+serial_writer.HV_disable()
 time.sleep(0.5)

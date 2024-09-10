@@ -22,39 +22,67 @@ class HapticMap:
 
     scaling_factor = 2
 
-    def linear_map(self, intensity_arrays = np.zeros((4,7)), freq_range:tuple = (0,24), duty_range:tuple = (0.05,0.5)):
+    def linear_map_single(self, intensity_array:np.ndarray, freq_range:tuple = (0,24), duty_range:tuple = (0.05,0.5)):
         """Converts intensity 0-1 to range specified in inputs via linear mapping.
         
         Inputs:
-        -intensity_array_list: single np.ndarray of shape (4,7) or list of np.ndarrays containing intensity of
-         the frame. Default is zero array. 
+        -intensity_array: np.ndarray containing intensity of the frame.
         -freq_range: tuple containing min and max frequency (Hz)
         -duty_range: tuple containing min and max duty cycle ratio (%)
+
+        Outputs:
+        -duty_array: np.ndarray matching shape of intensity_array. Each element is taxel duty cycle (%)
+        -period_array: np.ndarray matching shape of intensity_array. Each element is taxel period (ms)
+        
+        Using default values, intensity 0-1 will be mapped to 0-24 Hz and 25%-75%"""
+
+        # map frequencies:
+        mapped_freq = (freq_range[1]-freq_range[0])*intensity_array + freq_range[0]*np.ones(shape=intensity_array.shape) # linear mapped frequency (Hz)
+        mapped_freq[mapped_freq==0] = 0.001 # can't be zero (div/0 when inverting to period)
+        period_array = np.reciprocal(mapped_freq) # mapped period (sec)
+        period_array = 1000*period_array # mapped period (ms)
+        period_array = period_array.astype(int)
+        period_array[period_array<np.floor(1000/freq_range[1])] = np.floor(1000/freq_range[1]) # threshold anything above freq limit
+        period_array[period_array>500] = 0 # anything below 2 Hz = 0
+
+        # map duty cycles:
+        duty_array = (duty_range[1]-duty_range[0])*intensity_array + duty_range[0]*np.ones(shape=intensity_array.shape) # linear mapped duty (%)
+        period_array = self.scaling_factor*period_array # scaling factor (see function description)
+
+        return duty_array, period_array
+    
+    def linear_map_sequence(self, intensity_array_list:list, freq_range:tuple = (0,24), duty_range:tuple = (0.05,0.5)):
+        """Runs method linear_map_single() on a sequence of intensities.
+        
+        Inputs:
+        -intensity_array_list: list of np.ndarrays containing intensity of each frame. 
+        -freq_range: tuple containing min and max frequency for the mapping (Hz)
+        -duty_range: tuple containing min and max duty cycle ratio for the mapping(%)
+
+        Outputs:
+        -duty_array_list: list of flattened arrays of duty cycle (%)
+        -period_array_list: list of flattened arrays of period (ms)
         
         Using default values, intensity 0-1 will be mapped to 0-24 Hz, 25%-75%"""
 
         # map frequencies:
-        if type(intensity_arrays)==np.ndarray:
-            intensity_array = [intensity_arrays] #convert to list
-
         period_array_list = []
         duty_array_list = []
 
-        for intensity_array in intensity_arrays:
-            mapped_freq = (freq_range[1]-freq_range[0])*intensity_array + freq_range[0]*np.ones(shape=intensity_array.shape) # linear mapped frequency (Hz)
-            mapped_freq[mapped_freq==0] = 0.001 # can't be zero (div/0 when inverting to period)
-            period_array = np.reciprocal(mapped_freq) # mapped period (sec)
-            period_array = 1000*period_array # mapped period (ms)
-            period_array = period_array.astype(int)
-            period_array[period_array<np.floor(1000/freq_range[1])] = np.floor(1000/freq_range[1]) # threshold anything above freq limit
-            period_array[period_array>500] = 0 # anything below 2 Hz = 0
-
-            # map duty cycles:
-            duty_array = (duty_range[1]-duty_range[0])*intensity_array + duty_range[0]*np.ones(shape=intensity_array.shape) # linear mapped duty (%)
-            period_array = self.scaling_factor*period_array # scaling factor (see function description)
+        for intensity_array in intensity_array_list:
+            # map
+            duty_array, period_array = self.linear_map_single(intensity_array, 
+                                                       freq_range, 
+                                                       duty_range)
+            # reshape array to 1D, then append 0s to end for 30 switches total
+            #   index 0:9 correspond to USB serial 1/MINI rack A
+            #   index 10:19 correspond to USB serial 2/MINI rack B
+            #   index 20:29 correspond to USB serial 3/MINI rack C (only 8 active, last 2 are 0)
+            duty_flat = np.append(np.reshape(duty_array,(1,28)), [0, 0])
+            period_flat = np.append(np.reshape(period_array,(1,28)), [0, 0])
             # append
-            duty_array_list.append(duty_array)
-            period_array_list.append(period_array)
+            duty_array_list.append(duty_flat)
+            period_array_list.append(period_flat)
 
         return duty_array_list, period_array_list
 
@@ -198,26 +226,5 @@ class IntensityGenerator:
         output = np.zeros((4,7,self.t.size))
         for r in range(4):
             for c in range(7):
-                output[r,c,:] = 0.5 + 0.5*signal.sawtooth(direction*(1/self.t[-1])*2*np.pi*self.t)
+                output[r,c,:] = np.concatenate((0.5 + 0.5*direction*signal.sawtooth((1/self.t[-1])*2*np.pi*self.t[:-1]),[1]))
         return self.make_output(output)
-    
-
-############### ADDITIONAL FUNCTIONS ####################
-# initialize camera and gesture model:
-frame_rate = 24
-generator = IntensityGenerator(total_time=5, frame_rate=frame_rate)
-haptic_map = HapticMap()
-
-output_list = []
-output_list.extend(generator.ramp(1))
-output_list.extend(generator.ramp(-1))
-output_list.extend(generator.sine_global(freq=1))
-output_list.extend(generator.checker_sine(freq=0.5))
-output_list.extend(generator.checker_square(freq=0.5))
-
-duty_array_list, period_array_list = haptic_map.linear_map(output_list,
-                                                           freq_range=(0,200),
-                                                           duty_range=(0.05,0.5))
-
-def process_all():
-    

@@ -42,7 +42,7 @@ Codes within **`utils/`** can be used to create open-loop (non-algorithm based) 
 The **`figure_generation/`** directory can be used to write code to generate figures for the manuscript, presentations, etc.
 
 
-## Haptic display wire mapping and demo script settings
+## Haptic display wire mapping, demo script settings, script terminology
 
 Since the haptic display is a 7x4 array (28 pixels) and we use 3 MINI switch racks (30 switches), the following wiring scheme is adopted to map from intensity array (np.ndarray) indices to the physical pixels:
 
@@ -53,7 +53,20 @@ Since the haptic display is a 7x4 array (28 pixels) and we use 3 MINI switch rac
 | [2,0]=B5 | [2,1]=B6 | [2,2]=B7 | [2,3]=B8 | [2,4]=B9 | [2,5]=B10 | [2,6]=C1 |
 | [3,0]=C2 | [3,1]=C3 | [3,2]=C4 | [3,3]=C5 | [3,4]=C6 | [3,5]=C7 | [3,6]=C8 |
 
-A/B/C refers to the labeled MINI switch rack, and 1-10 refers to the MINI switch number (leftmost=1, rightmost=10).
+A/B/C refers to the labeled MINI switch rack, and 1-10 refers to the MINI switch number (leftmost=1, rightmost=10). It's expected that when you initialize a USBWriter object with the serial ports,
+the list of ports `[port_A, port_B, port_C]` will correspond to the MINI switch racks A/B/C.
+
+#### Script terminology:
+The following terms are adopted for all functions/scripts:
+
+- `array`= Numpy np.ndarray object. E.g. the variable `duty_array` is a np.ndarray of duty cycle values.
+- `list` = Python list object. E.g. the variable `duty_array_list` is a list of np.ndarrays of duty cycle values.
+- `packet` = packaged data stream of bytes ready to be send to USB to control the MINI switches. E.g. the variable `packet_list` is a list of packets for each USB serial port. Send to USB via serial.write(packet).
+- `intensity` = np.ndarray refering to 0-1 scale of intensity created from the visual-haptic algorithm. One intensity array of shape (4,7) is the output of the algorithm for a single
+video frame, with the size (4,7) corresponding to the HASELs of the haptic display, and each element of the (4,7) array will range from 0 (least intense) to 1 (most intense). Through the haptic mapping, 
+these intensities will be converted into periods and duty cycles for USB transfer.
+- `sequence` = Python list which is a sequence of the haptic output/video frames. E.g. the variable `intensity_sequence` is a sequential list of intensity arrays, with the first item being the intensity of the first frame. 
+`packet_sequence` is a sequential list of packets to send to USB
 
 ## How to contribute/code conventions
 

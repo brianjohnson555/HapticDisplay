@@ -33,13 +33,13 @@ import matplotlib.pyplot as plt
 
 # Set up USBWriter:
 serial_ports = [COM_A, COM_B, COM_C]
-USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+serial_writer = USB_writer.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 if SAVE_VIDEO:
     outlist_image = []
     outlist_haptic = []
 
 # Enable HV!!!
-USB_writer.HV_enable()
+serial_writer.HV_enable()
 
 # initialize camera and gesture model:
 cap = cv2.VideoCapture(0) #stream from webcam
@@ -54,8 +54,8 @@ with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs 
         gesture.get_latest_gesture(gesture_recognizer, frame_timestamp_ms, frame)
 
         intensity_array = gesture.output_latest
-        haptic_output = haptic_map.linear_map(intensity_array) # map from algo intensity to duty cycle/period
-        USB_writer.write_to_USB(haptic_output)
+        duty_array, period_array = haptic_map.linear_map_single(intensity_array) # map from algo intensity to duty cycle/period
+        serial_writer.write_array_to_USB(duty_array, period_array)
 
         frame_annotated = cv2.putText(frame, 
                                str(gesture.gesture_active), 
