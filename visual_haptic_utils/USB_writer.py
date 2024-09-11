@@ -96,13 +96,14 @@ def make_packet(duties: np.ndarray, periods: np.ndarray):
 
     duties_abs = np.int32(np.floor(np.multiply(periods,duties))) # convert from % to msec
     packetlist = []
-    packetlist.append(('P').encode()) # encode start of period array
+    
+    # encode start of period array
+    packetlist.append(('P').encode()) 
     for duty in duties_abs:
         packetlist.append((duty.item()).to_bytes(2, byteorder='little')) # convert to 16bit
-    # packet_duty = b''.join(packetlist) # combine packetlist as bytes
 
-    # packetlist = []
-    packetlist.append(('T').encode()) # encode start of total array
+    # encode start of total array
+    packetlist.append(('T').encode()) 
     for period in periods:
         packetlist.append((period.item()).to_bytes(2, byteorder='little')) # convert to 16bit
     packet = b''.join(packetlist) # combine packetlist as bytes
@@ -125,8 +126,8 @@ def make_packet_list(duty_array: np.ndarray, period_array: np.ndarray):
     #iterate for each serial port:
     for ii in [0, 10, 20]:
         # Parse duty cycles and periods from input:
-        duties = duty_array[ii:ii+9]
-        periods = period_array[ii:ii+9]
+        duties = duty_array[ii:ii+10]
+        periods = period_array[ii:ii+10]
 
         duties_abs = np.int32(np.floor(np.multiply(periods,duties))) # convert from % to msec
         packetlist = []

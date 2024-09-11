@@ -103,5 +103,5 @@ if SAVE_VIDEO:
     plt.close()
     
 # Disable HV!!!
-USB_writer.HV_disable()
+serial_writer.HV_disable()
 time.sleep(0.5)

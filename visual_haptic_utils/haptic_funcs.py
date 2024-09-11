@@ -31,8 +31,8 @@ class HapticMap:
         -duty_range: tuple containing min and max duty cycle ratio (%)
 
         Outputs:
-        -duty_array: np.ndarray matching shape of intensity_array. Each element is taxel duty cycle (%)
-        -period_array: np.ndarray matching shape of intensity_array. Each element is taxel period (ms)
+        -duty_array_flat: np.ndarray flattened to single dimension. Each element is taxel duty cycle (%)
+        -period_array_flat: np.ndarray flattened to single dimension. Each element is taxel period (ms)
         
         Using default values, intensity 0-1 will be mapped to 0-24 Hz and 25%-75%"""
 
@@ -49,7 +49,14 @@ class HapticMap:
         duty_array = (duty_range[1]-duty_range[0])*intensity_array + duty_range[0]*np.ones(shape=intensity_array.shape) # linear mapped duty (%)
         period_array = self.scaling_factor*period_array # scaling factor (see function description)
 
-        return duty_array, period_array
+        # reshape array to 1D, then append 0s to end for 30 switches total
+            #   index 0:9 correspond to USB serial 1/MINI rack A
+            #   index 10:19 correspond to USB serial 2/MINI rack B
+            #   index 20:29 correspond to USB serial 3/MINI rack C (only 8 active, last 2 are 0)
+        duty_array_flat = np.append(np.reshape(duty_array,(1,28)), [0, 0])
+        period_array_flat = np.append(np.reshape(period_array,(1,28)), [0, 0])
+
+        return duty_array_flat, period_array_flat
     
     def linear_map_sequence(self, intensity_array_list:list, freq_range:tuple = (0,24), duty_range:tuple = (0.05,0.5)):
         """Runs method linear_map_single() on a sequence of intensities.
@@ -74,15 +81,9 @@ class HapticMap:
             duty_array, period_array = self.linear_map_single(intensity_array, 
                                                        freq_range, 
                                                        duty_range)
-            # reshape array to 1D, then append 0s to end for 30 switches total
-            #   index 0:9 correspond to USB serial 1/MINI rack A
-            #   index 10:19 correspond to USB serial 2/MINI rack B
-            #   index 20:29 correspond to USB serial 3/MINI rack C (only 8 active, last 2 are 0)
-            duty_flat = np.append(np.reshape(duty_array,(1,28)), [0, 0])
-            period_flat = np.append(np.reshape(period_array,(1,28)), [0, 0])
             # append
-            duty_array_list.append(duty_flat)
-            period_array_list.append(period_flat)
+            duty_array_list.append(duty_array)
+            period_array_list.append(period_array)
 
         return duty_array_list, period_array_list
 
