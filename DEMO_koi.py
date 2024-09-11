@@ -10,7 +10,7 @@ visual-haptic algorithm preprocessing code."""
 ###### USER SETTINGS ######
 FILENAME = "algo_input_data/datakoi_output.txt"
 VIDEONAME = "algo_input_videos/video_koi.mp4"
-SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
+SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
 COM_A = "COM9" # port for MINI switches 1-10
 COM_B = "COM15" # port for MINI switches 11-20
 COM_C = "COM16" # port for MINI swiches 21-28
@@ -26,35 +26,48 @@ from numpy import genfromtxt
 # Load data
 data=genfromtxt(FILENAME,delimiter=',')[:,0:28]
 data_length = data.shape[0]
+frame_rate = 120
 
 # Set up USBWriter and intensity map:
 serial_ports = [COM_A, COM_B, COM_C]
-USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+serial_writer = USB_writer.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 haptic_map = haptic_funcs.HapticMap()
 
+# Preprocess data:
+duty_array_list, period_array_list = haptic_map.linear_map_sequence(data,
+                                                                    freq_range=(0,24),
+                                                                    duty_range=(0.1,0.5))
+packet_sequence = USB_writer.make_packet_sequence(duty_array_list, period_array_list)
+packet_sequence.reverse()
+
 # Enable HV!!!
-USB_writer.HV_enable()
+serial_writer.HV_enable()
 
 while True:
     isClose=False # break condition
     cap = cv2.VideoCapture(VIDEONAME) # set up video capture
     dataindex = 0 # initialize data start point
-
+    packets = packet_sequence.copy() # copy packet sequence
     while True:
         ret,img = cap.read() # read frame from video
 
-        if ret and dataindex<data_length: # if frame exists, run; otherwise, video is finished->loop back to beginning
-            intensity_array = data[dataindex,:] # read each line of data
-            dataindex += 1 # update data index
-            haptic_output = haptic_map.linear_map(intensity_array) # map from algo intensity to duty cycle/period
-            USB_writer.write_to_USB(haptic_output)
-
+        if ret and dataindex<data_length-1: # if frame exists, run; otherwise, video is finished->loop back to beginning
+            dataindex+=1
+            t_start = time.time()
+            # send to USB:
+            packet_list = packets.pop()
+            serial_writer.write_packets_to_USB(packet_list)
             # Display video:
             cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
-            cv2.imshow('Video',cv2.flip(img, -1))
-            # time.sleep(0.05)
+            cv2.imshow('Video',img)
+            # get elapsed time:
+            t_end=time.time()
+            t_elapsed = t_end-t_start
+            # maintain constant loop frame rate:
+            if t_elapsed<1/frame_rate:
+                time.sleep(1/frame_rate-(t_elapsed)) 
 
-            if(cv2.waitKey(10) & 0xFF == ord('b')): # if user pressed 'b' for break
+            if(cv2.waitKey(10) & 0xFF == ord('b')): # BREAK OUT OF LOOP WHEN "b" KEY IS PRESSED!
                 isClose = True # assign stop flag
                 break
         else: 
@@ -64,5 +77,5 @@ while True:
         break # user pressed 'b', stop script
     
 # Disable HV!!!
-USB_writer.HV_disable()
+serial_writer.HV_disable()
 time.sleep(0.5)

@@ -45,7 +45,7 @@ cap = cv2.VideoCapture(0, cv2.CAP_DSHOW) #stream from webcam
 
 # Set up USB:
 serial_ports = [COM_A, COM_B, COM_C]
-USB_writer = USB_writer.USBWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+serial_writer = USB_writer.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 haptic_map = haptic_funcs.HapticMap()
 
 if SAVE_VIDEO:
@@ -53,7 +53,7 @@ if SAVE_VIDEO:
     outlist2 = []
 
 # Enable HV!!!
-USB_writer.HV_enable()
+serial_writer.HV_enable()
     
 while True: 
     # Load frame
@@ -91,8 +91,8 @@ while True:
         outlist.append(imgcolor)
         outlist2.append(algo_output)
 
-    haptic_output = haptic_map.linear_map(algo_output) # map from algo intensity to duty cycle/period
-    USB_writer.write_to_USB(haptic_output)
+    duty_array, period_array = haptic_map.linear_map_single(algo_output) # map from algo intensity to duty cycle/period
+    serial_writer.write_array_to_USB(duty_array, period_array)
 
     if(cv2.waitKey(10) & 0xFF == ord('b')):
         break # BREAK OUT OF LOOP WHEN "B" KEY IS PRESSED!
@@ -120,5 +120,5 @@ if SAVE_VIDEO:
     plt.close()
 
 # Disable HV!!!
-USB_writer.HV_disable()
+serial_writer.HV_disable()
 time.sleep(0.5)

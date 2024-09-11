@@ -13,7 +13,7 @@ corresponding intensity output sequence for each gesture."""
 import numpy as np
 import mediapipe as mp
 import visual_haptic_utils.haptic_funcs as haptic_funcs
-model_asset_path='utils\gesture_recognizer.task'
+model_asset_path='visual_haptic_utils\gesture_recognizer.task'
 
 # Google AI gesture recognizer setup:
 class Recognizer:
@@ -47,7 +47,6 @@ class Recognizer:
         return self.GestureRecognizer.create_from_options(options)
 
 # Create class to track gesture data
-input_generator = haptic_funcs.IntensityGenerator(3, 24)
 class Gesture:
     """Contains all current gesture information and controls outputs to the haptic display.
     
@@ -78,6 +77,7 @@ class Gesture:
                            'Victory': 0,
                            'ILoveYou': 0,
                            'Total': 0}
+        self.generator = haptic_funcs.IntensityGenerator(3, 24)
         self.output_dict = self.initialize_active_gesture() # dictionary with pre-allocated output sequences
         self.gesture_latest = 'None' # latest gesture detected by the Recognizer class
         self.gesture_active = 'None' # gesture which is currently being executed (for output_list)
@@ -172,11 +172,11 @@ class Gesture:
         
         output_dict = {}
         output_dict['None'] = [np.zeros((4,7))]
-        output_dict['Closed_Fist'] = input_generator.checker_square(freq=3)
+        output_dict['Closed_Fist'] = self.generator.checker_square(freq=3)
         output_dict['Open_Palm'] = [np.zeros((4,7))]
         output_dict['Pointing_Up'] = [np.zeros((4,7))]
-        output_dict['Thumb_Down'] = input_generator.sawtooth(direction='left',scale=0.1, freq=3)
-        output_dict['Thumb_Up'] = input_generator.sawtooth(direction='right',scale=0.1, freq=3)
+        output_dict['Thumb_Down'] = self.generator.sawtooth(direction='left',scale=0.1, freq=3)
+        output_dict['Thumb_Up'] = self.generator.sawtooth(direction='right',scale=0.1, freq=3)
         output_dict['Victory'] = [np.zeros((4,7))]
         output_dict['ILoveYou'] = [np.zeros((4,7))]
         return output_dict
