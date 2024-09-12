@@ -57,7 +57,7 @@ A/B/C refers to the labeled MINI switch rack, and 1-10 refers to the MINI switch
 the list of ports `[port_A, port_B, port_C]` will correspond to the MINI switch racks A/B/C.
 
 #### Script terminology:
-The following terms are adopted for all functions/scripts:
+The following terms are adopted for naming variables/functions (my own personal conventions):
 
 - `array`= Numpy np.ndarray object. E.g. the variable `duty_array` is a np.ndarray of duty cycle values.
 - `list` = Python list object. E.g. the variable `duty_array_list` is a list of np.ndarrays of duty cycle values.
@@ -66,7 +66,7 @@ The following terms are adopted for all functions/scripts:
 video frame, with the size (4,7) corresponding to the HASELs of the haptic display, and each element of the (4,7) array will range from 0 (least intense) to 1 (most intense). Through the haptic mapping, 
 these intensities will be converted into periods and duty cycles for USB transfer.
 - `sequence` = Python list which is a sequence of the haptic output/video frames. E.g. the variable `intensity_sequence` is a sequential list of intensity arrays, with the first item being the intensity of the first frame. 
-`packet_sequence` is a sequential list of packets to send to USB
+Sequence implies time dependence. E.g. `packet_sequence` is a sequential list of packets to send to USB
 
 ## How to contribute/code conventions
 

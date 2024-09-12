@@ -21,7 +21,7 @@ import torch
 import numpy as np
 import cv2
 import matplotlib.animation as animation
-import visual_haptic_utils.algo_preprocessing as algo
+import haptic_utils.algo_preprocessing as algo
 
 ###### MAIN ######
 ## Setting up torch device and model, video input

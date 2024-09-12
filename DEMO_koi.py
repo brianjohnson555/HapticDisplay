@@ -18,8 +18,8 @@ COM_C = "COM16" # port for MINI swiches 21-28
 ###### INITIALIZATIONS ######
 import cv2
 import time
-import visual_haptic_utils.haptic_funcs as haptic_funcs # my custom file
-import visual_haptic_utils.USB_writer as USB_writer # my custom file
+import haptic_utils.haptic_map as haptic_map # my custom file
+import haptic_utils.USB as USB # my custom file
 from numpy import genfromtxt
 
 ###### MAIN ######
@@ -30,34 +30,39 @@ frame_rate = 120
 
 # Set up USBWriter and intensity map:
 serial_ports = [COM_A, COM_B, COM_C]
-serial_writer = USB_writer.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
-haptic_map = haptic_funcs.HapticMap()
+serial_writer = USB.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 
 # Preprocess data:
-duty_array_list, period_array_list = haptic_map.linear_map_sequence(data,
-                                                                    freq_range=(0,24),
-                                                                    duty_range=(0.1,0.5))
-packet_sequence = USB_writer.make_packet_sequence(duty_array_list, period_array_list)
-packet_sequence.reverse()
+output_data = haptic_map.make_output_data(data,
+                                        freq_range=(0,24),
+                                        duty_range=(0.1,0.5))
+
+# Preprocess video:
+video_data = []
+cap = cv2.VideoCapture(VIDEONAME)
+while True:
+    ret,img = cap.read()
+    if ret:
+        video_data.append(img)
+    else:
+        break
+video_data.reverse()
 
 # Enable HV!!!
 serial_writer.HV_enable()
 
 while True:
     isClose=False # break condition
-    cap = cv2.VideoCapture(VIDEONAME) # set up video capture
-    dataindex = 0 # initialize data start point
-    packets = packet_sequence.copy() # copy packet sequence
+    video_sequence = video_data.copy()
+    packet_sequence = output_data.packet_sequence.copy() # copy packet sequence
     while True:
-        ret,img = cap.read() # read frame from video
-
-        if ret and dataindex<data_length-1: # if frame exists, run; otherwise, video is finished->loop back to beginning
-            dataindex+=1
+        if len(packet_sequence)>0 and len(video_sequence)>0: # if frame exists, run; otherwise, video is finished->loop back to beginning
             t_start = time.time()
             # send to USB:
-            packet_list = packets.pop()
-            serial_writer.write_packets_to_USB(packet_list)
+            packets = packet_sequence.pop()
+            serial_writer.write_packets_to_USB(packets)
             # Display video:
+            img = video_sequence.pop()
             cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
             cv2.imshow('Video',img)
             # get elapsed time:

@@ -18,22 +18,20 @@ COM_C = "COM16" # port for MINI swiches 21-28
 ###### INITIALIZATIONS ######
 import cv2
 import time
-import serial
 import numpy as np
-import visual_haptic_utils.haptic_funcs as haptic_funcs # my custom file
-import visual_haptic_utils.USB_writer as USB_writer # my custom file
-import visual_haptic_utils.algo_gesture as algo_gesture # my custom file
+import haptic_utils.USB as USB # my custom file
+import haptic_utils.algo_gesture as algo_gesture # my custom file
 import matplotlib.pyplot as plt
 
 ## debug:
-# import warnings
-# warnings.filterwarnings("ignore")
+import warnings
+warnings.filterwarnings("ignore")
 
 ###### MAIN ######
 
 # Set up USBWriter:
 serial_ports = [COM_A, COM_B, COM_C]
-serial_writer = USB_writer.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
+serial_writer = USB.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 if SAVE_VIDEO:
     outlist_image = []
     outlist_haptic = []
@@ -45,17 +43,14 @@ serial_writer.HV_enable()
 cap = cv2.VideoCapture(0) #stream from webcam
 gesture = algo_gesture.Gesture() # keep track of each recurrance of gestures
 recognizer = algo_gesture.Recognizer(gesture)
-haptic_map = haptic_funcs.HapticMap()
 
 with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs "with...as" in order to run properly (enter()/exit())
     while True:
         ret, frame = cap.read()
         frame_timestamp_ms = int(np.floor(time.time() * 1000))
         gesture.get_latest_gesture(gesture_recognizer, frame_timestamp_ms, frame)
-
-        intensity_array = gesture.output_latest
-        duty_array, period_array = haptic_map.linear_map_single(intensity_array) # map from algo intensity to duty cycle/period
-        serial_writer.write_array_to_USB(duty_array, period_array)
+        intensity, packets = gesture.output.pop()
+        serial_writer.write_packets_to_USB(packets)
 
         frame_annotated = cv2.putText(frame, 
                                str(gesture.gesture_active), 
@@ -71,11 +66,11 @@ with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs 
         if VIEW_INTENSITY:
             cv2.namedWindow('Intensity',cv2.WINDOW_KEEPRATIO)
             cv2.resizeWindow('Intensity', 4*192, 4*108)
-            cv2.imshow('Intensity',intensity_array)
+            cv2.imshow('Intensity',intensity)
 
         if SAVE_VIDEO:
             outlist_image.append(frame_annotated)
-            outlist_haptic.append(intensity_array)
+            outlist_haptic.append(intensity)
 
         if(cv2.waitKey(10) & 0xFF == ord('b')):
             break # BREAK OUT OF LOOP WHEN "b" KEY IS PRESSED!

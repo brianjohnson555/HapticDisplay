@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
-"""Sets up USBWriter class to communicate with HV MINI switch USB"""
+"""Sets up SerialWriter class to communicate with HV MINI switch via USB ports. 
+Also build packing functions to convert period and duty cycle values into byte strings for USB transfer."""
 
 import numpy as np
 import serial
@@ -110,7 +111,7 @@ def make_packet(duties: np.ndarray, periods: np.ndarray):
 
     return packet
 
-def make_packet_list(duty_array: np.ndarray, period_array: np.ndarray):
+def make_packet_list(duty_array: np.ndarray = np.zeros((30,),dtype=int), period_array: np.ndarray = np.zeros((30,),dtype=int)):
     """Converts the duty cycle and period arrays into a list of USB-transferable packets.
     
     Inputs:
