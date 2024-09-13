@@ -100,8 +100,11 @@ class VisualHapticModel:
         self.output = self.get_downsample(self.threshold_frame)
         return self.output
 
-    # Get self attention from video frame using DINO
     def get_attention(self, frame):
+        """Gets self attention from video frame using DINO self.attention_model.
+        
+        The frame is resized based on self.resolution_attention value."""
+
         transform = transforms.Compose([           
                                     transforms.Resize((self.resolution_attention,int(np.floor(self.resolution_attention*1.7777)))),
                                     # transforms.CenterCrop(resolution), #should be multiple of model patch_size                 
@@ -110,29 +113,39 @@ class VisualHapticModel:
                                     ])
         frame_I = Image.fromarray(frame) # convert data type
         frame_transformed = transform(frame_I).unsqueeze(0)
+        # get self attention from DINO:
         attentions = self.attention_model.get_last_selfattention(frame_transformed)
+        # reshape attentions (from tutorial):
         nh = attentions.shape[1]
         attentions = attentions[0, :, 0, 1:].reshape(nh,-1)
         patch_size = 4
         width_feature_map = frame_transformed.shape[-2] // patch_size
         height_feature_map = frame_transformed.shape[-1] // patch_size
-
         attentions = attentions.reshape(nh, width_feature_map//2, height_feature_map//2)
+        # interpolate and average:
         attentions_interp = nn.functional.interpolate(attentions.unsqueeze(0), scale_factor=1, mode="nearest")[0].detach().numpy()
         attention_frame = (np.mean(attentions_interp, axis=0))
 
         return attention_frame
 
-    # get depth estimation of frame using MiDaS
     def get_depth(self, frame):
-        frame_transformed = self.depth_transform(frame) # use small image transform
-        depth = self.depth_model(frame_transformed) # evaluate using small model
+        """Get depth estimation from video frame using MiDaS self.depth_model.
+        
+        The depth transformation must match the model (small model=small transform)."""
+        frame_transformed = self.depth_transform(frame) # image transform
+        depth = self.depth_model(frame_transformed) # evaluate using matching model
         depth_frame = depth.cpu().detach().numpy().squeeze(0) # formatting
 
         return depth_frame
 
     def remove_gradient(self, depth_frame):
-        # remove normal depth gradient from depth map
+        """Subtracts a default depth gradient from the depth estimation.
+        
+        This assumes that the depth image is a typical landscape scene with foreground,
+         midground, and background. The goal is to account for the closer depth of the 
+         foreground and the farther depth of the background; when the gradient is subtracted,
+         any parts of the frame which contrast from this gradient will have increased contrast."""
+
         # depth_nm = cv2.normalize(depth, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
         xgrid = np.zeros(self.gradient_size, dtype=float)
         ygrid = depth_frame.mean(axis=1) # make mean-depth-based gradient
@@ -142,8 +155,12 @@ class VisualHapticModel:
 
         return depth_frame_nograd
 
-    # combine depth and attention maps together
     def get_combined(self, depth_frame, attention_frame, method='sum'):
+        """Combine the depth and attention mappings.
+        
+        Each depth/attention frame is resized and normalized before being combined. The
+        'method' input specifies if the attention and depth are multiplied together or summed."""
+
         depth_resized = cv2.resize(depth_frame, dsize=(16*self.scaling_factor, 9*self.scaling_factor), interpolation=cv2.INTER_CUBIC)
         depth_normal = cv2.normalize(depth_resized, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
         attention_resized = cv2.resize(attention_frame, dsize=(16*self.scaling_factor, 9*self.scaling_factor), interpolation=cv2.INTER_CUBIC)
@@ -159,24 +176,38 @@ class VisualHapticModel:
 
     # threshold the combined map to threshold_val
     def get_threshold(self, combined_frame):
+        """Thresholds the input frame based on self.threshold_value. Only values
+        above the threshold will be returned; lower values become zero."""
+
         return (combined_frame > self.threshold_value) * combined_frame
 
-    # downsample the thresholded map to the grid size of the haptic display
     def get_downsample(self, threshold_frame):
+        """Downsamples the input frame to the dimensions of the haptic display.
+        
+        I am performing a custom interpolation method to downsample the resolution. The goal
+        of the method is to preserve high-valued intensities. E.g. for a given haptic pixel size,
+        if there is a close-depth or high-attention item inside, we should keep its value instead
+        of diluting it by average all of the values in the pixel area during the downsample.
+
+        The original interpolation method is commented out at the end of the method."""
+        
         ### new code for interpolation:
         downsampled_frame = np.zeros(self.display_dim) # initialize
         interval_H = int(np.floor(threshold_frame.shape[0]/self.display_dim[0]))
         interval_W = int(np.floor(threshold_frame.shape[1]/self.display_dim[1]))
         for rr in range(self.display_dim[0]):
             for cc in range(self.display_dim[1]):
+                # look at just the pixel in question:
                 frame_slice = threshold_frame[rr*interval_H:(rr+1)*interval_H, cc*interval_W:(cc+1)*interval_W]
+                # compute statistics:
                 mean_slice = np.mean(frame_slice)
                 std_slice = np.std(frame_slice)
                 max_slice = np.max(frame_slice)
+                # selection:
                 if mean_slice+3*std_slice > max_slice: # I'm doing some weird selection of max vs. mean depending on std of the frame slice
-                    downsampled_frame[rr, cc] = max_slice
+                    downsampled_frame[rr, cc] = max_slice # important feature detected; keep max value
                 else:
-                    downsampled_frame[rr, cc] = mean_slice
+                    downsampled_frame[rr, cc] = mean_slice # not important enough; use mean value
 
         return downsampled_frame
         ### original code for interpolation:

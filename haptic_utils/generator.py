@@ -25,14 +25,14 @@ def make_output(output_array: np.ndarray):
     return output_list # turn numpy array into a list of arrays
 
 def zeros_sequence(total_time=3, frame_rate=24):
-    """Zero output signal of length input t. No duty cycle or period. All zeros!!!"""
+    """Zero output signal of length input t. Duty cycle and period will be zero!!!"""
 
     t = np.arange(start=0, stop=total_time, step=1/frame_rate)
     output = np.zeros((4,7,t.size))
     return make_output(output)
 
 def zeros():
-    """Zero output signal, single array. No duty cycle or period. All zeros!!!"""
+    """Zero output signal, single [array]. Duty cycle and period will be zero!!!"""
 
     output = np.zeros((4,7))
     return [output]

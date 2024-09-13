@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import urllib.request
 import serial
 
-ser = serial.Serial('COM15', 9600, timeout=0)
+ser = serial.Serial('COM9', 9600, timeout=0)
 ser.bytesize = serial.EIGHTBITS
 
 def make_packets(duties, periods):
@@ -28,13 +28,29 @@ def make_packets(duties, periods):
 ser.write('E'.encode()) # Enable HV
 time.sleep(0.05)
 
-period = 396
-duty = 0.061
+period = 400*2
+duty = 0.5
 periods = np.array([period, period, period, period, period, period, period, period, period, period])
 duties = np.array([duty, duty, duty, duty, duty, duty, duty, duty, duty, duty])
 packet = make_packets(duties, periods)
 ser.write(packet)
-time.sleep(3)
+time.sleep(4)
+
+period = 100*2
+duty = 0.5
+periods = np.array([period, period, period, period, period, period, period, period, period, period])
+duties = np.array([duty, duty, duty, duty, duty, duty, duty, duty, duty, duty])
+packet = make_packets(duties, periods)
+ser.write(packet)
+time.sleep(4)
+
+period = 10*2
+duty = 0.5
+periods = np.array([period, period, period, period, period, period, period, period, period, period])
+duties = np.array([duty, duty, duty, duty, duty, duty, duty, duty, duty, duty])
+packet = make_packets(duties, periods)
+ser.write(packet)
+time.sleep(4)
 
 period = 0
 duty = 0

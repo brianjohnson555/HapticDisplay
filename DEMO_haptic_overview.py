@@ -7,7 +7,7 @@ signal patterns (checkerboard, sine wave, etc)."""
 
 ###### USER SETTINGS ######
 SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
-COM_A = "COM15" # port for MINI switches 1-10
+COM_A = None # port for MINI switches 1-10
 COM_B = "COM9" # port for MINI switches 11-20
 COM_C = "COM16" # port for MINI swiches 21-28
 
@@ -29,20 +29,20 @@ time.sleep(0.5)
 serial_writer.HV_enable()
 
 # prepare preprogrammed sequence:
-frame_rate = 24
+frame_rate = 10
 
 output_data = haptic_map.make_output_data(generator.ramp(direction=1),
                                         freq_range=(0,200),
-                                        duty_range=(0.05,0.5))
+                                        duty_range=(0.5,0.05))
 
 output_data1 = haptic_map.make_output_data(generator.ramp(direction=-1),
                                                            freq_range=(0,200),
-                                                           duty_range=(0.05,0.5))
+                                                           duty_range=(0.5,0.05))
 output_data.extend(output_data1)
 
 output_data1 = haptic_map.make_output_data(generator.sine_global(freq=1),
                                                            freq_range=(0,50),
-                                                           duty_range=(0.05,0.5))
+                                                           duty_range=(0.5,0.05))
 output_data.extend(output_data1)
 
 output_data1 = haptic_map.make_output_data(generator.checker_sine(total_time=5,freq=0.5),
@@ -77,4 +77,7 @@ while output_data.length()>1:
     
 # Disable HV!!!
 serial_writer.HV_disable()
+zero_output = haptic_map.make_output_data(generator.zeros())
+zero_intensity, zero_packets = zero_output.pop()
+serial_writer.write_packets_to_USB(zero_packets)
 time.sleep(0.5)

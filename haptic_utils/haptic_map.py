@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-"""Mapping functions."""
+"""Mapping functions. Also defines class OutputData which collects intensity and packet sequences."""
 
 import numpy as np
 import haptic_utils.USB as USB
@@ -30,8 +30,8 @@ def linear_map_single(intensity_array:np.ndarray, freq_range:tuple = (0,24), dut
     period_array = np.reciprocal(mapped_freq) # mapped period (sec)
     period_array = 1000*period_array # mapped period (ms)
     period_array = period_array.astype(int)
-    period_array[period_array<np.floor(1000/freq_range[1])] = np.floor(1000/freq_range[1]) # threshold anything above freq limit
-    period_array[period_array>500] = 0 # anything below 2 Hz = 0
+    # period_array[period_array<np.floor(1000/freq_range[1])] = np.floor(1000/freq_range[1]) # threshold anything above freq limit
+    period_array[period_array>500] = 0 # anything below 1 Hz = 0
 
     # map duty cycles:
     duty_array = (duty_range[1]-duty_range[0])*intensity_array + duty_range[0]*np.ones(shape=intensity_array.shape) # linear mapped duty (%)
@@ -76,37 +76,91 @@ def linear_map_sequence(intensity_sequence:list, freq_range:tuple = (0,24), duty
     return duty_array_list, period_array_list
 
 
-def make_output_data(intensity_sequence, **kwargs):
+def make_output_data(intensity_sequence:list, **kwargs):
+    """Passes sequence of intensities through a linear mapping and returns OutputData object.
+    
+    Inputs:
+    -intensity_sequence: sequence of intensity arrays, expected shape of each array np.ndarray((4,7))
+    -**kwargs: keyword arguments for the linear_map_sequence() function (e.g. frequency and duty range)
+
+    Outputs:
+    - OutputData object with fields .intensity_sequence (same as input) and .packet_sequence.
+     packet_sequence is a list of packet_list objects which can be sent to USB."""
+    
+    # perform linear map:
     duty_array_list, period_array_list = linear_map_sequence(intensity_sequence, **kwargs)
+    # convert to sequence of packets:
     packets_sequence = USB.make_packet_sequence(duty_array_list, period_array_list)
+    # build OutputData object:
     output_data = OutputData(intensity_sequence, packets_sequence)
     return output_data
 
 class OutputData:
+    """OutputData class collects all necessary items for running close-loop haptic sequences.
+    
+    The only fields are self.intensity_sequence, which is the sequence of haptic intensity arrays,
+    and self.packet_sequence, which is the sequence of packets that can be sent to USB to create
+    haptic sensations.
+
+    Since both data items in OutputData are lists, common list methods are used such as pop() and copy().
+    
+    Both items can be retreive with the pop() class method until each list is exhausted.
+    
+    Multiple OutputData objects can be combined with the extend() class method.
+    
+    NOTE: it is expected that the last index value e.g. intensity_sequence[-1] is the most recent
+    in time, in this way pop() method will continue to draw latest values."""
+
     def __init__(self, intensity_sequence:list, packet_sequence:list):
+        """Initializes OutputData object.
+        
+        Inputs:
+        -intensity_sequence: sequency of np.ndarrays of intensity (shape (4,7))
+        -packet_sequence: sequence of packet_list objects generated from haptic_utils.USB.py
+        functions make_packet_sequence or make_packet_list."""
+
         self.intensity_sequence = intensity_sequence
         self.packet_sequence = packet_sequence
 
     def pop(self):
+        """Returns latest value of intensity_sequence and packet_sequence with list.pop().
+        
+        Like a normal list pop(), this removes the item from the list.
+        
+        Outputs:
+        - intensity_array, packet_list: array and packet which can be plotted and sent to USB."""
+
         if len(self.intensity_sequence)>0:
             return self.intensity_sequence.pop(), self.packet_sequence.pop()
         else:
             return np.zeros((4,7)), USB.make_packet_list()
         
     def get(self):
+        """Returns the full value of intensity_sequence and packet_sequence."""
+
         return self.intensity_sequence, self.packet_sequence
         
     def copy(self):
+        """Returns a OutputData class object which is a copy of the original."""
+
         return OutputData(self.intensity_sequence, self.packet_sequence)
     
     def extend(self, other_output_data):
+        """Extends the intensity_sequence and packet_sequence.
+        
+        Because it is expected that the time-sequence of intensities and packets is reversed
+        with index [-1] being the latest value, extend appends the new data to the front of the 
+        list rather than the end. This way, pop() method continues to draw the latest values in 
+        the correct order."""
+
         temp_list = other_output_data.intensity_sequence.copy()
         temp_list.extend(self.intensity_sequence)
         self.intensity_sequence = temp_list
 
-        temp_list = other_output_data.packet_sequence.copy()
-        temp_list.extend(self.intensity_sequence)
-        self.packet_sequence = temp_list
+        temp_list2 = other_output_data.packet_sequence.copy()
+        temp_list2.extend(self.packet_sequence)
+        self.packet_sequence = temp_list2
 
     def length(self):
+        """Returns current length (type: int) of both the intensity and packet sequences."""
         return len(self.intensity_sequence)

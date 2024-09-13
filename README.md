@@ -15,7 +15,7 @@ The main directory contains the following file directory structure:
     - **output_images/** (any images generated for manuscript, presentations, etc.)
     - **output_videos/** (any videos generated for manuscript, presentations, etc.)
     - **preprocessing/** (visual-haptic algorithm code. Video goes in->haptic data comes out)
-    - **utils/** (codebase of functions and classes to run the demos)
+    - **haptic_utils/** (codebase of functions and classes to run the demos)
 
 
 ## Installation and requirements
@@ -36,7 +36,7 @@ For running demos of the haptic display, the main directory contains all demo co
 Any new videos which you want to show on the display should be placed in the **`algo_input_videos/`** directory. Then, in **`preprocessing/`** directory, run the appropriate processing code to generate the haptic data. The haptic data will then be stored in **`algo_input_data/`**
 
 #### 3. Creating new manually-authored haptic sequences
-Codes within **`utils/`** can be used to create open-loop (non-algorithm based) input sequences to the haptic display for use in demos (e.g. the gesture detection demo). To use the existing scripts to write new code, import them with `import utils.algo_functions`.
+Codes within **`utils/`** can be used to create open-loop (non-algorithm based) input sequences to the haptic display for use in demos (e.g. the gesture detection demo). To use the existing scripts to write new code, import them with `import haptic_utils.haptic_map` etc.
 
 #### 4. Working with manuscript figures
 The **`figure_generation/`** directory can be used to write code to generate figures for the manuscript, presentations, etc.
