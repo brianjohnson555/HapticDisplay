@@ -8,19 +8,20 @@ hand gesture of a person in the video is automatically detected. Each unique ges
 a corresponding unique, pre-programmed haptic output on the haptic display."""
 
 ###### USER SETTINGS ######
-SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
+SERIAL_ACTIVE = False
+ # if False, just runs the algorithm without sending to HV switches
 VIEW_INTENSITY = True # if True, opens a video showing the depth/intensity map
 SAVE_VIDEO = False # if True, saves a video file of both the camera view and the intensity map
 COM_A = "COM9" # port for MINI switches 1-10
-COM_B = "COM15" # port for MINI switches 11-20
-COM_C = "COM16" # port for MINI swiches 21-28
+COM_B = "COM14" # port for MINI switches 11-20
+COM_C = "COM15" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 import cv2
 import time
 import numpy as np
 import haptic_utils.USB as USB # my custom file
-import haptic_utils.algo_gesture as algo_gesture # my custom file
+import haptic_utils.gesture as gesture # my custom file
 import matplotlib.pyplot as plt
 
 ## debug:
@@ -41,19 +42,19 @@ serial_writer.HV_enable()
 
 # initialize camera and gesture model:
 cap = cv2.VideoCapture(0) #stream from webcam
-gesture = algo_gesture.Gesture() # keep track of each recurrance of gestures
-recognizer = algo_gesture.Recognizer(gesture)
+gesturer = gesture.Gesture() # keep track of each recurrance of gestures
+recognizer = gesture.Recognizer(gesturer)
 
 with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs "with...as" in order to run properly (enter()/exit())
     while True:
         ret, frame = cap.read()
         frame_timestamp_ms = int(np.floor(time.time() * 1000))
-        gesture.get_latest_gesture(gesture_recognizer, frame_timestamp_ms, frame)
-        intensity, packets = gesture.output.pop()
+        gesturer.get_latest_gesture(gesture_recognizer, frame_timestamp_ms, frame)
+        intensity, packets = gesturer.output.pop()
         serial_writer.write_packets_to_USB(packets)
 
         frame_annotated = cv2.putText(frame, 
-                               str(gesture.gesture_active), 
+                               str(gesturer.gesture_active), 
                                org=(20, 200), 
                                fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
                                fontScale=2, 

@@ -61,5 +61,5 @@ ser.write(packet)
 time.sleep(0.5)
 
 ser.write('D'.encode()) # disable HV  
-time.sleep(0.5)  
+time.sleep(1)  
 # ser.close()

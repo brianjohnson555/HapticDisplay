@@ -10,10 +10,10 @@ visual-haptic algorithm preprocessing code."""
 ###### USER SETTINGS ######
 FILENAME = "algo_input_data/datakoi_output.txt"
 VIDEONAME = "algo_input_videos/video_koi.mp4"
-SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
+SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
 COM_A = "COM9" # port for MINI switches 1-10
-COM_B = "COM15" # port for MINI switches 11-20
-COM_C = "COM16" # port for MINI swiches 21-28
+COM_B = "COM14" # port for MINI switches 11-20
+COM_C = "COM15" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -26,7 +26,7 @@ from numpy import genfromtxt
 # Load data
 data=genfromtxt(FILENAME,delimiter=',')[:,0:28]
 data_length = data.shape[0]
-frame_rate = 120
+frame_rate = 20
 
 # Set up USBWriter and intensity map:
 serial_ports = [COM_A, COM_B, COM_C]
@@ -34,8 +34,8 @@ serial_writer = USB.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 
 # Preprocess data:
 output_data = haptic_map.make_output_data(data,
-                                        freq_range=(0,24),
-                                        duty_range=(0.1,0.5))
+                                        freq_range=(5,24),
+                                        duty_range=(0.5,0.2))
 
 # Preprocess video:
 video_data = []

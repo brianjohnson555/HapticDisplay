@@ -3,10 +3,10 @@
 """This demo script shows a basic single output sequence from the haptic display."""
 
 ###### USER SETTINGS ######
-SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
-COM_A = None # port for MINI switches 1-10
-COM_B = "COM9" # port for MINI switches 11-20
-COM_C = "COM16" # port for MINI swiches 21-28
+SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
+COM_A = "COM9" # port for MINI switches 1-10
+COM_B = "COM14" # port for MINI switches 11-20
+COM_C = "COM15" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -27,11 +27,24 @@ serial_writer.HV_enable()
 time.sleep(0.5)
 
 # prepare preprogrammed sequence:
-fps = 10
+fps = 20
 
-output_data = haptic_map.make_output_data(generator.ramp(total_time=10, frame_rate=20, direction=1),
-                                        freq_range=(0,100),
-                                        duty_range=(0.5,0.5))
+output_data = haptic_map.make_output_data(generator.sawtooth(scale=0.4),
+                                        freq_range=(0,50),
+                                        duty_range=(0.01,0.5))
+
+# output_data2 = haptic_map.make_output_data(generator.sine_global(total_time=20, frame_rate=10, freq=1),
+#                                         freq_range=(1,10),
+#                                         duty_range=(0.5,0.1))
+
+# output_data3 = haptic_map.make_output_data(generator.ramp(total_time=5, frame_rate=10, direction=1),
+#                                         freq_range=(1,100),
+#                                         duty_range=(0.5,0.5))
+
+# output_data4 = haptic_map.make_output_data(generator.ramp(total_time=5, frame_rate=10, direction=1),
+#                                         freq_range=(100,100),
+#                                         duty_range=(0.05,0.05))
+# output_data = output_data2
 
 while output_data.length()>1:
     t_start = time.time()

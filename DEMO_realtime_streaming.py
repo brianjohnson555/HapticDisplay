@@ -12,8 +12,8 @@ SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV s
 VIEW_INTENSITY = False # if True, opens a video showing the depth/intensity map
 SAVE_VIDEO = False # if True, saves a video file of both the camera view and the intensity map
 COM_A = "COM9" # port for MINI switches 1-10
-COM_B = "COM15" # port for MINI switches 11-20
-COM_C = "COM16" # port for MINI swiches 21-28
+COM_B = "COM14" # port for MINI switches 11-20
+COM_C = "COM15" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 import cv2
