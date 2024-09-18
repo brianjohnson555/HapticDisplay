@@ -13,6 +13,8 @@ BIAS = 0.75 # bias towards attention for attention+depth combination
 SCALE = 4 # scaling of combined array (scale*[16, 9])
 DISPLAY_DIMS = (4,7) # HASEL haptic display dimensions, H x W (pixels)
 FRAME_SKIP = 5 # interval for how often to calculate algorithm (then interpolate between)
+FRAME_RATE = 30 # video frame rate (must check video properties!!)
+# note on FRAME_SKIP: only needed when you want fast processing time. Otherwise set to 0.
 DEVICE = "cpu"
 
 ###### INITIALIZATIONS ######
@@ -49,11 +51,11 @@ while True:
 
         if frame is None:
             break # no more frames, finish loop
-        if frame_num%FRAME_SKIP==1: #### ONLY PROCESS EVERY x FRAMES!
+        if frame_num%FRAME_SKIP==1 or FRAME_SKIP is 0: #### ONLY PROCESS EVERY x FRAMES!
 
             output = model.single_run(frame) # run the visual-haptic algorithm
 
-            if output_list:#skip first iteration
+            if output_list and FRAME_SKIP is not 0:#skip first iteration
                 last_output = output_list[-1]
                 for frame in range(1, FRAME_SKIP):
                     interp_vec = np.zeros(DISPLAY_DIMS)
@@ -62,12 +64,13 @@ while True:
                             interp_vec[row, col] = np.linspace(last_output[row, col], output[row, col], FRAME_SKIP+1)[frame]
                     output_list.append(interp_vec)
 
+            # append latest output to list
             output_list.append(output)
-            print(len(output_list))
+            print("Current frame= ", len(output_list))
 
         frame_num += 1
 
-print("Plotting...")
+print("Plotting and saving...")
 
 ims = []
 figure = plt.figure()
@@ -76,7 +79,7 @@ for i in range(0,len(output_list)):
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
 filename = "output_videos/animation_" + VIDEO + "_output.mp4"
-ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=30)
+ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=FRAME_RATE)
 plt.close()
 
 filename_data = "algo_input_data/data" + VIDEO + "_output.txt"

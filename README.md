@@ -33,10 +33,10 @@ After installing all necessary packages, the files can be used for a few differe
 For running demos of the haptic display, the main directory contains all demo codes. Each file is a separate demo (e.g. `DEMO_gesture.py` runs the haptic gesture detection demo). All required videos and haptic sequences for the demos should be included in the **`algo_input_data/`** and **`algo_input_videos/`** file directories.
 
 #### 2. Generating new visual-haptic data to make new demos
-Any new videos which you want to show on the display should be placed in the **`algo_input_videos/`** directory. Then, in **`preprocessing/`** directory, run the appropriate processing code to generate the haptic data. The haptic data will then be stored in **`algo_input_data/`**
+Any new videos which you want to show on the display should be placed in the **`algo_input_videos/`** directory. Then, in **`pre_processing/`** directory, run the appropriate processing code to generate the haptic data. The haptic data will then be stored in **`algo_input_data/`**
 
 #### 3. Creating new manually-authored haptic sequences
-Codes within **`utils/`** can be used to create open-loop (non-algorithm based) input sequences to the haptic display for use in demos (e.g. the gesture detection demo). To use the existing scripts to write new code, import them with `import haptic_utils.haptic_map` etc.
+Codes within **`haptic_utils/`** can be used to create open-loop (non-algorithm based) input sequences to the haptic display for use in demos (e.g. the gesture detection demo). To use the existing scripts to write new code, import them with `import haptic_utils.haptic_map` etc.
 
 #### 4. Working with manuscript figures
 The **`figure_generation/`** directory can be used to write code to generate figures for the manuscript, presentations, etc.

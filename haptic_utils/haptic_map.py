@@ -1,6 +1,17 @@
 #!/usr/bin/env python3
 
-"""Mapping functions. Also defines class OutputData which collects intensity and packet sequences."""
+"""Mapping functions. Also defines class OutputData which collects intensity and packet sequences.
+
+Ideal use-case:
+1. Load intensity sequence or create with haptic_utils.generator:
+    intensity_sequence = generator.func(args)
+2. Create output data by calling linear_map via make_output_data:
+    output_data = haptic_map.make_output_data(intensity_sequence, **linear_map_kwargs)
+3. In real time, pop() each output_data item and send to USB or plot:
+    intensity, packets = output_data.pop()
+    serial_writer.send_packets_to_USB(packets)
+    plt.imshow(intensity)
+"""
 
 import numpy as np
 import haptic_utils.USB as USB
@@ -10,12 +21,12 @@ def linear_map_single(intensity_array:np.ndarray, freq_range:tuple = (0,24), dut
     
     Inputs:
     -intensity_array: np.ndarray containing intensity of the frame.
-    -freq_range: tuple containing min and max frequency (Hz)
-    -duty_range: tuple containing min and max duty cycle ratio (%)
+    -freq_range: tuple containing min and max frequency [Hz]
+    -duty_range: tuple containing min and max duty cycle ratio [%]
 
     Outputs:
-    -duty_array_flat: np.ndarray flattened to single dimension. Each element is taxel duty cycle (%)
-    -period_array_flat: np.ndarray flattened to single dimension. Each element is taxel period (ms)
+    -duty_array_flat: np.ndarray flattened to single dimension. Each element is taxel duty cycle [%]
+    -period_array_flat: np.ndarray flattened to single dimension. Each element is taxel period [ms]
     
     Using default values, intensity 0-1 will be mapped to 0-24 Hz and 25%-75%
     
@@ -51,12 +62,12 @@ def linear_map_sequence(intensity_sequence:list, freq_range:tuple = (0,24), duty
     
     Inputs:
     -intensity_sequence: list of np.ndarrays containing intensity of each frame. 
-    -freq_range: tuple containing min and max frequency for the mapping (Hz)
-    -duty_range: tuple containing min and max duty cycle ratio for the mapping(%)
+    -freq_range: tuple containing min and max frequency for the mapping [Hz]
+    -duty_range: tuple containing min and max duty cycle ratio for the mapping [%]
 
     Outputs:
-    -duty_array_list: list of flattened arrays of duty cycle (%)
-    -period_array_list: list of flattened arrays of period (ms)
+    -duty_array_list: list of flattened arrays of duty cycle [%]
+    -period_array_list: list of flattened arrays of period [ms]
     
     Using default values, intensity 0-1 will be mapped to 0-24 Hz, 25%-75%."""
 
@@ -103,9 +114,7 @@ class OutputData:
     haptic sensations.
 
     Since both data items in OutputData are lists, common list methods are used such as pop() and copy().
-    
     Both items can be retreive with the pop() class method until each list is exhausted.
-    
     Multiple OutputData objects can be combined with the extend() class method.
     
     NOTE: it is expected that the last index value e.g. intensity_sequence[-1] is the most recent
@@ -123,8 +132,7 @@ class OutputData:
         self.packet_sequence = packet_sequence
 
     def pop(self):
-        """Returns latest value of intensity_sequence and packet_sequence with list.pop().
-        
+        """Returns latest value of intensity_sequence and packet_sequence with list.pop(). 
         Like a normal list pop(), this removes the item from the list.
         
         Outputs:
@@ -147,6 +155,9 @@ class OutputData:
     
     def extend(self, other_output_data):
         """Extends the intensity_sequence and packet_sequence.
+
+        Inputs:
+        -other_output_data: must also be OutputData class object
         
         Because it is expected that the time-sequence of intensities and packets is reversed
         with index [-1] being the latest value, extend appends the new data to the front of the 

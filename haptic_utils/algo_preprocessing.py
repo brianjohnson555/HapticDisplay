@@ -17,7 +17,6 @@ import numpy as np
 from PIL import Image
 import cv2
 
-# Grab video frame (next frame if frame_num=1 or nth frame if =n)
 def grab_video_frame(source:cv2.VideoCapture):
     """Grabs the next frame from the video source.
     
@@ -132,6 +131,7 @@ class VisualHapticModel:
         """Get depth estimation from video frame using MiDaS self.depth_model.
         
         The depth transformation must match the model (small model=small transform)."""
+
         frame_transformed = self.depth_transform(frame) # image transform
         depth = self.depth_model(frame_transformed) # evaluate using matching model
         depth_frame = depth.cpu().detach().numpy().squeeze(0) # formatting
