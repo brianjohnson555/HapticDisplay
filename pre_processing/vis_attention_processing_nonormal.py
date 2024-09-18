@@ -21,6 +21,10 @@ import torch
 import numpy as np
 import cv2
 import matplotlib.animation as animation
+import sys
+import os.path
+sys.path.append(
+    os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 import haptic_utils.algo_preprocessing as algo
 
 ###### MAIN ######
@@ -47,32 +51,19 @@ while True:
         frame = algo.grab_video_frame(cap)
         if frame is None:
             break # no more frames, finish loop
-        if frame_num%FRAME_SKIP==1: #### ONLY PROCESS EVERY x FRAMES!
+        
+        attention = model.get_attention(frame)
+        depth_frame = model.get_depth(frame)
+        depth_grad = model.remove_gradient(depth_frame)
 
-            output = model.run(frame) # run the visual-haptic algorithm
+        combined_frame = model.get_combined(depth_grad, attention)
+        threshold_frame = model.get_threshold(combined_frame)
+        output = model.get_downsample(threshold_frame)
 
-            if output_list:#skip first iteration
-                last_output = output_list[-1]
-                last_depth = depth_list[-1]
-                last_att = attention_list[-1]
-                for frame in range(1, FRAME_SKIP):
-                    interp_vec = np.zeros(DISPLAY_DIMS)
-                    interp_vec2 = np.zeros(model.depth_frame.shape)
-                    interp_vec3 = np.zeros(model.attention_frame.shape)
-                    for row in range(DISPLAY_DIMS[0]):
-                        for col in range(DISPLAY_DIMS[1]):
-                            interp_vec[row, col] = np.linspace(last_output[row, col], output[row, col], FRAME_SKIP+1)[frame]
-                            interp_vec2[row, col] = np.linspace(last_depth[row, col], model.depth_frame[row, col], FRAME_SKIP+1)[frame]
-                            interp_vec3[row, col] = np.linspace(last_att[row, col], model.attention_frame[row, col], FRAME_SKIP+1)[frame]
-                    output_list.append(interp_vec)
-                    depth_list.append(interp_vec2)
-                    attention_list.append(interp_vec3)
-
-            output_list.append(output)
-            depth_list.append(depth_frame)
-            attention_list.append(attention)
-            print(len(output_list))
-
+        output_list.append(output)
+        depth_list.append(depth_grad)
+        attention_list.append(attention)
+        print(len(output_list))
         frame_num += 1
 
 print("Global scaling...")
@@ -99,11 +90,11 @@ for frame in range(len(attention_list)):
     thresholded = (combined > THRESHOLD_VAL) * combined
 
     ### new code for interpolation:
-    downsampled = np.zeros((DISPLAY_H, DISPLAY_W))
-    interval_H = int(np.floor(thresholded.shape[0]/DISPLAY_H))
-    interval_W = int(np.floor(thresholded.shape[1]/DISPLAY_W))
-    for rr in range(0, DISPLAY_H):
-        for cc in range(0, DISPLAY_W):
+    downsampled = np.zeros((DISPLAY_DIMS[0], DISPLAY_DIMS[1]))
+    interval_H = int(np.floor(thresholded.shape[0]/DISPLAY_DIMS[0]))
+    interval_W = int(np.floor(thresholded.shape[1]/DISPLAY_DIMS[1]))
+    for rr in range(0, DISPLAY_DIMS[0]):
+        for cc in range(0, DISPLAY_DIMS[1]):
             frame_slice = thresholded[rr*interval_H:(rr+1)*interval_H, cc*interval_W:(cc+1)*interval_W]
             mean_slice = np.mean(frame_slice)
             std_slice = np.std(frame_slice)
@@ -127,19 +118,28 @@ for frame in range(len(output_list_scaled)):
 
 ims = []
 figure = plt.figure()
-for i in range(0,len(output_list_scaled)):
+for i in range(0,len(output_list)):
     im = plt.imshow(output_list[i], animated=True)
     ims.append([im])
 ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-filename = "output_videos/animation_" + video + "_output_scaled.mp4"
+filename = "output_videos/animation_" + VIDEO + "_output_original.mp4"
 ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=30)
 plt.close()
 
-filename_data = "algo_input_data/data" + video + "_output_scaled.txt"
+figure = plt.figure()
+for i in range(0,len(output_list_scaled)):
+    im = plt.imshow(output_list_scaled[i], animated=True)
+    ims.append([im])
+ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+filename = "output_videos/animation_" + VIDEO + "_output_scaled.mp4"
+ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=30)
+plt.close()
+
+filename_data = "algo_input_data/data" + VIDEO + "_output_scaled.txt"
 with open(filename_data, 'w') as fo:
     for idx, item in enumerate(output_list_scaled):
-        for row in range(DISPLAY_H):
-            for column in range(DISPLAY_W):
+        for row in range(DISPLAY_DIMS[0]):
+            for column in range(DISPLAY_DIMS[1]):
                 fo.write(str(item[row, column]) + ', ')
         fo.write('\n')
 

@@ -51,11 +51,11 @@ while True:
 
         if frame is None:
             break # no more frames, finish loop
-        if frame_num%FRAME_SKIP==1 or FRAME_SKIP is 0: #### ONLY PROCESS EVERY x FRAMES!
+        if frame_num%FRAME_SKIP==1 or FRAME_SKIP==0: #### ONLY PROCESS EVERY x FRAMES!
 
             output = model.single_run(frame) # run the visual-haptic algorithm
 
-            if output_list and FRAME_SKIP is not 0:#skip first iteration
+            if output_list and FRAME_SKIP!=0:#skip first iteration
                 last_output = output_list[-1]
                 for frame in range(1, FRAME_SKIP):
                     interp_vec = np.zeros(DISPLAY_DIMS)
