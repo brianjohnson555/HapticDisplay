@@ -6,7 +6,7 @@ GUI so that each step can be visualized and parameters can easily be tuned.
 The user settings can be updated through the GUI for each frame of the input video."""
 
 ###### USER SETTINGS ######
-VIDEO_PATH = "algo_input_videos/video_truck.mp4" # path of desired test video
+VIDEO_PATH = "algo_input_videos/video_koi.mp4" # path of desired test video
 FRAME_NUM = 1 # starting frame
 RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
 MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
