@@ -96,7 +96,9 @@ def make_output_data(intensity_sequence:list, **kwargs):
 
     Outputs:
     - OutputData object with fields .intensity_sequence (same as input) and .packet_sequence.
-     packet_sequence is a list of packet_list objects which can be sent to USB."""
+     packet_sequence is a list of packet_list objects which can be sent to USB.
+     
+     NOTE: this function does NOT reverse data. If input is a time-forward list, output is time-forward."""
     
     # perform linear map:
     duty_array_list, period_array_list = linear_map_sequence(intensity_sequence, **kwargs)

@@ -16,6 +16,7 @@ from torchvision import transforms
 import numpy as np
 from PIL import Image
 import cv2
+from scipy.ndimage import median_filter
 
 def grab_video_frame(source:cv2.VideoCapture):
     """Grabs the next frame from the video source.
@@ -155,24 +156,28 @@ class VisualHapticModel:
 
         return depth_frame_nograd
 
-    def get_combined(self, depth_frame, attention_frame, method='sum'):
+    def get_combined(self, depth_frame, attention_frame, method='sum', normalize:bool=True):
         """Combine the depth and attention mappings.
         
         Each depth/attention frame is resized and normalized before being combined. The
-        'method' input specifies if the attention and depth are multiplied together or summed."""
+        'method' input specifies if the attention and depth are multiplied together or summed.
+        The 'normalize' method specifies if the frame is normalized."""
 
         depth_resized = cv2.resize(depth_frame, dsize=(16*self.scaling_factor, 9*self.scaling_factor), interpolation=cv2.INTER_CUBIC)
-        depth_normal = cv2.normalize(depth_resized, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
         attention_resized = cv2.resize(attention_frame, dsize=(16*self.scaling_factor, 9*self.scaling_factor), interpolation=cv2.INTER_CUBIC)
-        attention_normal = cv2.normalize(attention_resized, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
+        if normalize:
+            depth_resized = cv2.normalize(depth_resized, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
+            attention_resized = cv2.normalize(attention_resized, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype = cv2.CV_64F)
 
         if method=='multiply':
-            combined = depth_normal*attention_normal
+            combined = depth_resized*attention_resized
         elif method=='sum':
-            combined = ((1-self.bias)*depth_normal + (self.bias)*attention_normal)
-        combined_frame = cv2.normalize(combined, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_64F)
+            combined = ((1-self.bias)*depth_resized + (self.bias)*attention_resized)
 
-        return combined_frame
+        if normalize:
+            combined = cv2.normalize(combined, None, 0, 1, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_64F)
+
+        return combined
 
     # threshold the combined map to threshold_val
     def get_threshold(self, combined_frame):
@@ -212,3 +217,16 @@ class VisualHapticModel:
         return downsampled_frame
         ### original code for interpolation:
         # return cv2.resize(thresholded, dsize=(DISPLAY_W, DISPLAY_H), interpolation=cv2.INTER_AREA) 
+
+
+def smooth(sequence:np.ndarray, size):
+    med_filt = sequence.copy()
+    for row in range(sequence.shape[1]):
+        for col in range(sequence.shape[2]):
+            med_filt[:,row,col] = median_filter(sequence[:,row,col], 
+                                            size=size, 
+                                            mode='reflect', 
+                                            cval=0.0, 
+                                            origin=0, 
+                                            axes=None)
+    return med_filt
