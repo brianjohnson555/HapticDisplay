@@ -62,7 +62,7 @@ The following terms are adopted for naming variables/functions (my own personal 
 - `array`= Numpy np.ndarray object. E.g. the variable `duty_array` is a np.ndarray of duty cycle values.
 - `list` = Python list object. E.g. the variable `duty_array_list` is a list of np.ndarrays of duty cycle values.
 - `packet` = packaged data stream of bytes ready to be send to USB to control the MINI switches. E.g. the variable `packet_list` is a list of packets for each USB serial port. Send to USB via serial.write(packet).
-- `intensity` = np.ndarray refering to 0-1 scale of intensity created from the visual-haptic algorithm. One intensity array of shape (4,7) is the output of the algorithm for a single
+- `intensity` = np.ndarray referring to 0-1 scale of intensity created from the visual-haptic algorithm. One intensity array of shape (4,7) is the output of the algorithm for a single
 video frame, with the size (4,7) corresponding to the HASELs of the haptic display, and each element of the (4,7) array will range from 0 (least intense) to 1 (most intense). Through the haptic mapping, 
 these intensities will be converted into periods and duty cycles for USB transfer.
 - `sequence` = Python list which is a sequence of the haptic output/video frames. E.g. the variable `intensity_sequence` is a sequential list of intensity arrays, with the first item being the intensity of the first frame. 

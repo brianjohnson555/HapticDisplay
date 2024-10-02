@@ -4,9 +4,9 @@
 
 ###### USER SETTINGS ######
 SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
-COM_A = "COM9" # port for MINI switches 1-10
-COM_B = "COM14" # port for MINI switches 11-20
-COM_C = "COM15" # port for MINI swiches 21-28
+COM_A = "COM14" # port for MINI switches 1-10
+COM_B = "COM9" # port for MINI switches 11-20
+COM_C = "COM16" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 import cv2
@@ -22,29 +22,28 @@ serial_ports = [COM_A, COM_B, COM_C]
 serial_writer = USB.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 time.sleep(1)
 
+# prepare preprogrammed sequence:
+fps = 5
+output_data1 = haptic_map.make_output_data(generator.sawtooth(total_time=40, freq=4, scale=1.5),
+                                        freq_range=(0,50),
+                                        duty_range=(0.2,0.5))
+
+output_data2 = haptic_map.make_output_data(generator.checker_square(total_time=40, frame_rate=fps, freq=0.5),
+                                        freq_range=(0,25),
+                                        duty_range=(0,0.5))
+
+output_data3 = haptic_map.make_output_data(generator.sine_global(total_time=40, frame_rate=fps, freq=0.2),
+                                        freq_range=(20,20),
+                                        duty_range=(0,0.25))
+
+output_data4 = haptic_map.make_output_data(generator.ramp(total_time=5, frame_rate=10, direction=1),
+                                        freq_range=(100,100),
+                                        duty_range=(0.05,0.05))
+output_data = output_data3
+
 # Enable HV!!!
 serial_writer.HV_enable()
 time.sleep(0.5)
-
-# prepare preprogrammed sequence:
-fps = 20
-
-output_data = haptic_map.make_output_data(generator.sawtooth(scale=0.4),
-                                        freq_range=(0,50),
-                                        duty_range=(0.01,0.5))
-
-# output_data2 = haptic_map.make_output_data(generator.sine_global(total_time=20, frame_rate=10, freq=1),
-#                                         freq_range=(1,10),
-#                                         duty_range=(0.5,0.1))
-
-# output_data3 = haptic_map.make_output_data(generator.ramp(total_time=5, frame_rate=10, direction=1),
-#                                         freq_range=(1,100),
-#                                         duty_range=(0.5,0.5))
-
-# output_data4 = haptic_map.make_output_data(generator.ramp(total_time=5, frame_rate=10, direction=1),
-#                                         freq_range=(100,100),
-#                                         duty_range=(0.05,0.05))
-# output_data = output_data2
 
 while output_data.length()>1:
     t_start = time.time()
@@ -56,15 +55,12 @@ while output_data.length()>1:
     cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
     cv2.resizeWindow('Video', 1920, 1080)
     cv2.imshow('Video',intensity_array)
-    # get elapsed time:
-    t_end=time.time()
-    t_elapsed = t_end-t_start
-    # maintain constant loop frame rate:
-    if t_elapsed<1/fps:
-        time.sleep(1/fps-(t_elapsed)) 
 
     if(cv2.waitKey(10) & 0xFF == ord('b')):
         break # BREAK OUT OF LOOP WHEN "b" KEY IS PRESSED!
+
+    # maintain constant loop frame rate:
+    time.sleep(max(1/fps-(time.time()-t_start), 0)) 
     
 # Disable HV!!!
 serial_writer.HV_disable()
