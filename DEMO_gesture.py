@@ -11,7 +11,7 @@ a corresponding unique, pre-programmed haptic output on the haptic display."""
 SERIAL_ACTIVE = False
  # if False, just runs the algorithm without sending to HV switches
 VIEW_INTENSITY = True # if True, opens a video showing the depth/intensity map
-SAVE_VIDEO = False # if True, saves a video file of both the camera view and the intensity map
+SAVE_VIDEO = True # if True, saves a video file of both the camera view and the intensity map
 COM_A = "COM9" # port for MINI switches 1-10
 COM_B = "COM14" # port for MINI switches 11-20
 COM_C = "COM15" # port for MINI swiches 21-28
@@ -55,10 +55,10 @@ with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs 
 
         frame_annotated = cv2.putText(frame, 
                                str(gesturer.gesture_active), 
-                               org=(20, 200), 
+                               org=(20, 60), 
                                fontFace=cv2.FONT_HERSHEY_SIMPLEX, 
-                               fontScale=2, 
-                               color=(255,0,0), 
+                               fontScale=1.5, 
+                               color=(0,0,0), 
                                thickness=2) # add current gesture annotation to image
         cv2.namedWindow('Video',cv2.WINDOW_KEEPRATIO)
         cv2.resizeWindow('Video', 4*192, 4*108)
@@ -70,7 +70,7 @@ with recognizer.recognizer as gesture_recognizer: #GestureRecognizer type needs 
             cv2.imshow('Intensity',intensity)
 
         if SAVE_VIDEO:
-            outlist_image.append(frame_annotated)
+            outlist_image.append(cv2.cvtColor(frame_annotated, cv2.COLOR_BGR2RGB))
             outlist_haptic.append(intensity)
 
         if(cv2.waitKey(10) & 0xFF == ord('b')):
@@ -84,17 +84,17 @@ if SAVE_VIDEO:
         im = plt.imshow(outlist_image[i], animated=True)
         ims.append([im])
     ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-    filename = "OutputVideos/gesture_output_camera.mp4"
+    filename = "output_videos/gesture_output_camera.mp4"
     ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=24)
     plt.close()
 
     ims = []
     figure = plt.figure()
     for i in range(0,len(outlist_haptic)):
-        im = plt.imshow(outlist_haptic[i], animated=True)
+        im = plt.imshow(outlist_haptic[i], animated=True, cmap='gist_gray', vmin=0, vmax=1)
         ims.append([im])
     ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
-    filename = "OutputVideos/gesture_output_intensity.mp4"
+    filename = "output_videos/gesture_output_intensity.mp4"
     ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=24)
     plt.close()
     

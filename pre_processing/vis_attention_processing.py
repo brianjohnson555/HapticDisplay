@@ -53,7 +53,8 @@ while True:
             break # no more frames, finish loop
         if frame_num%FRAME_SKIP==1 or FRAME_SKIP==0: #### ONLY PROCESS EVERY x FRAMES!
 
-            output = model.single_run(frame) # run the visual-haptic algorithm
+            model.single_run(frame) # run the visual-haptic algorithm
+            output = model.output
 
             if output_list and FRAME_SKIP!=0:#skip first iteration
                 last_output = output_list[-1]

@@ -82,11 +82,10 @@ class Gesture:
         self.output_dict = self.initialize_active_gesture() # dictionary with pre-allocated output sequences
         self.gesture_latest = 'None' # latest gesture detected by the Recognizer class
         self.gesture_active = 'None' # gesture which is currently being executed (for output_list)
-        self.max_count = 30 # maximum cycles to count before obtaining gesture_active
+        self.max_count = 20 # maximum cycles to count before obtaining gesture_active
         self.margin = 0.5 # percentage of total gestures to count as 'active' gesture
         self.frame_rate = 24 # frame rate of video stream
-        self.output = self.output_dict['None'] # list of current haptic intensities
-        self.output_latest = self.output_dict['None'] # haptic intensity and packets passed to the display (HV!)
+        self.output = self.output_dict['None'].copy() # list of current haptic intensities
 
     def update(self):
         """Updates the intensity array output to the haptic display and updates gesture count
@@ -164,12 +163,12 @@ class Gesture:
         
         output_dict = {}
         output_dict['None'] = haptic_map.make_output_data(generator.zeros())
-        output_dict['Closed_Fist'] = haptic_map.make_output_data(generator.checker_square(freq=3))
+        output_dict['Closed_Fist'] = haptic_map.make_output_data(generator.zeros())
         output_dict['Open_Palm'] = haptic_map.make_output_data(generator.zeros())
         output_dict['Pointing_Up'] = haptic_map.make_output_data(generator.zeros())
-        output_dict['Thumb_Down'] = haptic_map.make_output_data(generator.sawtooth(direction='left',scale=0.1, freq=3))
-        output_dict['Thumb_Up'] = haptic_map.make_output_data(generator.sawtooth(direction='right',scale=0.1, freq=3))
-        output_dict['Victory'] = haptic_map.make_output_data(generator.zeros())
+        output_dict['Thumb_Down'] = haptic_map.make_output_data(generator.checker_square(freq=1))
+        output_dict['Thumb_Up'] = haptic_map.make_output_data(generator.sine(direction='right',scale=0.42, freq=2))
+        output_dict['Victory'] = haptic_map.make_output_data(generator.sine_global(freq=1))
         output_dict['ILoveYou'] = haptic_map.make_output_data(generator.zeros())
         return output_dict
 

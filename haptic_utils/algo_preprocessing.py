@@ -17,6 +17,8 @@ import numpy as np
 from PIL import Image
 import cv2
 from scipy.ndimage import median_filter
+import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 def grab_video_frame(source:cv2.VideoCapture):
     """Grabs the next frame from the video source.
@@ -81,11 +83,22 @@ class VisualHapticModel:
         self.attention_model.eval()
 
         # set up frame objects:
+        self.frame = None
         self.attention_frame = None
+        self.depth_org_frame = None
         self.depth_frame = None
         self.combined_frame = None
         self.threshold_frame = None
         self.output = None
+
+        # set up list objects:
+        self.attention_list = []
+        self.depth_org_list = []
+        self.depth_list = []
+        self.combined_list = []
+        self.threshold_list = []
+        self.output_list = []
+        self.frame_list = []
 
     def single_run(self, frame):
         """Runs the visual-haptic processing for a single frame.
@@ -93,12 +106,103 @@ class VisualHapticModel:
         Inputs:
         -frame: image of current frame grabbed from OpenCV source"""
         self.attention_frame = self.get_attention(frame)
-        depth = self.get_depth(frame)
-        self.depth_frame = self.remove_gradient(depth)
+        self.depth_org_frame = self.get_depth(frame)
+        self.depth_frame = self.remove_gradient(self.depth_org_frame)
         self.combined_frame = self.get_combined(self.depth_frame, self.attention_frame, self.combine_method)
         self.threshold_frame = self.get_threshold(self.combined_frame)
         self.output = self.get_downsample(self.threshold_frame)
+    
+    def full_run(self, video_source, file_prefix, num_frames):
+        """Runs the visual-haptic processing for a single frame.
+        
+        Inputs:
+        -video_source: open-cv video capture source.
+        
+        Quit or stop the process prematurely using the 'q' keyboard key."""
+
+        print("Starting full run...")
+        while True:
+            self.frame = grab_video_frame(video_source)
+
+            if self.frame is None:
+                break # no more frames, finish loop
+            # k = cv2.waitKey(1) & 0xFF
+            # # press 'q' to exit
+            # if k == ord('q'):
+            #     break
+
+            self.single_run(self.frame)
+            self.update_lists()
+
+            print("Frame ", len(self.frame_list))
+
+            if len(self.frame_list)>num_frames and num_frames!=0:
+                break
+
+        print("Saving data...")
+        self.save(file_prefix)
         return self.output
+    
+    def update_lists(self):
+        self.attention_list.append(self.attention_frame)
+        self.depth_org_list.append(self.depth_org_frame)
+        self.depth_list.append(self.depth_frame)
+        self.combined_list.append(self.combined_frame)
+        self.threshold_list.append(self.threshold_frame)
+        self.output_list.append(self.output)
+        self.frame_list.append(self.frame)
+    
+    def save(self, file_prefix):
+        print("Plotting and saving...")
+
+        ims = []
+        figure = plt.figure()
+        for i in range(0,len(self.output_list)):
+            im = plt.imshow(self.output_list[i], animated=True, cmap='gist_gray')
+            ims.append([im])
+        ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+        filename = "output_videos/animation_" + file_prefix + "_output.mp4"
+        ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=20)
+        plt.close()
+
+        ims = []
+        figure = plt.figure()
+        for i in range(0,len(self.attention_list)):
+            im = plt.imshow(self.attention_list[i], animated=True, cmap='gist_gray')
+            ims.append([im])
+        ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+        filename = "output_videos/animation_" + file_prefix + "_attention.mp4"
+        ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=20)
+        plt.close()
+
+        ims = []
+        figure = plt.figure()
+        for i in range(0,len(self.depth_list)):
+            im = plt.imshow(self.depth_list[i], animated=True, cmap='gist_gray')
+            ims.append([im])
+        ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+        filename = "output_videos/animation_" + file_prefix + "_depth.mp4"
+        ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=20)
+        plt.close()
+
+        ims = []
+        figure = plt.figure()
+        for i in range(0,len(self.combined_list)):
+            im = plt.imshow(self.combined_list[i], animated=True, cmap='gist_gray')
+            ims.append([im])
+        ani = animation.ArtistAnimation(figure, ims, blit=True, repeat=False)
+        filename = "output_videos/animation_" + file_prefix + "_combined.mp4"
+        ani.save(filename, writer = "ffmpeg", bitrate=1000, fps=20)
+        plt.close()
+
+        filename_data = "algo_input_data/data" + file_prefix + "_output.txt"
+        with open(filename_data, 'w') as fo:
+            for idx, item in enumerate(self.output_list):
+                for row in range(self.display_dim[0]):
+                    for column in range(self.display_dim[1]):
+                        fo.write(str(item[row, column]) + ', ')
+                fo.write('\n')
+
 
     def get_attention(self, frame):
         """Gets self attention from video frame using DINO self.attention_model.

@@ -3,9 +3,9 @@
 """This demo script shows a basic single output sequence from the haptic display."""
 
 ###### USER SETTINGS ######
-SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
-COM_A = "COM14" # port for MINI switches 1-10
-COM_B = "COM9" # port for MINI switches 11-20
+SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
+COM_A = "COM9" # port for MINI switches 1-10
+COM_B = "COM15" # port for MINI switches 11-20
 COM_C = "COM16" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
@@ -23,18 +23,18 @@ serial_writer = USB.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 time.sleep(1)
 
 # prepare preprogrammed sequence:
-fps = 5
+fps = 20
 output_data1 = haptic_map.make_output_data(generator.sawtooth(total_time=40, freq=4, scale=1.5),
                                         freq_range=(0,50),
                                         duty_range=(0.2,0.5))
 
-output_data2 = haptic_map.make_output_data(generator.checker_square(total_time=40, frame_rate=fps, freq=0.5),
-                                        freq_range=(0,25),
+output_data2 = haptic_map.make_output_data(generator.sine(total_time=40, frame_rate=fps, freq=1, scale=0.94),
+                                        freq_range=(50,50),
                                         duty_range=(0,0.5))
 
-output_data3 = haptic_map.make_output_data(generator.sine_global(total_time=40, frame_rate=fps, freq=0.2),
-                                        freq_range=(20,20),
-                                        duty_range=(0,0.25))
+output_data3 = haptic_map.make_output_data(generator.sine_global(total_time=40, frame_rate=fps, freq=0.1),
+                                        freq_range=(0,100),
+                                        duty_range=(0.25,0.5))
 
 output_data4 = haptic_map.make_output_data(generator.ramp(total_time=5, frame_rate=10, direction=1),
                                         freq_range=(100,100),

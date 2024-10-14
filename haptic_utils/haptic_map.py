@@ -153,7 +153,7 @@ class OutputData:
     def copy(self):
         """Returns a OutputData class object which is a copy of the original."""
 
-        return OutputData(self.intensity_sequence, self.packet_sequence)
+        return OutputData(self.intensity_sequence.copy(), self.packet_sequence.copy())
     
     def extend(self, other_output_data):
         """Extends the intensity_sequence and packet_sequence.
