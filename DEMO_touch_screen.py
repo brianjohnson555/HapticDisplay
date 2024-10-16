@@ -8,7 +8,7 @@ COM_A = "COM9" # port for MINI switches 1-10
 COM_B = "COM15" # port for MINI switches 11-20
 COM_C = "COM16" # port for MINI swiches 21-28
 FPS = 10 # update rate (frames per second)
-SCALE = 200 # resolution scale for the GUI
+SCALE = 200 # resolution scale for the GUI (pixels)
 
 ###### INITIALIZATIONS ######
 import time
