@@ -7,8 +7,9 @@ SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV 
 COM_A = "COM9" # port for MINI switches 1-10
 COM_B = "COM15" # port for MINI switches 11-20
 COM_C = "COM16" # port for MINI swiches 21-28
-FPS = 10 # update rate (frames per second)
-SCALE = 200 # resolution scale for the GUI (pixels)
+FPS = 2 # update rate (frames per second)
+SCALE = 100 # resolution scale for the GUI (pixels)
+MAX_FREQ = 200 # maximum actuation frequency (Hz)
 
 ###### INITIALIZATIONS ######
 import time
@@ -63,10 +64,18 @@ button8.grid(row=3, column=1)
 ## slider window:
 frame_slider = tk.Frame(master=frame_right, width=SCALE*5, height=SCALE*2)
 frame_slider.grid(row=0, column=0)
-slider = tk.Scale(master=frame_slider, from_=0, to=200, orient="horizontal", 
-                  length=SCALE*5, tickinterval=25, sliderlength=SCALE, width=SCALE,
+slider = tk.Scale(master=frame_slider, from_=0, to=MAX_FREQ, orient="horizontal", 
+                  length=SCALE*4, tickinterval=25, sliderlength=SCALE, width=SCALE,
                   label= "Frequency", font= tk.font.BOLD)
-slider.place(relx=.5, rely=.5, anchor="center")
+# slider.place(relx=.5, rely=.5, anchor="center")
+slider.grid(row=0,column=0)
+# HV toggle button
+HV_on_toggle = tk.BooleanVar()
+buttonHV_kwargs = dict(master=frame_slider, width=SCALE, height=SCALE*2, image=pixel, 
+                 compound="c", font=tk.font.BOLD, variable=HV_on_toggle, 
+                 onvalue=True, offvalue=False)
+buttonHV = tk.Checkbutton(text="HV", **buttonHV_kwargs)
+buttonHV.grid(row=0,column=1)
 
 ## toggle window:
 frame_toggle = tk.Frame(master=frame_right, width=SCALE*5, height=SCALE*2, bg='blue')
@@ -83,28 +92,48 @@ button_toggle2= tk.Button(text="Sawtooth", **button_toggle_kwargs)
 button_toggle2.grid(row=1, column=0)
 
 ##### define button functions/actuator outputs
-def button_wiggle(row, col, freq=30):
-    return
-def scale_output(scale: tk.Scale):
+def button_wiggle(freq=30):
+    output = generator.ones_sequence(total_time=0.5, frame_rate=FPS, scale=freq/MAX_FREQ)
+    return output
+def button_sine(max_freq=50):
+    output = generator.sine(total_time=5, frame_rate=FPS, scale=0.1, freq=1, max=(max_freq/MAX_FREQ))
+    return output
+def button_saw(max_freq=50):
+    output = generator.sawtooth(total_time=5, frame_rate=FPS, scale=0.1, freq=1, max=(max_freq/MAX_FREQ))
+    return output
+def slider_output(scale: tk.Scale):
     freq = scale.get()
+    output = generator.ones_sequence(total_time=5, frame_rate=FPS, scale=freq/MAX_FREQ)
+    return output
 
 ##### bind buttons
-def handle_button1(event):
-    button_wiggle(0, 0)
+button_output = {"1":[],"2":[],"3":[],"4":[],"5":[],"6":[],"7":[],"8":[],"toggle1":[],"toggle2":[],"slider":[]}
+
+def handle_button1(output):
+    global button_output
+    button_output["1"] = button_wiggle()
 def handle_button2(event):
-    button_wiggle(0, 1)
+    global button_output
+    button_output["2"] = button_wiggle()
 def handle_button3(event):
-    button_wiggle(1, 0)
+    global button_output
+    button_output["3"] = button_wiggle()
 def handle_button4(event):
-    button_wiggle(1, 1)
+    global button_output
+    button_output["4"] = button_wiggle()
 def handle_button5(event):
-    button_wiggle(2, 0)
+    global button_output
+    button_output["5"] = button_wiggle()
 def handle_button6(event):
-    button_wiggle(2, 1)
+    global button_output
+    button_output["6"] = button_wiggle()
 def handle_button7(event):
-    button_wiggle(3, 0)
+    global button_output
+    button_output["7"] = button_wiggle()
 def handle_button8(event):
-    button_wiggle(3, 1)
+    global button_output
+    button_output["8"] = button_wiggle()
+
 button1.bind("<Button>", handle_button1) # bind to Next Frame button
 button2.bind("<Button>", handle_button2) # bind to Next Frame button
 button3.bind("<Button>", handle_button3) # bind to Next Frame button
@@ -114,16 +143,20 @@ button6.bind("<Button>", handle_button6) # bind to Next Frame button
 button7.bind("<Button>", handle_button7) # bind to Next Frame button
 button8.bind("<Button>", handle_button8) # bind to Next Frame button
 
+toggle_choice = "sine"
 def handle_toggle1(event):
-    button_wiggle(2, 2)
+    global button_output
+    global toggle_choice
+    toggle_choice = "sine"
+    button_output["toggle1"] = button_sine()
 def handle_toggle2(event):
-    button_wiggle(3, 2)
+    global button_output
+    global toggle_choice
+    toggle_choice = "saw"
+    button_output["toggle2"] = button_saw()
+
 button_toggle1.bind("<Button>", handle_toggle1)
 button_toggle2.bind("<Button>", handle_toggle2)
-
-# Enable HV!!!
-serial_writer.HV_enable()
-time.sleep(0.5)
 
 ##### define main actuation loop and run in separate thread #####
 WINDOW_OPEN = True
@@ -133,12 +166,61 @@ def tk_close():
     window.destroy() # destroy window
 window.protocol("WM_DELETE_WINDOW", tk_close) # when window is closed, run tk_close
 
+def get_latest_output():
+    global button_output
+    global slider
+    global toggle_choice
+    button_output["slider"] = slider_output(slider)
+    current_output = dict()
+    output = generator.zeros()[0]
+
+    for key in button_output:
+        if not button_output[key]:
+            current_output[key] = generator.zeros()[0]
+        else:
+            current_output[key] = button_output[key].pop()
+
+    output[0,0] = np.maximum(output[0,0], current_output["1"][0,0])
+    output[0,1] = np.maximum(output[0,1], current_output["2"][0,1])
+    output[1,0] = np.maximum(output[1,0], current_output["3"][1,0])
+    output[1,1] = np.maximum(output[1,1], current_output["4"][1,1])
+    output[2,0] = np.maximum(output[2,0], current_output["5"][2,0])
+    output[2,1] = np.maximum(output[2,1], current_output["6"][2,1])
+    output[3,0] = np.maximum(output[3,0], current_output["7"][3,0])
+    output[3,1] = np.maximum(output[3,1], current_output["8"][3,1])
+    output[0:2,2:6] = np.maximum(output[0:2,2:6], current_output["slider"][0:1,2:6])
+    if toggle_choice=="sine":
+        output[2:4,3:7] = np.maximum(output[2:4,3:7], current_output["toggle1"][2:4,3:7])
+    elif toggle_choice=="saw":
+        output[2:4,3:7] = np.maximum(output[2:4,3:7], current_output["toggle2"][2:4,3:7])
+
+    print(output)
+    return output
+
 def run_in_thread():
     global FPS
     global WINDOW_OPEN
+    global HV_on_toggle
+    HV_on_actual = False
     while WINDOW_OPEN: # run until GUI window is closed
         t_start = time.time()
-        # do things here
+        HV_button = HV_on_toggle.get()
+        # check HV button and turn on/off HV:
+        if HV_button is True and HV_on_actual is False:
+            # Enable HV!!!
+            serial_writer.HV_enable()
+            HV_on_actual = True
+        elif HV_button is False and HV_on_actual is True:
+            serial_writer.HV_disable()
+            HV_on_actual = False
+        
+        output_array = get_latest_output()
+
+        if HV_on_actual is True:
+            duty_array, period_array = haptic_map.linear_map_single(output_array,
+                                                                    freq_range=(0, 200),
+                                                                    duty_range=(0.5, 0.5))
+            serial_writer.write_array_to_USB(duty_array, period_array)
         # maintain constant fps:
         time.sleep(max(1/FPS-(time.time()-t_start), 0))
 
@@ -148,6 +230,7 @@ thread.start()
 ##### run tkinter #####
 window.mainloop()
 
+# after window is closed:
 # Disable HV!!!
 serial_writer.HV_disable()
 zero_output = haptic_map.make_output_data(generator.zeros())
