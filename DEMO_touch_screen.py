@@ -201,7 +201,9 @@ def run_in_thread():
     global FPS
     global WINDOW_OPEN
     global HV_on_toggle
+    global MAX_FREQ
     HV_on_actual = False
+    
     while WINDOW_OPEN: # run until GUI window is closed
         t_start = time.time()
         HV_button = HV_on_toggle.get()
@@ -210,15 +212,17 @@ def run_in_thread():
             # Enable HV!!!
             serial_writer.HV_enable()
             HV_on_actual = True
+            print("------HV is ON------")
         elif HV_button is False and HV_on_actual is True:
             serial_writer.HV_disable()
             HV_on_actual = False
+            print("------HV is OFF------")
         
         output_array = get_latest_output()
 
         if HV_on_actual is True:
             duty_array, period_array = haptic_map.linear_map_single(output_array,
-                                                                    freq_range=(0, 200),
+                                                                    freq_range=(0, MAX_FREQ),
                                                                     duty_range=(0.5, 0.5))
             serial_writer.write_array_to_USB(duty_array, period_array)
         # maintain constant fps:
