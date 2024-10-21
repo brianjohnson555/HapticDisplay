@@ -3,13 +3,14 @@
 """This demo script uses the built-in touch screen for real time feedback via GUI."""
 
 ###### USER SETTINGS ######
-SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
+SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
 COM_A = "COM9" # port for MINI switches 1-10
 COM_B = "COM15" # port for MINI switches 11-20
 COM_C = "COM16" # port for MINI swiches 21-28
-FPS = 2 # update rate (frames per second)
-SCALE = 100 # resolution scale for the GUI (pixels)
-MAX_FREQ = 200 # maximum actuation frequency (Hz)
+FPS = 5 # update rate (frames per second)
+SCALE = 200 # resolution scale for the GUI (pixels)
+MAX_FREQ = 100 # maximum actuation frequency (Hz)
+PRINT_OUTPUT = False # prints intensity output to terminal if True
 
 ###### INITIALIZATIONS ######
 import time
@@ -88,18 +89,18 @@ button_toggle_kwargs = dict(master=frame_toggle_left, width=SCALE, height=SCALE,
                  compound="c", font=tk.font.BOLD)
 button_toggle1= tk.Button(text="Sine", **button_toggle_kwargs)
 button_toggle1.grid(row=0, column=0)
-button_toggle2= tk.Button(text="Sawtooth", **button_toggle_kwargs)
+button_toggle2= tk.Button(text="Checker", **button_toggle_kwargs)
 button_toggle2.grid(row=1, column=0)
 
 ##### define button functions/actuator outputs
-def button_wiggle(freq=30):
-    output = generator.ones_sequence(total_time=0.5, frame_rate=FPS, scale=freq/MAX_FREQ)
+def button_wiggle(freq=50):
+    output = generator.ones_sequence(total_time=0.6, frame_rate=FPS, scale=freq/MAX_FREQ)
     return output
 def button_sine(max_freq=50):
-    output = generator.sine(total_time=5, frame_rate=FPS, scale=0.1, freq=1, max=(max_freq/MAX_FREQ))
+    output = generator.sine(total_time=5, frame_rate=FPS, scale=0.4, freq=1, max=(max_freq/MAX_FREQ))
     return output
 def button_saw(max_freq=50):
-    output = generator.sawtooth(total_time=5, frame_rate=FPS, scale=0.1, freq=1, max=(max_freq/MAX_FREQ))
+    output = generator.checker_square(total_time=5, frame_rate=FPS, freq=1)
     return output
 def slider_output(scale: tk.Scale):
     freq = scale.get()
@@ -194,7 +195,8 @@ def get_latest_output():
     elif toggle_choice=="saw":
         output[2:4,3:7] = np.maximum(output[2:4,3:7], current_output["toggle2"][2:4,3:7])
 
-    print(output)
+    if PRINT_OUTPUT:
+        print(output)
     return output
 
 def run_in_thread():
@@ -210,9 +212,13 @@ def run_in_thread():
             # Enable HV!!!
             serial_writer.HV_enable()
             HV_on_actual = True
+            if PRINT_OUTPUT:
+                print("-----HV IS ON!-----")
         elif HV_button is False and HV_on_actual is True:
             serial_writer.HV_disable()
             HV_on_actual = False
+            if PRINT_OUTPUT:
+                print("-----HV IS OFF!-----")
         
         output_array = get_latest_output()
 
