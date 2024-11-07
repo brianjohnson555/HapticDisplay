@@ -5,7 +5,7 @@
 import numpy as np
 from scipy import signal
 
-def make_output(output_array: np.ndarray):
+def make_output(output_array: np.ndarray, normalize=True):
     """Normalizes and list-izes the output sequence. You shouldn't need to call this when running demos,
     it is only used internally for the generator functions.
     
@@ -19,7 +19,10 @@ def make_output(output_array: np.ndarray):
     TODO: Also need to double check negatives/below zero values."""
 
     max_val = np.max(output_array)
-    output = output_array/max_val # normalize to maximum value
+    if max_val>0 and normalize is True:
+        output = output_array/max_val # normalize to maximum value
+    else:
+        output = output_array
     output_list = list(np.unstack(output, axis=2))
     output_list.reverse()
     return output_list # turn numpy array into a list of arrays
@@ -41,7 +44,18 @@ def zeros():
     output = np.zeros((4,7))
     return [output]
 
-def sawtooth(total_time:float=3, frame_rate:int=24, direction='left',scale:float=1, freq:float=1):
+def ones_sequence(total_time:float=3, frame_rate:int=24, scale:float=1):
+    """Uniform ones output signal of length input t. 'scale' changes the output magnitude.
+    
+    Inputs:
+    -total_time: total length of sequence [s]
+    -frame_rate: speed/update rate [fps or Hz]"""
+
+    t = np.arange(start=0, stop=total_time, step=1/frame_rate)
+    output = scale*np.ones((4,7,t.size))
+    return make_output(output, normalize=False)
+
+def sawtooth(total_time:float=3, frame_rate:int=24, direction='left',scale:float=1, freq:float=1, max:float=1):
     """Sawtooth output signal.
     
     Inputs:
@@ -65,7 +79,7 @@ def sawtooth(total_time:float=3, frame_rate:int=24, direction='left',scale:float
     elif direction=='down':
         for r in range(4):
             output[r,:,:] = 0.5 + 0.5*signal.sawtooth(-freq*2*np.pi*(t+scale*r))
-    return make_output(output)
+    return make_output(max*output)
 
 def sawtooth_global(total_time:float=3, frame_rate:int=24, freq:float=1):
     """Sawtooth global output signal (same for all taxels).
@@ -83,7 +97,7 @@ def sawtooth_global(total_time:float=3, frame_rate:int=24, freq:float=1):
             output[r,c,:] = 0.5 + 0.5*signal.sawtooth(freq*2*np.pi*t)
     return make_output(output)
 
-def sine(total_time:float=3, frame_rate:int=24, direction='left',scale:float=1, freq:float=1):
+def sine(total_time:float=3, frame_rate:int=24, direction='left',scale:float=1, freq:float=1, max:float=1):
     """Sine output signal.
     
     Inputs:
@@ -107,7 +121,7 @@ def sine(total_time:float=3, frame_rate:int=24, direction='left',scale:float=1, 
     elif direction=='down':
         for r in range(4):
             output[r,:,:] = 0.5 + 0.5*np.sin(-freq*2*np.pi*(t+scale*r))
-    return make_output(output)
+    return make_output(max*output)
 
 def sine_global(total_time:float=3, frame_rate:int=24, freq:float=1):
     """Sine global output signal (same for all taxels).
