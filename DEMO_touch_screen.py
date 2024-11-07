@@ -3,7 +3,7 @@
 """This demo script uses the built-in touch screen for real time feedback via GUI."""
 
 ###### USER SETTINGS ######
-SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
+SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
 COM_A = "COM9" # port for MINI switches 1-10
 COM_B = "COM15" # port for MINI switches 11-20
 COM_C = "COM16" # port for MINI swiches 21-28
