@@ -1,16 +1,20 @@
 #!/usr/bin/env python3
 
-"""Mapping functions. Also defines class OutputData which collects intensity and packet sequences.
+"""Mapping functions to convert from "raw" intensity values [0-1] to actuator outputs. 
+Also defines class ***OutputData*** which collects intensity and packet sequences.
 
 Ideal use-case:
-1. Load intensity sequence or create with haptic_utils.generator:
-    intensity_sequence = generator.func(args)
-2. Create output data by calling linear_map via make_output_data:
-    output_data = haptic_map.make_output_data(intensity_sequence, **linear_map_kwargs)
-3. In real time, pop() each output_data item and send to USB or plot:
-    intensity, packets = output_data.pop()
-    serial_writer.send_packets_to_USB(packets)
-    plt.imshow(intensity)
+1. Load intensity sequence or create a sequence with *haptic_utils.generator*:
+
+        intensity_sequence = generator.sine(**kwargs)
+2. Create output data by calling *linear_map()* via *make_output_data()*:
+        
+        output_data = haptic_map.make_output_data(intensity_sequence, **linear_map_kwargs)
+3. In real time, *pop()* each output_data item and send to USB or plot:
+        
+        intensity, packets = output_data.pop()
+        serial_writer.send_packets_to_USB(packets)
+        plt.imshow(intensity)
 """
 
 import numpy as np
@@ -19,19 +23,24 @@ import haptic_utils.USB as USB
 def linear_map_single(intensity_array:np.ndarray, freq_range:tuple = (0,24), duty_range:tuple = (0.05,0.5)):
     """Converts intensity 0-1 to range specified in inputs via linear mapping.
     
-    Inputs:
-    -intensity_array: np.ndarray containing intensity of the frame.
-    -freq_range: tuple containing min and max frequency [Hz]
-    -duty_range: tuple containing min and max duty cycle ratio [%]
+    **Parameters** :
 
-    Outputs:
-    -duty_array_flat: np.ndarray flattened to single dimension. Each element is taxel duty cycle [%]
-    -period_array_flat: np.ndarray flattened to single dimension. Each element is taxel period [ms]
+    >>>**intensity_array** : np.ndarray containing intensity of the frame.
+    
+    >>>**freq_range** : tuple containing min and max frequency [Hz]
+    
+    >>>**duty_range** : tuple containing min and max duty cycle ratio [%]
+
+    **Returns** :
+    
+    >>>**duty_array_flat** : np.ndarray flattened to single dimension. Each element is taxel duty cycle [%]
+    
+    >>>**period_array_flat** : np.ndarray flattened to single dimension. Each element is taxel period [ms]
     
     Using default values, intensity 0-1 will be mapped to 0-24 Hz and 25%-75%
     
-    NOTE: scaling factor of 2 is present due to microcontroller frequency of 2 kHz. If microcontroller
-    firmware is updated (Jonathan), you must verify this scaling factor. Only period is scaled; duty cycle is 
+    NOTE: scaling factor of 2 is present due to microcontroller frequency of 2 kHz. **If microcontroller
+    firmware is updated (Jonathan), you must verify this scaling factor.** Only period is scaled; duty cycle is 
     given in %."""
     scaling_factor = 2
 
@@ -58,16 +67,21 @@ def linear_map_single(intensity_array:np.ndarray, freq_range:tuple = (0,24), dut
     return duty_array_flat, period_array_flat
 
 def linear_map_sequence(intensity_sequence:list, freq_range:tuple = (0,24), duty_range:tuple = (0.05,0.5)):
-    """Runs method linear_map_single() on a sequence of intensities.
+    """Runs method *linear_map_single()* on a sequence of intensities.
     
-    Inputs:
-    -intensity_sequence: list of np.ndarrays containing intensity of each frame. 
-    -freq_range: tuple containing min and max frequency for the mapping [Hz]
-    -duty_range: tuple containing min and max duty cycle ratio for the mapping [%]
+    **Parameters** :
+    
+    >>>**intensity_sequence** : list of np.ndarrays containing intensity of each frame. 
+    
+    >>>**freq_range** : tuple containing min and max frequency for the mapping [Hz]
+    
+    >>>**duty_range** : tuple containing min and max duty cycle ratio for the mapping [%]
 
-    Outputs:
-    -duty_array_list: list of flattened arrays of duty cycle [%]
-    -period_array_list: list of flattened arrays of period [ms]
+    **Returns** :
+    
+    >>>**duty_array_list** : list of flattened arrays of duty cycle [%]
+    
+    >>>**period_array_list** : list of flattened arrays of period [ms]
     
     Using default values, intensity 0-1 will be mapped to 0-24 Hz, 25%-75%."""
 
@@ -88,15 +102,18 @@ def linear_map_sequence(intensity_sequence:list, freq_range:tuple = (0,24), duty
 
 
 def make_output_data(intensity_sequence:list, **kwargs):
-    """Passes sequence of intensities through a linear mapping and returns OutputData object.
+    """Passes sequence of intensities through a linear mapping and returns *OutputData* object.
     
-    Inputs:
-    -intensity_sequence: sequence of intensity arrays, expected shape of each array np.ndarray((4,7))
-    -**kwargs: keyword arguments for the linear_map_sequence() function (e.g. frequency and duty range)
+    **Parameters** :
+    
+    >>>**intensity_sequence** : sequence of intensity arrays, expected shape of each array np.ndarray((4,7))
+    
+    >>>****kwargs** : keyword arguments for the *linear_map_sequence()* function (e.g. frequency and duty range)
 
-    Outputs:
-    - OutputData object with fields .intensity_sequence (same as input) and .packet_sequence.
-     packet_sequence is a list of packet_list objects which can be sent to USB.
+    **Returns** :
+    
+    >>>**output_data** : *OutputData* object with fields *intensity_sequence* (same as input) and 
+    *packet_sequence*. *packet_sequence* is a list of *packet_list* objects which can be sent to USB.
      
      NOTE: this function does NOT reverse data. If input is a time-forward list, output is time-forward."""
     
@@ -109,36 +126,38 @@ def make_output_data(intensity_sequence:list, **kwargs):
     return output_data
 
 class OutputData:
-    """OutputData class collects all necessary items for running close-loop haptic sequences.
+    """*OutputData* class collects all necessary items for running close-loop haptic sequences.
     
-    The only fields are self.intensity_sequence, which is the sequence of haptic intensity arrays,
-    and self.packet_sequence, which is the sequence of packets that can be sent to USB to create
+    The only fields are *self.intensity_sequence*, which is the sequence of haptic intensity arrays,
+    and *self.packet_sequence*, which is the sequence of packets that can be sent to USB to create
     haptic sensations.
 
-    Since both data items in OutputData are lists, common list methods are used such as pop() and copy().
-    Both items can be retreive with the pop() class method until each list is exhausted.
-    Multiple OutputData objects can be combined with the extend() class method.
+    Since both data items in *OutputData* are lists, common list methods are used such as *pop()* and *copy()*.
+    Both items can be retreive with the *pop()* class method until each list is exhausted.
+    Multiple *OutputData* objects can be combined with the *extend()* class method.
     
-    NOTE: it is expected that the last index value e.g. intensity_sequence[-1] is the most recent
-    in time, in this way pop() method will continue to draw latest values."""
+    NOTE: it is expected that the last index value e.g. *intensity_sequence[-1]* is the most recent
+    in time, in this way *pop()* method will continue to draw latest values."""
 
     def __init__(self, intensity_sequence:list, packet_sequence:list):
-        """Initializes OutputData object.
+        """Initializes *OutputData* object.
         
-        Inputs:
-        -intensity_sequence: sequency of np.ndarrays of intensity (shape (4,7))
-        -packet_sequence: sequence of packet_list objects generated from haptic_utils.USB.py
-        functions make_packet_sequence or make_packet_list."""
+        **Parameters** :
+
+        >>>**intensity_sequence** : sequency of np.ndarrays of intensity (shape (4,7))
+        
+        >>>**packet_sequence** : sequence of *packet_list* objects generated from *haptic_utils.USB.py*
+        functions *make_packet_sequence()* or *make_packet_list()*."""
 
         self.intensity_sequence = intensity_sequence
         self.packet_sequence = packet_sequence
 
     def pop(self):
-        """Returns latest value of intensity_sequence and packet_sequence with list.pop(). 
-        Like a normal list pop(), this removes the item from the list.
+        """Returns latest value of intensity_sequence and packet_sequence with *list.pop()*. 
+        Like a normal list *pop()*, this removes the item from the list.
         
-        Outputs:
-        - intensity_array, packet_list: array and packet which can be plotted and sent to USB."""
+        **Returns** :
+        >>>**intensity_array, packet_list** : array and packet which can be plotted and sent to USB."""
 
         if len(self.intensity_sequence)>0:
             return self.intensity_sequence.pop(), self.packet_sequence.pop()
@@ -146,25 +165,31 @@ class OutputData:
             return np.zeros((4,7)), USB.make_packet_list()
         
     def get(self):
-        """Returns the full value of intensity_sequence and packet_sequence."""
+        """**Returns** : 
+        
+        >>>**intensity_sequence, packet_sequence** : the full current list of *intensity_sequence* and *packet_sequence*."""
 
         return self.intensity_sequence, self.packet_sequence
         
     def copy(self):
-        """Returns a OutputData class object which is a copy of the original."""
+        """**Returns** :
+        
+        >>>**output_data** : a *OutputData* class object which is a copy of the original."""
 
         return OutputData(self.intensity_sequence.copy(), self.packet_sequence.copy())
     
     def extend(self, other_output_data):
-        """Extends the intensity_sequence and packet_sequence.
-
-        Inputs:
-        -other_output_data: must also be OutputData class object
+        """Extends the *intensity_sequence* and *packet_sequence* with new data.
         
         Because it is expected that the time-sequence of intensities and packets is reversed
         with index [-1] being the latest value, extend appends the new data to the front of the 
-        list rather than the end. This way, pop() method continues to draw the latest values in 
-        the correct order."""
+        list rather than the end. This way, *pop()* method continues to draw the latest values in 
+        the correct order.
+
+        **Parameters** :
+
+        >>>**other_output_data**: *OutputData* class object which you want to add
+        """
 
         temp_list = other_output_data.intensity_sequence.copy()
         temp_list.extend(self.intensity_sequence)

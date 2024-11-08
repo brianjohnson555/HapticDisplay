@@ -9,6 +9,7 @@ Code authors: Brian K. Johnson
 The main directory contains the following file directory structure:
 
 - **hapticdisplay/** (demo codes)
+    - **docs/** (documentation files of various classes and functions. Read these!)
     - **algo_input_data/** (haptic data output from algorithm, for use in demos)
     - **algo_input_videos/** (videos for both algorithm and demos)
     - **figure_generation/** (code to generate plots, images for manuscript)
@@ -22,7 +23,7 @@ The main directory contains the following file directory structure:
 
 The code is compiled in Python 3.10. Some files assume that the computer running the code has a built-in webcam.
 
-The repository directory contains the file **`requirements.txt`** which lists all required Python packages. The necessary packages can be automatically installed by running `pip install -r requirements.txt` from the main directory.
+The repository directory contains the file **`requirements.txt`** which lists all required Python packages. The necessary packages can be automatically installed by running `pip install -r requirements.txt` from the main directory. NOTE: Sometimes this fails, and you need to manually call `pip install x` for each package `x` that fails the original installation.
 
 
 ## How to use this repository
@@ -57,7 +58,7 @@ A/B/C refers to the labeled MINI switch rack, and 1-10 refers to the MINI switch
 the list of ports `[port_A, port_B, port_C]` will correspond to the MINI switch racks A/B/C.
 
 #### Script terminology:
-The following terms are adopted for naming variables/functions (my own personal conventions):
+The following terms are adopted for naming variables/functions. This guide can help you interpret what the code is doing:
 
 - `array`= Numpy np.ndarray object. E.g. the variable `duty_array` is a np.ndarray of duty cycle values.
 - `list` = Python list object. E.g. the variable `duty_array_list` is a list of np.ndarrays of duty cycle values.
@@ -66,14 +67,14 @@ The following terms are adopted for naming variables/functions (my own personal 
 video frame, with the size (4,7) corresponding to the HASELs of the haptic display, and each element of the (4,7) array will range from 0 (least intense) to 1 (most intense). Through the haptic mapping, 
 these intensities will be converted into periods and duty cycles for USB transfer.
 - `sequence` = Python list which is a sequence of the haptic output/video frames. E.g. the variable `intensity_sequence` is a sequential list of intensity arrays, with the first item being the intensity of the first frame. 
-Sequence implies time dependence. E.g. `packet_sequence` is a sequential list of packets to send to USB
+Sequence implies time dependence. E.g. `packet_sequence` is a sequential list of packets to send to USB. In some cases, the sequence is reversed (the current/new item of the sequence is at the end of the list) so that the pop() function can be used.
 
 ## How to contribute/code conventions
 
-All code is written with the following conventions, which should be maintained whereever new contributions are made to the code:
+All code is written with the following conventions, which should be maintained wherever new contributions are made to the code:
 
 ### Script headers
-Each script starts with a docstring denoted by triple quotes `""" ... """` which describes
+Each script starts with a docstring `""" ... """` that describes
 the basic purpose of the script. If the script is intended to be modified/worked with directly (demo scripts, etc.), then the following sections are also added using line comments (see **`DEMO_gesture.py`** for example):
 
 ```python
@@ -104,10 +105,14 @@ class MyClass:
 def __init__(self, var1: int, var2: str):
     """Description of method.
 
-    Inputs:
-    -var1: int which does xyz
-    -var2: str which does abc"""
+    **Parameters** :
+
+    >>>**var1** : *int* which does xyz
+    
+    >>>**var2** : *str* which does abc"""
 ```
+
+The special formatting in the docstring is used to create .html doc files located in HapticDisplay/docs/
 
 ### Script/variable/function/class names
 Follow the [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html#316-naming): `module_name`, `package_name`, `ClassName`, `method_name`, `function_name`, `local_var_name`, etc.

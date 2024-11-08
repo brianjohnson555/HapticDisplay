@@ -2,11 +2,11 @@
 
 """Sets up Recognizer and Gesture classes + methods for gesture-based demo.
 
-- Recognizer: based on a Google AI gesture_recognizer pre-trained model. There are 8
+- **Recognizer** : class based on a Google AI gesture_recognizer pre-trained model. There are 8
 possible gestures recognized by the model: 'none', 'closed fist', 'open palm', 'pointing 
 up', 'thumb down', 'thumb up', 'victory' (v-sign), and 'I love you' (in ASL).
 
-- Gesture: handles functions that call the Recognizer, tracks/updates a count of recognized
+- **Gesture** : class which handles functions that call the Recognizer, tracks/updates a count of recognized
 gestures, determines which detected gesture to set as the active output, and creates a unique
 corresponding intensity output sequence for each gesture."""
 
@@ -15,21 +15,21 @@ import mediapipe as mp
 import haptic_utils.haptic_map as haptic_map
 import haptic_utils.generator as generator
 import haptic_utils.USB as USB
-model_asset_path='haptic_utils\gesture_recognizer.task'
+model_asset_path='haptic_utils\gesture_recognizer.task' #location of gesture model
 
 # Google AI gesture recognizer setup:
 class Recognizer:
     """Initiates a pre-trained gesture recognition model.
     
-    Calling GestureRecognizerResult retrieves the detected gesture of the input image. This uses a 
-    callback function which is defined in the Gesture class."""
+    Calling *GestureRecognizerResult* retrieves the detected gesture of the input image. This uses a 
+    callback function which is defined in the *Gesture* class.
+    
+    **Parameters** :
+        >>>**gesture_data** : *Gesture* class object defined from this script"""
 
     def __init__(self, gesture_data):
-        """Gesture model initialization.
+        """Gesture model initialization."""
         
-        Inputs:
-        -gesture_data: Gesture class object"""
-
         # from Google AI tutorial:
         self.GestureRecognizerResult = mp.tasks.vision.GestureRecognizerResult
         self.BaseOptions = mp.tasks.BaseOptions
@@ -40,7 +40,7 @@ class Recognizer:
         self.recognizer = self.initialize_gesture_recognizer(gesture_data)
 
     def initialize_gesture_recognizer(self, gesture_data):
-        """Initializes the recognizer model using gesture_data, a Gesture class object with callback."""
+        """Initializes the recognizer model using *gesture_data*, a Gesture class object with callback."""
 
         options = self.GestureRecognizerOptions(base_options=self.BaseOptions(model_asset_path), # path for gesture recognizer file
                                         running_mode=self.VisionRunningMode.LIVE_STREAM, 
@@ -52,22 +52,23 @@ class Recognizer:
 class Gesture:
     """Contains all current gesture information and controls outputs to the haptic display.
     
-    The class method gesture_callback_from_recognizer() must be an input in the initialization
+    The class method *gesture_callback_from_recognizer()* must be an input in the initialization
      of the Recognizer class. It is the callback function used to retrieve the detected 
      gesture.
      
-    The general method flow is as follows:
-     1. __init__() called upon initialize of Gesture object.
-     2. When get_latest_gesture() is called using a Recognizer class object, the Recognizer 
-     calls gesture_callback_from_recognizer() and the latest detected gesture is retrieved.
-     3. This automatically calls update(), which calls update_output() and update_gesture_count().
-      4a. update_output() pops the latest intensity array from output_list, or sends zero array if empty.
-      4b. update_gesture_count() adds to the count_dict['Total'] value. When the value exceeds
-       max_count, it calls update_active_gesture().
-      5. update_active_gesture() determines which gesture is 'active' base on the margin variable.
-       After determining gesture_active, it calls run_active_gesture().
-      6. run_active_gesture() populates the output_list with the corresponding sequence of outputs
-       specified in output_dict. The list will be popped next time update()/update_output() is called."""
+    Here's how it works:
+    1. *__init__()* called upon initialize of Gesture object.
+    2. When *get_latest_gesture()* is called using a *Recognizer* class object, the *Recognizer* 
+    calls *gesture_callback_from_recognizer()* and the latest detected gesture is retrieved.
+    3. This automatically calls *update()*, which calls *update_output()* and *update_gesture_count()*.
+    4. *update_output()* pops the latest intensity array from *output_list*, or sends zero array if empty.
+    5. *update_gesture_count()* adds to the *count_dict['Total']* value. When the value exceeds
+    *max_count*, it calls *update_active_gesture()*.
+    6. *update_active_gesture()* determines which gesture is 'active' base on the margin variable.
+    After determining *gesture_active*, it calls *run_active_gesture()*.
+    7. *run_active_gesture()* populates *output_list* with the corresponding sequence of outputs 
+    specified in *output_dict*. 
+    8. The list is popped next time *update()* or *update_output()* is called."""
     
     def __init__(self):
         self.count_dict = {'None': 0,
@@ -97,10 +98,13 @@ class Gesture:
     def get_latest_gesture(self, recognizer, frame_timestamp_ms: int, frame: np.ndarray):
         """Calls the Recognizer class object in livestream mode to obtain detected gesture on image frame.
         
-        Inputs:
-        -recognizer: Recognizer.GestureRecognizer object
-        -frame_timestamp_ms: timestamp in milliseconds corresponding to captured video frame
-        -frame: numpy array of the video frame grabbed from OpenCV"""
+        **Parameters** : 
+
+        >>>**recognizer** : Recognizer.GestureRecognizer object
+
+        >>>**frame_timestamp_ms** : timestamp in milliseconds corresponding to captured video frame
+        
+        >>>**frame** : numpy array of the video frame grabbed from OpenCV"""
 
         mp_image = mp.Image(image_format=mp.ImageFormat.SRGB, data=frame)
         recognizer.recognize_async(mp_image, frame_timestamp_ms)
@@ -110,12 +114,15 @@ class Gesture:
     def gesture_callback_from_recognizer(self, result, output_image: mp.Image, timestamp_ms: int): #I'm not sure why, but the 3 inputs are required to work properly (even if unused)
         """Callback function for the Recognizer class object to retrieve gesture info.
         
-        Inputs:
-        -result: Recognizer.GestureRecognizerResult object
-        -output_image: mediapipe (mp) Image object
-        -timestamp_ms: timestamp in milliseconds from the associate frame/gesture.
+        **Parameters** :
+
+        >>>**result** : Recognizer.GestureRecognizerResult object
+
+        >>>**output_image** : mediapipe (mp) Image object
+
+        >>>**timestamp_ms** : timestamp in milliseconds from the associate frame/gesture.
         
-        NOTE: This is based on Google AI callback function. Although output_image and timestamp_ms are 
+        NOTE: This is based on Google AI callback function. Although *output_image* and *timestamp_ms* are 
         unused in this method, they seem to be necessary in order for the GestureRecognizer callback to
         function properly."""
 

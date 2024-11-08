@@ -1,3 +1,5 @@
+"""This script tests the USB serial connection with one set of MINI switches.
+This code will probably be redundant and not needed by anyone."""
 import cv2
 import torch
 import time

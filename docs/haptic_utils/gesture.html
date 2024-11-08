@@ -1,0 +1,1074 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="generator" content="pdoc 15.0.0"/>
+    <title>haptic_utils.gesture API documentation</title>
+
+    <style>/*! * Bootstrap Reboot v5.0.0 (https://getbootstrap.com/) * Copyright 2011-2021 The Bootstrap Authors * Copyright 2011-2021 Twitter, Inc. * Licensed under MIT (https://github.com/twbs/bootstrap/blob/main/LICENSE) * Forked from Normalize.css, licensed MIT (https://github.com/necolas/normalize.css/blob/master/LICENSE.md) */*,::after,::before{box-sizing:border-box}@media (prefers-reduced-motion:no-preference){:root{scroll-behavior:smooth}}body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,"Noto Sans","Liberation Sans",sans-serif,"Apple Color Emoji","Segoe UI Emoji","Segoe UI Symbol","Noto Color Emoji";font-size:1rem;font-weight:400;line-height:1.5;color:#212529;background-color:#fff;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}hr{margin:1rem 0;color:inherit;background-color:currentColor;border:0;opacity:.25}hr:not([size]){height:1px}h1,h2,h3,h4,h5,h6{margin-top:0;margin-bottom:.5rem;font-weight:500;line-height:1.2}h1{font-size:calc(1.375rem + 1.5vw)}@media (min-width:1200px){h1{font-size:2.5rem}}h2{font-size:calc(1.325rem + .9vw)}@media (min-width:1200px){h2{font-size:2rem}}h3{font-size:calc(1.3rem + .6vw)}@media (min-width:1200px){h3{font-size:1.75rem}}h4{font-size:calc(1.275rem + .3vw)}@media (min-width:1200px){h4{font-size:1.5rem}}h5{font-size:1.25rem}h6{font-size:1rem}p{margin-top:0;margin-bottom:1rem}abbr[data-bs-original-title],abbr[title]{-webkit-text-decoration:underline dotted;text-decoration:underline dotted;cursor:help;-webkit-text-decoration-skip-ink:none;text-decoration-skip-ink:none}address{margin-bottom:1rem;font-style:normal;line-height:inherit}ol,ul{padding-left:2rem}dl,ol,ul{margin-top:0;margin-bottom:1rem}ol ol,ol ul,ul ol,ul ul{margin-bottom:0}dt{font-weight:700}dd{margin-bottom:.5rem;margin-left:0}blockquote{margin:0 0 1rem}b,strong{font-weight:bolder}small{font-size:.875em}mark{padding:.2em;background-color:#fcf8e3}sub,sup{position:relative;font-size:.75em;line-height:0;vertical-align:baseline}sub{bottom:-.25em}sup{top:-.5em}a{color:#0d6efd;text-decoration:underline}a:hover{color:#0a58ca}a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-decoration:none}code,kbd,pre,samp{font-family:SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:1em;direction:ltr;unicode-bidi:bidi-override}pre{display:block;margin-top:0;margin-bottom:1rem;overflow:auto;font-size:.875em}pre code{font-size:inherit;color:inherit;word-break:normal}code{font-size:.875em;color:#d63384;word-wrap:break-word}a>code{color:inherit}kbd{padding:.2rem .4rem;font-size:.875em;color:#fff;background-color:#212529;border-radius:.2rem}kbd kbd{padding:0;font-size:1em;font-weight:700}figure{margin:0 0 1rem}img,svg{vertical-align:middle}table{caption-side:bottom;border-collapse:collapse}caption{padding-top:.5rem;padding-bottom:.5rem;color:#6c757d;text-align:left}th{text-align:inherit;text-align:-webkit-match-parent}tbody,td,tfoot,th,thead,tr{border-color:inherit;border-style:solid;border-width:0}label{display:inline-block}button{border-radius:0}button:focus:not(:focus-visible){outline:0}button,input,optgroup,select,textarea{margin:0;font-family:inherit;font-size:inherit;line-height:inherit}button,select{text-transform:none}[role=button]{cursor:pointer}select{word-wrap:normal}select:disabled{opacity:1}[list]::-webkit-calendar-picker-indicator{display:none}[type=button],[type=reset],[type=submit],button{-webkit-appearance:button}[type=button]:not(:disabled),[type=reset]:not(:disabled),[type=submit]:not(:disabled),button:not(:disabled){cursor:pointer}::-moz-focus-inner{padding:0;border-style:none}textarea{resize:vertical}fieldset{min-width:0;padding:0;margin:0;border:0}legend{float:left;width:100%;padding:0;margin-bottom:.5rem;font-size:calc(1.275rem + .3vw);line-height:inherit}@media (min-width:1200px){legend{font-size:1.5rem}}legend+*{clear:left}::-webkit-datetime-edit-day-field,::-webkit-datetime-edit-fields-wrapper,::-webkit-datetime-edit-hour-field,::-webkit-datetime-edit-minute,::-webkit-datetime-edit-month-field,::-webkit-datetime-edit-text,::-webkit-datetime-edit-year-field{padding:0}::-webkit-inner-spin-button{height:auto}[type=search]{outline-offset:-2px;-webkit-appearance:textfield}::-webkit-search-decoration{-webkit-appearance:none}::-webkit-color-swatch-wrapper{padding:0}::file-selector-button{font:inherit}::-webkit-file-upload-button{font:inherit;-webkit-appearance:button}output{display:inline-block}iframe{border:0}summary{display:list-item;cursor:pointer}progress{vertical-align:baseline}[hidden]{display:none!important}</style>
+    <style>/*! syntax-highlighting.css */pre{line-height:125%;}span.linenos{color:inherit; background-color:transparent; padding-left:5px; padding-right:20px;}.pdoc-code .hll{background-color:#ffffcc}.pdoc-code{background:#f8f8f8;}.pdoc-code .c{color:#3D7B7B; font-style:italic}.pdoc-code .err{border:1px solid #FF0000}.pdoc-code .k{color:#008000; font-weight:bold}.pdoc-code .o{color:#666666}.pdoc-code .ch{color:#3D7B7B; font-style:italic}.pdoc-code .cm{color:#3D7B7B; font-style:italic}.pdoc-code .cp{color:#9C6500}.pdoc-code .cpf{color:#3D7B7B; font-style:italic}.pdoc-code .c1{color:#3D7B7B; font-style:italic}.pdoc-code .cs{color:#3D7B7B; font-style:italic}.pdoc-code .gd{color:#A00000}.pdoc-code .ge{font-style:italic}.pdoc-code .gr{color:#E40000}.pdoc-code .gh{color:#000080; font-weight:bold}.pdoc-code .gi{color:#008400}.pdoc-code .go{color:#717171}.pdoc-code .gp{color:#000080; font-weight:bold}.pdoc-code .gs{font-weight:bold}.pdoc-code .gu{color:#800080; font-weight:bold}.pdoc-code .gt{color:#0044DD}.pdoc-code .kc{color:#008000; font-weight:bold}.pdoc-code .kd{color:#008000; font-weight:bold}.pdoc-code .kn{color:#008000; font-weight:bold}.pdoc-code .kp{color:#008000}.pdoc-code .kr{color:#008000; font-weight:bold}.pdoc-code .kt{color:#B00040}.pdoc-code .m{color:#666666}.pdoc-code .s{color:#BA2121}.pdoc-code .na{color:#687822}.pdoc-code .nb{color:#008000}.pdoc-code .nc{color:#0000FF; font-weight:bold}.pdoc-code .no{color:#880000}.pdoc-code .nd{color:#AA22FF}.pdoc-code .ni{color:#717171; font-weight:bold}.pdoc-code .ne{color:#CB3F38; font-weight:bold}.pdoc-code .nf{color:#0000FF}.pdoc-code .nl{color:#767600}.pdoc-code .nn{color:#0000FF; font-weight:bold}.pdoc-code .nt{color:#008000; font-weight:bold}.pdoc-code .nv{color:#19177C}.pdoc-code .ow{color:#AA22FF; font-weight:bold}.pdoc-code .w{color:#bbbbbb}.pdoc-code .mb{color:#666666}.pdoc-code .mf{color:#666666}.pdoc-code .mh{color:#666666}.pdoc-code .mi{color:#666666}.pdoc-code .mo{color:#666666}.pdoc-code .sa{color:#BA2121}.pdoc-code .sb{color:#BA2121}.pdoc-code .sc{color:#BA2121}.pdoc-code .dl{color:#BA2121}.pdoc-code .sd{color:#BA2121; font-style:italic}.pdoc-code .s2{color:#BA2121}.pdoc-code .se{color:#AA5D1F; font-weight:bold}.pdoc-code .sh{color:#BA2121}.pdoc-code .si{color:#A45A77; font-weight:bold}.pdoc-code .sx{color:#008000}.pdoc-code .sr{color:#A45A77}.pdoc-code .s1{color:#BA2121}.pdoc-code .ss{color:#19177C}.pdoc-code .bp{color:#008000}.pdoc-code .fm{color:#0000FF}.pdoc-code .vc{color:#19177C}.pdoc-code .vg{color:#19177C}.pdoc-code .vi{color:#19177C}.pdoc-code .vm{color:#19177C}.pdoc-code .il{color:#666666}</style>
+    <style>/*! theme.css */:root{--pdoc-background:#fff;}.pdoc{--text:#212529;--muted:#6c757d;--link:#3660a5;--link-hover:#1659c5;--code:#f8f8f8;--active:#fff598;--accent:#eee;--accent2:#c1c1c1;--nav-hover:rgba(255, 255, 255, 0.5);--name:#0066BB;--def:#008800;--annotation:#007020;}</style>
+    <style>/*! layout.css */html, body{width:100%;height:100%;}html, main{scroll-behavior:smooth;}body{background-color:var(--pdoc-background);}@media (max-width:769px){#navtoggle{cursor:pointer;position:absolute;width:50px;height:40px;top:1rem;right:1rem;border-color:var(--text);color:var(--text);display:flex;opacity:0.8;z-index:999;}#navtoggle:hover{opacity:1;}#togglestate + div{display:none;}#togglestate:checked + div{display:inherit;}main, header{padding:2rem 3vw;}header + main{margin-top:-3rem;}.git-button{display:none !important;}nav input[type="search"]{max-width:77%;}nav input[type="search"]:first-child{margin-top:-6px;}nav input[type="search"]:valid ~ *{display:none !important;}}@media (min-width:770px){:root{--sidebar-width:clamp(12.5rem, 28vw, 22rem);}nav{position:fixed;overflow:auto;height:100vh;width:var(--sidebar-width);}main, header{padding:3rem 2rem 3rem calc(var(--sidebar-width) + 3rem);width:calc(54rem + var(--sidebar-width));max-width:100%;}header + main{margin-top:-4rem;}#navtoggle{display:none;}}#togglestate{position:absolute;height:0;opacity:0;}nav.pdoc{--pad:clamp(0.5rem, 2vw, 1.75rem);--indent:1.5rem;background-color:var(--accent);border-right:1px solid var(--accent2);box-shadow:0 0 20px rgba(50, 50, 50, .2) inset;padding:0 0 0 var(--pad);overflow-wrap:anywhere;scrollbar-width:thin; scrollbar-color:var(--accent2) transparent; z-index:1}nav.pdoc::-webkit-scrollbar{width:.4rem; }nav.pdoc::-webkit-scrollbar-thumb{background-color:var(--accent2); }nav.pdoc > div{padding:var(--pad) 0;}nav.pdoc .module-list-button{display:inline-flex;align-items:center;color:var(--text);border-color:var(--muted);margin-bottom:1rem;}nav.pdoc .module-list-button:hover{border-color:var(--text);}nav.pdoc input[type=search]{display:block;outline-offset:0;width:calc(100% - var(--pad));}nav.pdoc .logo{max-width:calc(100% - var(--pad));max-height:35vh;display:block;margin:0 auto 1rem;transform:translate(calc(-.5 * var(--pad)), 0);}nav.pdoc ul{list-style:none;padding-left:0;}nav.pdoc > div > ul{margin-left:calc(0px - var(--pad));}nav.pdoc li a{padding:.2rem 0 .2rem calc(var(--pad) + var(--indent));}nav.pdoc > div > ul > li > a{padding-left:var(--pad);}nav.pdoc li{transition:all 100ms;}nav.pdoc li:hover{background-color:var(--nav-hover);}nav.pdoc a, nav.pdoc a:hover{color:var(--text);}nav.pdoc a{display:block;}nav.pdoc > h2:first-of-type{margin-top:1.5rem;}nav.pdoc .class:before{content:"class ";color:var(--muted);}nav.pdoc .function:after{content:"()";color:var(--muted);}nav.pdoc footer:before{content:"";display:block;width:calc(100% - var(--pad));border-top:solid var(--accent2) 1px;margin-top:1.5rem;padding-top:.5rem;}nav.pdoc footer{font-size:small;}</style>
+    <style>/*! content.css */.pdoc{color:var(--text);box-sizing:border-box;line-height:1.5;background:none;}.pdoc .pdoc-button{cursor:pointer;display:inline-block;border:solid black 1px;border-radius:2px;font-size:.75rem;padding:calc(0.5em - 1px) 1em;transition:100ms all;}.pdoc .alert{padding:1rem 1rem 1rem calc(1.5rem + 24px);border:1px solid transparent;border-radius:.25rem;background-repeat:no-repeat;background-position:.75rem center;margin-bottom:1rem;}.pdoc .alert > em{display:none;}.pdoc .alert > *:last-child{margin-bottom:0;}.pdoc .alert.note {color:#084298;background-color:#cfe2ff;border-color:#b6d4fe;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23084298%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8%2016A8%208%200%201%200%208%200a8%208%200%200%200%200%2016zm.93-9.412-1%204.705c-.07.34.029.533.304.533.194%200%20.487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703%200-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381%202.29-.287zM8%205.5a1%201%200%201%201%200-2%201%201%200%200%201%200%202z%22/%3E%3C/svg%3E");}.pdoc .alert.warning{color:#664d03;background-color:#fff3cd;border-color:#ffecb5;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23664d03%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M8.982%201.566a1.13%201.13%200%200%200-1.96%200L.165%2013.233c-.457.778.091%201.767.98%201.767h13.713c.889%200%201.438-.99.98-1.767L8.982%201.566zM8%205c.535%200%20.954.462.9.995l-.35%203.507a.552.552%200%200%201-1.1%200L7.1%205.995A.905.905%200%200%201%208%205zm.002%206a1%201%200%201%201%200%202%201%201%200%200%201%200-2z%22/%3E%3C/svg%3E");}.pdoc .alert.danger{color:#842029;background-color:#f8d7da;border-color:#f5c2c7;background-image:url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20width%3D%2224%22%20height%3D%2224%22%20fill%3D%22%23842029%22%20viewBox%3D%220%200%2016%2016%22%3E%3Cpath%20d%3D%22M5.52.359A.5.5%200%200%201%206%200h4a.5.5%200%200%201%20.474.658L8.694%206H12.5a.5.5%200%200%201%20.395.807l-7%209a.5.5%200%200%201-.873-.454L6.823%209.5H3.5a.5.5%200%200%201-.48-.641l2.5-8.5z%22/%3E%3C/svg%3E");}.pdoc .visually-hidden{position:absolute !important;width:1px !important;height:1px !important;padding:0 !important;margin:-1px !important;overflow:hidden !important;clip:rect(0, 0, 0, 0) !important;white-space:nowrap !important;border:0 !important;}.pdoc h1, .pdoc h2, .pdoc h3{font-weight:300;margin:.3em 0;padding:.2em 0;}.pdoc > section:not(.module-info) h1{font-size:1.5rem;font-weight:500;}.pdoc > section:not(.module-info) h2{font-size:1.4rem;font-weight:500;}.pdoc > section:not(.module-info) h3{font-size:1.3rem;font-weight:500;}.pdoc > section:not(.module-info) h4{font-size:1.2rem;}.pdoc > section:not(.module-info) h5{font-size:1.1rem;}.pdoc a{text-decoration:none;color:var(--link);}.pdoc a:hover{color:var(--link-hover);}.pdoc blockquote{margin-left:2rem;}.pdoc pre{border-top:1px solid var(--accent2);border-bottom:1px solid var(--accent2);margin-top:0;margin-bottom:1em;padding:.5rem 0 .5rem .5rem;overflow-x:auto;background-color:var(--code);}.pdoc code{color:var(--text);padding:.2em .4em;margin:0;font-size:85%;background-color:var(--accent);border-radius:6px;}.pdoc a > code{color:inherit;}.pdoc pre > code{display:inline-block;font-size:inherit;background:none;border:none;padding:0;}.pdoc > section:not(.module-info){margin-bottom:1.5rem;}.pdoc .modulename{margin-top:0;font-weight:bold;}.pdoc .modulename a{color:var(--link);transition:100ms all;}.pdoc .git-button{float:right;border:solid var(--link) 1px;}.pdoc .git-button:hover{background-color:var(--link);color:var(--pdoc-background);}.view-source-toggle-state,.view-source-toggle-state ~ .pdoc-code{display:none;}.view-source-toggle-state:checked ~ .pdoc-code{display:block;}.view-source-button{display:inline-block;float:right;font-size:.75rem;line-height:1.5rem;color:var(--muted);padding:0 .4rem 0 1.3rem;cursor:pointer;text-indent:-2px;}.view-source-button > span{visibility:hidden;}.module-info .view-source-button{float:none;display:flex;justify-content:flex-end;margin:-1.2rem .4rem -.2rem 0;}.view-source-button::before{position:absolute;content:"View Source";display:list-item;list-style-type:disclosure-closed;}.view-source-toggle-state:checked ~ .attr .view-source-button::before,.view-source-toggle-state:checked ~ .view-source-button::before{list-style-type:disclosure-open;}.pdoc .docstring{margin-bottom:1.5rem;}.pdoc section:not(.module-info) .docstring{margin-left:clamp(0rem, 5vw - 2rem, 1rem);}.pdoc .docstring .pdoc-code{margin-left:1em;margin-right:1em;}.pdoc h1:target,.pdoc h2:target,.pdoc h3:target,.pdoc h4:target,.pdoc h5:target,.pdoc h6:target,.pdoc .pdoc-code > pre > span:target{background-color:var(--active);box-shadow:-1rem 0 0 0 var(--active);}.pdoc .pdoc-code > pre > span:target{display:block;}.pdoc div:target > .attr,.pdoc section:target > .attr,.pdoc dd:target > a{background-color:var(--active);}.pdoc *{scroll-margin:2rem;}.pdoc .pdoc-code .linenos{user-select:none;}.pdoc .attr:hover{filter:contrast(0.95);}.pdoc section, .pdoc .classattr{position:relative;}.pdoc .headerlink{--width:clamp(1rem, 3vw, 2rem);position:absolute;top:0;left:calc(0rem - var(--width));transition:all 100ms ease-in-out;opacity:0;}.pdoc .headerlink::before{content:"#";display:block;text-align:center;width:var(--width);height:2.3rem;line-height:2.3rem;font-size:1.5rem;}.pdoc .attr:hover ~ .headerlink,.pdoc *:target > .headerlink,.pdoc .headerlink:hover{opacity:1;}.pdoc .attr{display:block;margin:.5rem 0 .5rem;padding:.4rem .4rem .4rem 1rem;background-color:var(--accent);overflow-x:auto;}.pdoc .classattr{margin-left:2rem;}.pdoc .decorator-deprecated{color:#842029;}.pdoc .decorator-deprecated ~ span{filter:grayscale(1) opacity(0.8);}.pdoc .name{color:var(--name);font-weight:bold;}.pdoc .def{color:var(--def);font-weight:bold;}.pdoc .signature{background-color:transparent;}.pdoc .param, .pdoc .return-annotation{white-space:pre;}.pdoc .signature.multiline .param{display:block;}.pdoc .signature.condensed .param{display:inline-block;}.pdoc .annotation{color:var(--annotation);}.pdoc .view-value-toggle-state,.pdoc .view-value-toggle-state ~ .default_value{display:none;}.pdoc .view-value-toggle-state:checked ~ .default_value{display:inherit;}.pdoc .view-value-button{font-size:.5rem;vertical-align:middle;border-style:dashed;margin-top:-0.1rem;}.pdoc .view-value-button:hover{background:white;}.pdoc .view-value-button::before{content:"show";text-align:center;width:2.2em;display:inline-block;}.pdoc .view-value-toggle-state:checked ~ .view-value-button::before{content:"hide";}.pdoc .inherited{margin-left:2rem;}.pdoc .inherited dt{font-weight:700;}.pdoc .inherited dt, .pdoc .inherited dd{display:inline;margin-left:0;margin-bottom:.5rem;}.pdoc .inherited dd:not(:last-child):after{content:", ";}.pdoc .inherited .class:before{content:"class ";}.pdoc .inherited .function a:after{content:"()";}.pdoc .search-result .docstring{overflow:auto;max-height:25vh;}.pdoc .search-result.focused > .attr{background-color:var(--active);}.pdoc .attribution{margin-top:2rem;display:block;opacity:0.5;transition:all 200ms;filter:grayscale(100%);}.pdoc .attribution:hover{opacity:1;filter:grayscale(0%);}.pdoc .attribution img{margin-left:5px;height:35px;vertical-align:middle;width:70px;transition:all 200ms;}.pdoc table{display:block;width:max-content;max-width:100%;overflow:auto;margin-bottom:1rem;}.pdoc table th{font-weight:600;}.pdoc table th, .pdoc table td{padding:6px 13px;border:1px solid var(--accent2);}</style>
+    <style>/*! custom.css */</style></head>
+<body>
+    <nav class="pdoc">
+        <label id="navtoggle" for="togglestate" class="pdoc-button"><svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'><path stroke-linecap='round' stroke="currentColor" stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/></svg></label>
+        <input id="togglestate" type="checkbox" aria-hidden="true" tabindex="-1">
+        <div>
+
+
+
+
+            <h2>API Documentation</h2>
+                <ul class="memberlist">
+            <li>
+                    <a class="variable" href="#model_asset_path">model_asset_path</a>
+            </li>
+            <li>
+                    <a class="class" href="#Recognizer">Recognizer</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#Recognizer.__init__">Recognizer</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Recognizer.GestureRecognizerResult">GestureRecognizerResult</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Recognizer.BaseOptions">BaseOptions</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Recognizer.GestureRecognizer">GestureRecognizer</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Recognizer.GestureRecognizerOptions">GestureRecognizerOptions</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Recognizer.VisionRunningMode">VisionRunningMode</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Recognizer.recognizer">recognizer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Recognizer.initialize_gesture_recognizer">initialize_gesture_recognizer</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#Gesture">Gesture</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#Gesture.count_dict">count_dict</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Gesture.output_dict">output_dict</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Gesture.gesture_latest">gesture_latest</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Gesture.gesture_active">gesture_active</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Gesture.max_count">max_count</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Gesture.margin">margin</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Gesture.frame_rate">frame_rate</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#Gesture.output">output</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Gesture.update">update</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Gesture.get_latest_gesture">get_latest_gesture</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Gesture.gesture_callback_from_recognizer">gesture_callback_from_recognizer</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Gesture.update_active_gesture">update_active_gesture</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Gesture.update_gesture_count">update_gesture_count</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Gesture.initialize_active_gesture">initialize_active_gesture</a>
+                        </li>
+                        <li>
+                                <a class="function" href="#Gesture.run_active_gesture">run_active_gesture</a>
+                        </li>
+                </ul>
+
+            </li>
+    </ul>
+
+
+
+        <a class="attribution" title="pdoc: Python API documentation generator" href="https://pdoc.dev" target="_blank">
+            built with <span class="visually-hidden">pdoc</span><img
+                alt="pdoc logo"
+                src="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20role%3D%22img%22%20aria-label%3D%22pdoc%20logo%22%20width%3D%22300%22%20height%3D%22150%22%20viewBox%3D%22-1%200%2060%2030%22%3E%3Ctitle%3Epdoc%3C/title%3E%3Cpath%20d%3D%22M29.621%2021.293c-.011-.273-.214-.475-.511-.481a.5.5%200%200%200-.489.503l-.044%201.393c-.097.551-.695%201.215-1.566%201.704-.577.428-1.306.486-2.193.182-1.426-.617-2.467-1.654-3.304-2.487l-.173-.172a3.43%203.43%200%200%200-.365-.306.49.49%200%200%200-.286-.196c-1.718-1.06-4.931-1.47-7.353.191l-.219.15c-1.707%201.187-3.413%202.131-4.328%201.03-.02-.027-.49-.685-.141-1.763.233-.721.546-2.408.772-4.076.042-.09.067-.187.046-.288.166-1.347.277-2.625.241-3.351%201.378-1.008%202.271-2.586%202.271-4.362%200-.976-.272-1.935-.788-2.774-.057-.094-.122-.18-.184-.268.033-.167.052-.339.052-.516%200-1.477-1.202-2.679-2.679-2.679-.791%200-1.496.352-1.987.9a6.3%206.3%200%200%200-1.001.029c-.492-.564-1.207-.929-2.012-.929-1.477%200-2.679%201.202-2.679%202.679A2.65%202.65%200%200%200%20.97%206.554c-.383.747-.595%201.572-.595%202.41%200%202.311%201.507%204.29%203.635%205.107-.037.699-.147%202.27-.423%203.294l-.137.461c-.622%202.042-2.515%208.257%201.727%2010.643%201.614.908%203.06%201.248%204.317%201.248%202.665%200%204.492-1.524%205.322-2.401%201.476-1.559%202.886-1.854%206.491.82%201.877%201.393%203.514%201.753%204.861%201.068%202.223-1.713%202.811-3.867%203.399-6.374.077-.846.056-1.469.054-1.537zm-4.835%204.313c-.054.305-.156.586-.242.629-.034-.007-.131-.022-.307-.157-.145-.111-.314-.478-.456-.908.221.121.432.25.675.355.115.039.219.051.33.081zm-2.251-1.238c-.05.33-.158.648-.252.694-.022.001-.125-.018-.307-.157-.217-.166-.488-.906-.639-1.573.358.344.754.693%201.198%201.036zm-3.887-2.337c-.006-.116-.018-.231-.041-.342.635.145%201.189.368%201.599.625.097.231.166.481.174.642-.03.049-.055.101-.067.158-.046.013-.128.026-.298.004-.278-.037-.901-.57-1.367-1.087zm-1.127-.497c.116.306.176.625.12.71-.019.014-.117.045-.345.016-.206-.027-.604-.332-.986-.695.41-.051.816-.056%201.211-.031zm-4.535%201.535c.209.22.379.47.358.598-.006.041-.088.138-.351.234-.144.055-.539-.063-.979-.259a11.66%2011.66%200%200%200%20.972-.573zm.983-.664c.359-.237.738-.418%201.126-.554.25.237.479.548.457.694-.006.042-.087.138-.351.235-.174.064-.694-.105-1.232-.375zm-3.381%201.794c-.022.145-.061.29-.149.401-.133.166-.358.248-.69.251h-.002c-.133%200-.306-.26-.45-.621.417.091.854.07%201.291-.031zm-2.066-8.077a4.78%204.78%200%200%201-.775-.584c.172-.115.505-.254.88-.378l-.105.962zm-.331%202.302a10.32%2010.32%200%200%201-.828-.502c.202-.143.576-.328.984-.49l-.156.992zm-.45%202.157l-.701-.403c.214-.115.536-.249.891-.376a11.57%2011.57%200%200%201-.19.779zm-.181%201.716c.064.398.194.702.298.893-.194-.051-.435-.162-.736-.398.061-.119.224-.3.438-.495zM8.87%204.141c0%20.152-.123.276-.276.276s-.275-.124-.275-.276.123-.276.276-.276.275.124.275.276zm-.735-.389a1.15%201.15%200%200%200-.314.783%201.16%201.16%200%200%200%201.162%201.162c.457%200%20.842-.27%201.032-.653.026.117.042.238.042.362a1.68%201.68%200%200%201-1.679%201.679%201.68%201.68%200%200%201-1.679-1.679c0-.843.626-1.535%201.436-1.654zM5.059%205.406A1.68%201.68%200%200%201%203.38%207.085a1.68%201.68%200%200%201-1.679-1.679c0-.037.009-.072.011-.109.21.3.541.508.935.508a1.16%201.16%200%200%200%201.162-1.162%201.14%201.14%200%200%200-.474-.912c.015%200%20.03-.005.045-.005.926.001%201.679.754%201.679%201.68zM3.198%204.141c0%20.152-.123.276-.276.276s-.275-.124-.275-.276.123-.276.276-.276.275.124.275.276zM1.375%208.964c0-.52.103-1.035.288-1.52.466.394%201.06.64%201.717.64%201.144%200%202.116-.725%202.499-1.738.383%201.012%201.355%201.738%202.499%201.738.867%200%201.631-.421%202.121-1.062.307.605.478%201.267.478%201.942%200%202.486-2.153%204.51-4.801%204.51s-4.801-2.023-4.801-4.51zm24.342%2019.349c-.985.498-2.267.168-3.813-.979-3.073-2.281-5.453-3.199-7.813-.705-1.315%201.391-4.163%203.365-8.423.97-3.174-1.786-2.239-6.266-1.261-9.479l.146-.492c.276-1.02.395-2.457.444-3.268a6.11%206.11%200%200%200%201.18.115%206.01%206.01%200%200%200%202.536-.562l-.006.175c-.802.215-1.848.612-2.021%201.25-.079.295.021.601.274.837.219.203.415.364.598.501-.667.304-1.243.698-1.311%201.179-.02.144-.022.507.393.787.213.144.395.26.564.365-1.285.521-1.361.96-1.381%201.126-.018.142-.011.496.427.746l.854.489c-.473.389-.971.914-.999%201.429-.018.278.095.532.316.713.675.556%201.231.721%201.653.721.059%200%20.104-.014.158-.02.207.707.641%201.64%201.513%201.64h.013c.8-.008%201.236-.345%201.462-.626.173-.216.268-.457.325-.692.424.195.93.374%201.372.374.151%200%20.294-.021.423-.068.732-.27.944-.704.993-1.021.009-.061.003-.119.002-.179.266.086.538.147.789.147.15%200%20.294-.021.423-.069.542-.2.797-.489.914-.754.237.147.478.258.704.288.106.014.205.021.296.021.356%200%20.595-.101.767-.229.438.435%201.094.992%201.656%201.067.106.014.205.021.296.021a1.56%201.56%200%200%200%20.323-.035c.17.575.453%201.289.866%201.605.358.273.665.362.914.362a.99.99%200%200%200%20.421-.093%201.03%201.03%200%200%200%20.245-.164c.168.428.39.846.68%201.068.358.273.665.362.913.362a.99.99%200%200%200%20.421-.093c.317-.148.512-.448.639-.762.251.157.495.257.726.257.127%200%20.25-.024.37-.071.427-.17.706-.617.841-1.314.022-.015.047-.022.068-.038.067-.051.133-.104.196-.159-.443%201.486-1.107%202.761-2.086%203.257zM8.66%209.925a.5.5%200%201%200-1%200c0%20.653-.818%201.205-1.787%201.205s-1.787-.552-1.787-1.205a.5.5%200%201%200-1%200c0%201.216%201.25%202.205%202.787%202.205s2.787-.989%202.787-2.205zm4.4%2015.965l-.208.097c-2.661%201.258-4.708%201.436-6.086.527-1.542-1.017-1.88-3.19-1.844-4.198a.4.4%200%200%200-.385-.414c-.242-.029-.406.164-.414.385-.046%201.249.367%203.686%202.202%204.896.708.467%201.547.7%202.51.7%201.248%200%202.706-.392%204.362-1.174l.185-.086a.4.4%200%200%200%20.205-.527c-.089-.204-.326-.291-.527-.206zM9.547%202.292c.093.077.205.114.317.114a.5.5%200%200%200%20.318-.886L8.817.397a.5.5%200%200%200-.703.068.5.5%200%200%200%20.069.703l1.364%201.124zm-7.661-.065c.086%200%20.173-.022.253-.068l1.523-.893a.5.5%200%200%200-.506-.863l-1.523.892a.5.5%200%200%200-.179.685c.094.158.261.247.432.247z%22%20transform%3D%22matrix%28-1%200%200%201%2058%200%29%22%20fill%3D%22%233bb300%22/%3E%3Cpath%20d%3D%22M.3%2021.86V10.18q0-.46.02-.68.04-.22.18-.5.28-.54%201.34-.54%201.06%200%201.42.28.38.26.44.78.76-1.04%202.38-1.04%201.64%200%203.1%201.54%201.46%201.54%201.46%203.58%200%202.04-1.46%203.58-1.44%201.54-3.08%201.54-1.64%200-2.38-.92v4.04q0%20.46-.04.68-.02.22-.18.5-.14.3-.5.42-.36.12-.98.12-.62%200-1-.12-.36-.12-.52-.4-.14-.28-.18-.5-.02-.22-.02-.68zm3.96-9.42q-.46.54-.46%201.18%200%20.64.46%201.18.48.52%201.2.52.74%200%201.24-.52.52-.52.52-1.18%200-.66-.48-1.18-.48-.54-1.26-.54-.76%200-1.22.54zm14.741-8.36q.16-.3.54-.42.38-.12%201-.12.64%200%201.02.12.38.12.52.42.16.3.18.54.04.22.04.68v11.94q0%20.46-.04.7-.02.22-.18.5-.3.54-1.7.54-1.38%200-1.54-.98-.84.96-2.34.96-1.8%200-3.28-1.56-1.48-1.58-1.48-3.66%200-2.1%201.48-3.68%201.5-1.58%203.28-1.58%201.48%200%202.3%201v-4.2q0-.46.02-.68.04-.24.18-.52zm-3.24%2010.86q.52.54%201.26.54.74%200%201.22-.54.5-.54.5-1.18%200-.66-.48-1.22-.46-.56-1.26-.56-.8%200-1.28.56-.48.54-.48%201.2%200%20.66.52%201.2zm7.833-1.2q0-2.4%201.68-3.96%201.68-1.56%203.84-1.56%202.16%200%203.82%201.56%201.66%201.54%201.66%203.94%200%201.66-.86%202.96-.86%201.28-2.1%201.9-1.22.6-2.54.6-1.32%200-2.56-.64-1.24-.66-2.1-1.92-.84-1.28-.84-2.88zm4.18%201.44q.64.48%201.3.48.66%200%201.32-.5.66-.5.66-1.48%200-.98-.62-1.46-.62-.48-1.34-.48-.72%200-1.34.5-.62.5-.62%201.48%200%20.96.64%201.46zm11.412-1.44q0%20.84.56%201.32.56.46%201.18.46.64%200%201.18-.36.56-.38.9-.38.6%200%201.46%201.06.46.58.46%201.04%200%20.76-1.1%201.42-1.14.8-2.8.8-1.86%200-3.58-1.34-.82-.64-1.34-1.7-.52-1.08-.52-2.36%200-1.3.52-2.34.52-1.06%201.34-1.7%201.66-1.32%203.54-1.32.76%200%201.48.22.72.2%201.06.4l.32.2q.36.24.56.38.52.4.52.92%200%20.5-.42%201.14-.72%201.1-1.38%201.1-.38%200-1.08-.44-.36-.34-1.04-.34-.66%200-1.24.48-.58.48-.58%201.34z%22%20fill%3D%22green%22/%3E%3C/svg%3E"/>
+        </a>
+</div>
+    </nav>
+    <main class="pdoc">
+            <section class="module-info">
+                    <h1 class="modulename">
+haptic_utils<wbr>.gesture    </h1>
+
+                        <div class="docstring"><p>Sets up Recognizer and Gesture classes + methods for gesture-based demo.</p>
+
+<ul>
+<li><p><strong>Recognizer</strong> : class based on a Google AI gesture_recognizer pre-trained model. There are 8
+possible gestures recognized by the model: 'none', 'closed fist', 'open palm', 'pointing 
+up', 'thumb down', 'thumb up', 'victory' (v-sign), and 'I love you' (in ASL).</p></li>
+<li><p><strong>Gesture</strong> : class which handles functions that call the Recognizer, tracks/updates a count of recognized
+gestures, determines which detected gesture to set as the active output, and creates a unique
+corresponding intensity output sequence for each gesture.</p></li>
+</ul>
+</div>
+
+                        <input id="mod-gesture-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+
+                        <label class="view-source-button" for="mod-gesture-view-source"><span>View Source</span></label>
+
+                        <div class="pdoc-code codehilite"><pre><span></span><span id="L-1"><a href="#L-1"><span class="linenos">  1</span></a><span class="ch">#!/usr/bin/env python3</span>
+</span><span id="L-2"><a href="#L-2"><span class="linenos">  2</span></a>
+</span><span id="L-3"><a href="#L-3"><span class="linenos">  3</span></a><span class="sd">&quot;&quot;&quot;Sets up Recognizer and Gesture classes + methods for gesture-based demo.</span>
+</span><span id="L-4"><a href="#L-4"><span class="linenos">  4</span></a>
+</span><span id="L-5"><a href="#L-5"><span class="linenos">  5</span></a><span class="sd">- **Recognizer** : class based on a Google AI gesture_recognizer pre-trained model. There are 8</span>
+</span><span id="L-6"><a href="#L-6"><span class="linenos">  6</span></a><span class="sd">possible gestures recognized by the model: &#39;none&#39;, &#39;closed fist&#39;, &#39;open palm&#39;, &#39;pointing </span>
+</span><span id="L-7"><a href="#L-7"><span class="linenos">  7</span></a><span class="sd">up&#39;, &#39;thumb down&#39;, &#39;thumb up&#39;, &#39;victory&#39; (v-sign), and &#39;I love you&#39; (in ASL).</span>
+</span><span id="L-8"><a href="#L-8"><span class="linenos">  8</span></a>
+</span><span id="L-9"><a href="#L-9"><span class="linenos">  9</span></a><span class="sd">- **Gesture** : class which handles functions that call the Recognizer, tracks/updates a count of recognized</span>
+</span><span id="L-10"><a href="#L-10"><span class="linenos"> 10</span></a><span class="sd">gestures, determines which detected gesture to set as the active output, and creates a unique</span>
+</span><span id="L-11"><a href="#L-11"><span class="linenos"> 11</span></a><span class="sd">corresponding intensity output sequence for each gesture.&quot;&quot;&quot;</span>
+</span><span id="L-12"><a href="#L-12"><span class="linenos"> 12</span></a>
+</span><span id="L-13"><a href="#L-13"><span class="linenos"> 13</span></a><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+</span><span id="L-14"><a href="#L-14"><span class="linenos"> 14</span></a><span class="kn">import</span> <span class="nn">mediapipe</span> <span class="k">as</span> <span class="nn">mp</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos"> 15</span></a><span class="kn">import</span> <span class="nn">haptic_utils.haptic_map</span> <span class="k">as</span> <span class="nn">haptic_map</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos"> 16</span></a><span class="kn">import</span> <span class="nn">haptic_utils.generator</span> <span class="k">as</span> <span class="nn">generator</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos"> 17</span></a><span class="kn">import</span> <span class="nn">haptic_utils.USB</span> <span class="k">as</span> <span class="nn">USB</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos"> 18</span></a><span class="n">model_asset_path</span><span class="o">=</span><span class="s1">&#39;haptic_utils\gesture_recognizer.task&#39;</span> <span class="c1">#location of gesture model</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos"> 19</span></a>
+</span><span id="L-20"><a href="#L-20"><span class="linenos"> 20</span></a><span class="c1"># Google AI gesture recognizer setup:</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos"> 21</span></a><span class="k">class</span> <span class="nc">Recognizer</span><span class="p">:</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos"> 22</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initiates a pre-trained gesture recognition model.</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos"> 23</span></a><span class="sd">    </span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos"> 24</span></a><span class="sd">    Calling *GestureRecognizerResult* retrieves the detected gesture of the input image. This uses a </span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos"> 25</span></a><span class="sd">    callback function which is defined in the *Gesture* class.</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos"> 26</span></a><span class="sd">    </span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos"> 27</span></a><span class="sd">    **Parameters** :</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos"> 28</span></a><span class="sd">        &gt;&gt;&gt;**gesture_data** : *Gesture* class object defined from this script&quot;&quot;&quot;</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos"> 29</span></a>
+</span><span id="L-30"><a href="#L-30"><span class="linenos"> 30</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gesture_data</span><span class="p">):</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos"> 31</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gesture model initialization.&quot;&quot;&quot;</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos"> 32</span></a>        
+</span><span id="L-33"><a href="#L-33"><span class="linenos"> 33</span></a>        <span class="c1"># from Google AI tutorial:</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos"> 34</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerResult</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizerResult</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos"> 35</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">BaseOptions</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">BaseOptions</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos"> 36</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizer</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizer</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos"> 37</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos"> 38</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">VisionRunningMode</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">RunningMode</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos"> 39</span></a>        <span class="c1"># initialize recognizer:</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos"> 40</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">recognizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_gesture_recognizer</span><span class="p">(</span><span class="n">gesture_data</span><span class="p">)</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos"> 41</span></a>
+</span><span id="L-42"><a href="#L-42"><span class="linenos"> 42</span></a>    <span class="k">def</span> <span class="nf">initialize_gesture_recognizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gesture_data</span><span class="p">):</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos"> 43</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the recognizer model using *gesture_data*, a Gesture class object with callback.&quot;&quot;&quot;</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos"> 44</span></a>
+</span><span id="L-45"><a href="#L-45"><span class="linenos"> 45</span></a>        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span><span class="p">(</span><span class="n">base_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BaseOptions</span><span class="p">(</span><span class="n">model_asset_path</span><span class="p">),</span> <span class="c1"># path for gesture recognizer file</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos"> 46</span></a>                                        <span class="n">running_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">VisionRunningMode</span><span class="o">.</span><span class="n">LIVE_STREAM</span><span class="p">,</span> 
+</span><span id="L-47"><a href="#L-47"><span class="linenos"> 47</span></a>                                        <span class="n">result_callback</span><span class="o">=</span><span class="n">gesture_data</span><span class="o">.</span><span class="n">gesture_callback_from_recognizer</span><span class="p">)</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos"> 48</span></a>        
+</span><span id="L-49"><a href="#L-49"><span class="linenos"> 49</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizer</span><span class="o">.</span><span class="n">create_from_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos"> 50</span></a>
+</span><span id="L-51"><a href="#L-51"><span class="linenos"> 51</span></a><span class="c1"># Create class to track gesture data</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos"> 52</span></a><span class="k">class</span> <span class="nc">Gesture</span><span class="p">:</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos"> 53</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Contains all current gesture information and controls outputs to the haptic display.</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos"> 54</span></a><span class="sd">    </span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos"> 55</span></a><span class="sd">    The class method *gesture_callback_from_recognizer()* must be an input in the initialization</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos"> 56</span></a><span class="sd">     of the Recognizer class. It is the callback function used to retrieve the detected </span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos"> 57</span></a><span class="sd">     gesture.</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos"> 58</span></a><span class="sd">     </span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos"> 59</span></a><span class="sd">    Here&#39;s how it works:</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos"> 60</span></a><span class="sd">    1. *__init__()* called upon initialize of Gesture object.</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos"> 61</span></a><span class="sd">    2. When *get_latest_gesture()* is called using a *Recognizer* class object, the *Recognizer* </span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos"> 62</span></a><span class="sd">    calls *gesture_callback_from_recognizer()* and the latest detected gesture is retrieved.</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos"> 63</span></a><span class="sd">    3. This automatically calls *update()*, which calls *update_output()* and *update_gesture_count()*.</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos"> 64</span></a><span class="sd">    4. *update_output()* pops the latest intensity array from *output_list*, or sends zero array if empty.</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos"> 65</span></a><span class="sd">    5. *update_gesture_count()* adds to the *count_dict[&#39;Total&#39;]* value. When the value exceeds</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos"> 66</span></a><span class="sd">    *max_count*, it calls *update_active_gesture()*.</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos"> 67</span></a><span class="sd">    6. *update_active_gesture()* determines which gesture is &#39;active&#39; base on the margin variable.</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos"> 68</span></a><span class="sd">    After determining *gesture_active*, it calls *run_active_gesture()*.</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos"> 69</span></a><span class="sd">    7. *run_active_gesture()* populates *output_list* with the corresponding sequence of outputs </span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos"> 70</span></a><span class="sd">    specified in *output_dict*. </span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos"> 71</span></a><span class="sd">    8. The list is popped next time *update()* or *update_output()* is called.&quot;&quot;&quot;</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos"> 72</span></a>    
+</span><span id="L-73"><a href="#L-73"><span class="linenos"> 73</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos"> 74</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;None&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos"> 75</span></a>                           <span class="s1">&#39;Closed_Fist&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+</span><span id="L-76"><a href="#L-76"><span class="linenos"> 76</span></a>                           <span class="s1">&#39;Open_Palm&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+</span><span id="L-77"><a href="#L-77"><span class="linenos"> 77</span></a>                           <span class="s1">&#39;Pointing_Up&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+</span><span id="L-78"><a href="#L-78"><span class="linenos"> 78</span></a>                           <span class="s1">&#39;Thumb_Down&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos"> 79</span></a>                           <span class="s1">&#39;Thumb_Up&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos"> 80</span></a>                           <span class="s1">&#39;Victory&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos"> 81</span></a>                           <span class="s1">&#39;ILoveYou&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos"> 82</span></a>                           <span class="s1">&#39;Total&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos"> 83</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_active_gesture</span><span class="p">()</span> <span class="c1"># dictionary with pre-allocated output sequences</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos"> 84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span> <span class="c1"># latest gesture detected by the Recognizer class</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos"> 85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span> <span class="c1"># gesture which is currently being executed (for output_list)</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos"> 86</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">max_count</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># maximum cycles to count before obtaining gesture_active</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos"> 87</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="c1"># percentage of total gestures to count as &#39;active&#39; gesture</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos"> 88</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">frame_rate</span> <span class="o">=</span> <span class="mi">24</span> <span class="c1"># frame rate of video stream</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos"> 89</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;None&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># list of current haptic intensities</span>
+</span><span id="L-90"><a href="#L-90"><span class="linenos"> 90</span></a>
+</span><span id="L-91"><a href="#L-91"><span class="linenos"> 91</span></a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-92"><a href="#L-92"><span class="linenos"> 92</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the intensity array output to the haptic display and updates gesture count</span>
+</span><span id="L-93"><a href="#L-93"><span class="linenos"> 93</span></a><span class="sd">         if no more outputs are available.&quot;&quot;&quot;</span>
+</span><span id="L-94"><a href="#L-94"><span class="linenos"> 94</span></a>        
+</span><span id="L-95"><a href="#L-95"><span class="linenos"> 95</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">intensity_sequence</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1"># only run if output intensity sequence is empty</span>
+</span><span id="L-96"><a href="#L-96"><span class="linenos"> 96</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">update_gesture_count</span><span class="p">()</span>
+</span><span id="L-97"><a href="#L-97"><span class="linenos"> 97</span></a>
+</span><span id="L-98"><a href="#L-98"><span class="linenos"> 98</span></a>    <span class="k">def</span> <span class="nf">get_latest_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recognizer</span><span class="p">,</span> <span class="n">frame_timestamp_ms</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+</span><span id="L-99"><a href="#L-99"><span class="linenos"> 99</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Calls the Recognizer class object in livestream mode to obtain detected gesture on image frame.</span>
+</span><span id="L-100"><a href="#L-100"><span class="linenos">100</span></a><span class="sd">        </span>
+</span><span id="L-101"><a href="#L-101"><span class="linenos">101</span></a><span class="sd">        **Parameters** : </span>
+</span><span id="L-102"><a href="#L-102"><span class="linenos">102</span></a>
+</span><span id="L-103"><a href="#L-103"><span class="linenos">103</span></a><span class="sd">        &gt;&gt;&gt;**recognizer** : Recognizer.GestureRecognizer object</span>
+</span><span id="L-104"><a href="#L-104"><span class="linenos">104</span></a>
+</span><span id="L-105"><a href="#L-105"><span class="linenos">105</span></a><span class="sd">        &gt;&gt;&gt;**frame_timestamp_ms** : timestamp in milliseconds corresponding to captured video frame</span>
+</span><span id="L-106"><a href="#L-106"><span class="linenos">106</span></a><span class="sd">        </span>
+</span><span id="L-107"><a href="#L-107"><span class="linenos">107</span></a><span class="sd">        &gt;&gt;&gt;**frame** : numpy array of the video frame grabbed from OpenCV&quot;&quot;&quot;</span>
+</span><span id="L-108"><a href="#L-108"><span class="linenos">108</span></a>
+</span><span id="L-109"><a href="#L-109"><span class="linenos">109</span></a>        <span class="n">mp_image</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">image_format</span><span class="o">=</span><span class="n">mp</span><span class="o">.</span><span class="n">ImageFormat</span><span class="o">.</span><span class="n">SRGB</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">frame</span><span class="p">)</span>
+</span><span id="L-110"><a href="#L-110"><span class="linenos">110</span></a>        <span class="n">recognizer</span><span class="o">.</span><span class="n">recognize_async</span><span class="p">(</span><span class="n">mp_image</span><span class="p">,</span> <span class="n">frame_timestamp_ms</span><span class="p">)</span>
+</span><span id="L-111"><a href="#L-111"><span class="linenos">111</span></a>        <span class="c1"># recognizer initiates callback function, so it is equivalent here to running self.gesture_callback_from_recognizer()</span>
+</span><span id="L-112"><a href="#L-112"><span class="linenos">112</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span> <span class="c1"># update obtained gesture info!</span>
+</span><span id="L-113"><a href="#L-113"><span class="linenos">113</span></a>
+</span><span id="L-114"><a href="#L-114"><span class="linenos">114</span></a>    <span class="k">def</span> <span class="nf">gesture_callback_from_recognizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">output_image</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="n">timestamp_ms</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="c1">#I&#39;m not sure why, but the 3 inputs are required to work properly (even if unused)</span>
+</span><span id="L-115"><a href="#L-115"><span class="linenos">115</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Callback function for the Recognizer class object to retrieve gesture info.</span>
+</span><span id="L-116"><a href="#L-116"><span class="linenos">116</span></a><span class="sd">        </span>
+</span><span id="L-117"><a href="#L-117"><span class="linenos">117</span></a><span class="sd">        **Parameters** :</span>
+</span><span id="L-118"><a href="#L-118"><span class="linenos">118</span></a>
+</span><span id="L-119"><a href="#L-119"><span class="linenos">119</span></a><span class="sd">        &gt;&gt;&gt;**result** : Recognizer.GestureRecognizerResult object</span>
+</span><span id="L-120"><a href="#L-120"><span class="linenos">120</span></a>
+</span><span id="L-121"><a href="#L-121"><span class="linenos">121</span></a><span class="sd">        &gt;&gt;&gt;**output_image** : mediapipe (mp) Image object</span>
+</span><span id="L-122"><a href="#L-122"><span class="linenos">122</span></a>
+</span><span id="L-123"><a href="#L-123"><span class="linenos">123</span></a><span class="sd">        &gt;&gt;&gt;**timestamp_ms** : timestamp in milliseconds from the associate frame/gesture.</span>
+</span><span id="L-124"><a href="#L-124"><span class="linenos">124</span></a><span class="sd">        </span>
+</span><span id="L-125"><a href="#L-125"><span class="linenos">125</span></a><span class="sd">        NOTE: This is based on Google AI callback function. Although *output_image* and *timestamp_ms* are </span>
+</span><span id="L-126"><a href="#L-126"><span class="linenos">126</span></a><span class="sd">        unused in this method, they seem to be necessary in order for the GestureRecognizer callback to</span>
+</span><span id="L-127"><a href="#L-127"><span class="linenos">127</span></a><span class="sd">        function properly.&quot;&quot;&quot;</span>
+</span><span id="L-128"><a href="#L-128"><span class="linenos">128</span></a>
+</span><span id="L-129"><a href="#L-129"><span class="linenos">129</span></a>        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">gestures</span><span class="p">:</span> <span class="c1"># if gesture was detected (not empty)</span>
+</span><span id="L-130"><a href="#L-130"><span class="linenos">130</span></a>            <span class="c1"># result.gesture contains lots of info, we only need the name of the detected gesture:</span>
+</span><span id="L-131"><a href="#L-131"><span class="linenos">131</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">gestures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">category_name</span><span class="p">)</span>
+</span><span id="L-132"><a href="#L-132"><span class="linenos">132</span></a>        <span class="k">else</span><span class="p">:</span> <span class="c1"># no gesture was detected</span>
+</span><span id="L-133"><a href="#L-133"><span class="linenos">133</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+</span><span id="L-134"><a href="#L-134"><span class="linenos">134</span></a>
+</span><span id="L-135"><a href="#L-135"><span class="linenos">135</span></a>    <span class="k">def</span> <span class="nf">update_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-136"><a href="#L-136"><span class="linenos">136</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the active gesture based on the gesture that exceeds margin value.&quot;&quot;&quot;</span>
+</span><span id="L-137"><a href="#L-137"><span class="linenos">137</span></a>
+</span><span id="L-138"><a href="#L-138"><span class="linenos">138</span></a>        <span class="n">top_gesture</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="L-139"><a href="#L-139"><span class="linenos">139</span></a>        <span class="n">top_gesture_count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="L-140"><a href="#L-140"><span class="linenos">140</span></a>
+</span><span id="L-141"><a href="#L-141"><span class="linenos">141</span></a>        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span> <span class="c1"># iterate through each count, find largest</span>
+</span><span id="L-142"><a href="#L-142"><span class="linenos">142</span></a>            <span class="k">if</span> <span class="n">value</span><span class="o">&gt;</span><span class="n">top_gesture_count</span> <span class="ow">and</span> <span class="n">key</span><span class="o">!=</span><span class="s1">&#39;Total&#39;</span><span class="p">:</span>
+</span><span id="L-143"><a href="#L-143"><span class="linenos">143</span></a>                <span class="n">top_gesture</span> <span class="o">=</span> <span class="n">key</span>
+</span><span id="L-144"><a href="#L-144"><span class="linenos">144</span></a>                <span class="n">top_gesture_count</span> <span class="o">=</span> <span class="n">value</span>
+</span><span id="L-145"><a href="#L-145"><span class="linenos">145</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># reset value</span>
+</span><span id="L-146"><a href="#L-146"><span class="linenos">146</span></a>            
+</span><span id="L-147"><a href="#L-147"><span class="linenos">147</span></a>        <span class="k">if</span> <span class="n">top_gesture</span><span class="o">!=</span><span class="s1">&#39;None&#39;</span> <span class="ow">and</span> <span class="n">top_gesture_count</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">max_count</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">margin</span><span class="p">:</span>
+</span><span id="L-148"><a href="#L-148"><span class="linenos">148</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span> <span class="o">=</span> <span class="n">top_gesture</span> <span class="c1"># active gesture is that which is above margin</span>
+</span><span id="L-149"><a href="#L-149"><span class="linenos">149</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="L-150"><a href="#L-150"><span class="linenos">150</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+</span><span id="L-151"><a href="#L-151"><span class="linenos">151</span></a>
+</span><span id="L-152"><a href="#L-152"><span class="linenos">152</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">run_active_gesture</span><span class="p">()</span>
+</span><span id="L-153"><a href="#L-153"><span class="linenos">153</span></a>
+</span><span id="L-154"><a href="#L-154"><span class="linenos">154</span></a>    <span class="k">def</span> <span class="nf">update_gesture_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-155"><a href="#L-155"><span class="linenos">155</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the total gesture count to determine when to check for active gestures.</span>
+</span><span id="L-156"><a href="#L-156"><span class="linenos">156</span></a>
+</span><span id="L-157"><a href="#L-157"><span class="linenos">157</span></a><span class="sd">        The purpose of this method and the update_active_gesture() method are to make sure the</span>
+</span><span id="L-158"><a href="#L-158"><span class="linenos">158</span></a><span class="sd">        active gesture is one which is intentionally shown by the user in the video (i.e. ignores</span>
+</span><span id="L-159"><a href="#L-159"><span class="linenos">159</span></a><span class="sd">        gesture detection errors or &#39;noise&#39; in the detection method.)&quot;&quot;&quot;</span>
+</span><span id="L-160"><a href="#L-160"><span class="linenos">160</span></a>
+</span><span id="L-161"><a href="#L-161"><span class="linenos">161</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+</span><span id="L-162"><a href="#L-162"><span class="linenos">162</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+</span><span id="L-163"><a href="#L-163"><span class="linenos">163</span></a>
+</span><span id="L-164"><a href="#L-164"><span class="linenos">164</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_count</span><span class="p">:</span>
+</span><span id="L-165"><a href="#L-165"><span class="linenos">165</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">update_active_gesture</span><span class="p">()</span>
+</span><span id="L-166"><a href="#L-166"><span class="linenos">166</span></a>
+</span><span id="L-167"><a href="#L-167"><span class="linenos">167</span></a>    <span class="k">def</span> <span class="nf">initialize_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-168"><a href="#L-168"><span class="linenos">168</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-allocates the output intensity sequence for each active gesture. The sequence is</span>
+</span><span id="L-169"><a href="#L-169"><span class="linenos">169</span></a><span class="sd">         generated by generator functions in util.algo_functions.&quot;&quot;&quot;</span>
+</span><span id="L-170"><a href="#L-170"><span class="linenos">170</span></a>        
+</span><span id="L-171"><a href="#L-171"><span class="linenos">171</span></a>        <span class="n">output_dict</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="L-172"><a href="#L-172"><span class="linenos">172</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;None&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="L-173"><a href="#L-173"><span class="linenos">173</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Closed_Fist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="L-174"><a href="#L-174"><span class="linenos">174</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Open_Palm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="L-175"><a href="#L-175"><span class="linenos">175</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Pointing_Up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="L-176"><a href="#L-176"><span class="linenos">176</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Thumb_Down&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">checker_square</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="L-177"><a href="#L-177"><span class="linenos">177</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Thumb_Up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.42</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</span><span id="L-178"><a href="#L-178"><span class="linenos">178</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Victory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">sine_global</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="L-179"><a href="#L-179"><span class="linenos">179</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;ILoveYou&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="L-180"><a href="#L-180"><span class="linenos">180</span></a>        <span class="k">return</span> <span class="n">output_dict</span>
+</span><span id="L-181"><a href="#L-181"><span class="linenos">181</span></a>
+</span><span id="L-182"><a href="#L-182"><span class="linenos">182</span></a>    <span class="k">def</span> <span class="nf">run_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="L-183"><a href="#L-183"><span class="linenos">183</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Populates the output list with the pre-allocated output sequence for the given gesture.&quot;&quot;&quot;</span>
+</span><span id="L-184"><a href="#L-184"><span class="linenos">184</span></a>
+</span><span id="L-185"><a href="#L-185"><span class="linenos">185</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</span></pre></div>
+
+
+            </section>
+                <section id="model_asset_path">
+                    <div class="attr variable">
+            <span class="name">model_asset_path</span>        =
+<span class="default_value">&#39;haptic_utils\\gesture_recognizer.task&#39;</span>
+
+        
+    </div>
+    <a class="headerlink" href="#model_asset_path"></a>
+    
+    
+
+                </section>
+                <section id="Recognizer">
+                            <input id="Recognizer-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">Recognizer</span>:
+
+                <label class="view-source-button" for="Recognizer-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Recognizer"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Recognizer-22"><a href="#Recognizer-22"><span class="linenos">22</span></a><span class="k">class</span> <span class="nc">Recognizer</span><span class="p">:</span>
+</span><span id="Recognizer-23"><a href="#Recognizer-23"><span class="linenos">23</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Initiates a pre-trained gesture recognition model.</span>
+</span><span id="Recognizer-24"><a href="#Recognizer-24"><span class="linenos">24</span></a><span class="sd">    </span>
+</span><span id="Recognizer-25"><a href="#Recognizer-25"><span class="linenos">25</span></a><span class="sd">    Calling *GestureRecognizerResult* retrieves the detected gesture of the input image. This uses a </span>
+</span><span id="Recognizer-26"><a href="#Recognizer-26"><span class="linenos">26</span></a><span class="sd">    callback function which is defined in the *Gesture* class.</span>
+</span><span id="Recognizer-27"><a href="#Recognizer-27"><span class="linenos">27</span></a><span class="sd">    </span>
+</span><span id="Recognizer-28"><a href="#Recognizer-28"><span class="linenos">28</span></a><span class="sd">    **Parameters** :</span>
+</span><span id="Recognizer-29"><a href="#Recognizer-29"><span class="linenos">29</span></a><span class="sd">        &gt;&gt;&gt;**gesture_data** : *Gesture* class object defined from this script&quot;&quot;&quot;</span>
+</span><span id="Recognizer-30"><a href="#Recognizer-30"><span class="linenos">30</span></a>
+</span><span id="Recognizer-31"><a href="#Recognizer-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gesture_data</span><span class="p">):</span>
+</span><span id="Recognizer-32"><a href="#Recognizer-32"><span class="linenos">32</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gesture model initialization.&quot;&quot;&quot;</span>
+</span><span id="Recognizer-33"><a href="#Recognizer-33"><span class="linenos">33</span></a>        
+</span><span id="Recognizer-34"><a href="#Recognizer-34"><span class="linenos">34</span></a>        <span class="c1"># from Google AI tutorial:</span>
+</span><span id="Recognizer-35"><a href="#Recognizer-35"><span class="linenos">35</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerResult</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizerResult</span>
+</span><span id="Recognizer-36"><a href="#Recognizer-36"><span class="linenos">36</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">BaseOptions</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">BaseOptions</span>
+</span><span id="Recognizer-37"><a href="#Recognizer-37"><span class="linenos">37</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizer</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizer</span>
+</span><span id="Recognizer-38"><a href="#Recognizer-38"><span class="linenos">38</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span>
+</span><span id="Recognizer-39"><a href="#Recognizer-39"><span class="linenos">39</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">VisionRunningMode</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">RunningMode</span>
+</span><span id="Recognizer-40"><a href="#Recognizer-40"><span class="linenos">40</span></a>        <span class="c1"># initialize recognizer:</span>
+</span><span id="Recognizer-41"><a href="#Recognizer-41"><span class="linenos">41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">recognizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_gesture_recognizer</span><span class="p">(</span><span class="n">gesture_data</span><span class="p">)</span>
+</span><span id="Recognizer-42"><a href="#Recognizer-42"><span class="linenos">42</span></a>
+</span><span id="Recognizer-43"><a href="#Recognizer-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="nf">initialize_gesture_recognizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gesture_data</span><span class="p">):</span>
+</span><span id="Recognizer-44"><a href="#Recognizer-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the recognizer model using *gesture_data*, a Gesture class object with callback.&quot;&quot;&quot;</span>
+</span><span id="Recognizer-45"><a href="#Recognizer-45"><span class="linenos">45</span></a>
+</span><span id="Recognizer-46"><a href="#Recognizer-46"><span class="linenos">46</span></a>        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span><span class="p">(</span><span class="n">base_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BaseOptions</span><span class="p">(</span><span class="n">model_asset_path</span><span class="p">),</span> <span class="c1"># path for gesture recognizer file</span>
+</span><span id="Recognizer-47"><a href="#Recognizer-47"><span class="linenos">47</span></a>                                        <span class="n">running_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">VisionRunningMode</span><span class="o">.</span><span class="n">LIVE_STREAM</span><span class="p">,</span> 
+</span><span id="Recognizer-48"><a href="#Recognizer-48"><span class="linenos">48</span></a>                                        <span class="n">result_callback</span><span class="o">=</span><span class="n">gesture_data</span><span class="o">.</span><span class="n">gesture_callback_from_recognizer</span><span class="p">)</span>
+</span><span id="Recognizer-49"><a href="#Recognizer-49"><span class="linenos">49</span></a>        
+</span><span id="Recognizer-50"><a href="#Recognizer-50"><span class="linenos">50</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizer</span><span class="o">.</span><span class="n">create_from_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Initiates a pre-trained gesture recognition model.</p>
+
+<p>Calling <em>GestureRecognizerResult</em> retrieves the detected gesture of the input image. This uses a 
+callback function which is defined in the <em>Gesture</em> class.</p>
+
+<p><strong>Parameters</strong> :</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p><strong>gesture_data</strong> : <em>Gesture</em> class object defined from this script</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+</div>
+
+
+                            <div id="Recognizer.__init__" class="classattr">
+                                        <input id="Recognizer.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">Recognizer</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">gesture_data</span></span>)</span>
+
+                <label class="view-source-button" for="Recognizer.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Recognizer.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Recognizer.__init__-31"><a href="#Recognizer.__init__-31"><span class="linenos">31</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gesture_data</span><span class="p">):</span>
+</span><span id="Recognizer.__init__-32"><a href="#Recognizer.__init__-32"><span class="linenos">32</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Gesture model initialization.&quot;&quot;&quot;</span>
+</span><span id="Recognizer.__init__-33"><a href="#Recognizer.__init__-33"><span class="linenos">33</span></a>        
+</span><span id="Recognizer.__init__-34"><a href="#Recognizer.__init__-34"><span class="linenos">34</span></a>        <span class="c1"># from Google AI tutorial:</span>
+</span><span id="Recognizer.__init__-35"><a href="#Recognizer.__init__-35"><span class="linenos">35</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerResult</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizerResult</span>
+</span><span id="Recognizer.__init__-36"><a href="#Recognizer.__init__-36"><span class="linenos">36</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">BaseOptions</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">BaseOptions</span>
+</span><span id="Recognizer.__init__-37"><a href="#Recognizer.__init__-37"><span class="linenos">37</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizer</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizer</span>
+</span><span id="Recognizer.__init__-38"><a href="#Recognizer.__init__-38"><span class="linenos">38</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span>
+</span><span id="Recognizer.__init__-39"><a href="#Recognizer.__init__-39"><span class="linenos">39</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">VisionRunningMode</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">tasks</span><span class="o">.</span><span class="n">vision</span><span class="o">.</span><span class="n">RunningMode</span>
+</span><span id="Recognizer.__init__-40"><a href="#Recognizer.__init__-40"><span class="linenos">40</span></a>        <span class="c1"># initialize recognizer:</span>
+</span><span id="Recognizer.__init__-41"><a href="#Recognizer.__init__-41"><span class="linenos">41</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">recognizer</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_gesture_recognizer</span><span class="p">(</span><span class="n">gesture_data</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Gesture model initialization.</p>
+</div>
+
+
+                            </div>
+                            <div id="Recognizer.GestureRecognizerResult" class="classattr">
+                                <div class="attr variable">
+            <span class="name">GestureRecognizerResult</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Recognizer.GestureRecognizerResult"></a>
+    
+    
+
+                            </div>
+                            <div id="Recognizer.BaseOptions" class="classattr">
+                                <div class="attr variable">
+            <span class="name">BaseOptions</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Recognizer.BaseOptions"></a>
+    
+    
+
+                            </div>
+                            <div id="Recognizer.GestureRecognizer" class="classattr">
+                                <div class="attr variable">
+            <span class="name">GestureRecognizer</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Recognizer.GestureRecognizer"></a>
+    
+    
+
+                            </div>
+                            <div id="Recognizer.GestureRecognizerOptions" class="classattr">
+                                <div class="attr variable">
+            <span class="name">GestureRecognizerOptions</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Recognizer.GestureRecognizerOptions"></a>
+    
+    
+
+                            </div>
+                            <div id="Recognizer.VisionRunningMode" class="classattr">
+                                <div class="attr variable">
+            <span class="name">VisionRunningMode</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Recognizer.VisionRunningMode"></a>
+    
+    
+
+                            </div>
+                            <div id="Recognizer.recognizer" class="classattr">
+                                <div class="attr variable">
+            <span class="name">recognizer</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Recognizer.recognizer"></a>
+    
+    
+
+                            </div>
+                            <div id="Recognizer.initialize_gesture_recognizer" class="classattr">
+                                        <input id="Recognizer.initialize_gesture_recognizer-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">initialize_gesture_recognizer</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">gesture_data</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Recognizer.initialize_gesture_recognizer-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Recognizer.initialize_gesture_recognizer"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Recognizer.initialize_gesture_recognizer-43"><a href="#Recognizer.initialize_gesture_recognizer-43"><span class="linenos">43</span></a>    <span class="k">def</span> <span class="nf">initialize_gesture_recognizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">gesture_data</span><span class="p">):</span>
+</span><span id="Recognizer.initialize_gesture_recognizer-44"><a href="#Recognizer.initialize_gesture_recognizer-44"><span class="linenos">44</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Initializes the recognizer model using *gesture_data*, a Gesture class object with callback.&quot;&quot;&quot;</span>
+</span><span id="Recognizer.initialize_gesture_recognizer-45"><a href="#Recognizer.initialize_gesture_recognizer-45"><span class="linenos">45</span></a>
+</span><span id="Recognizer.initialize_gesture_recognizer-46"><a href="#Recognizer.initialize_gesture_recognizer-46"><span class="linenos">46</span></a>        <span class="n">options</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizerOptions</span><span class="p">(</span><span class="n">base_options</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">BaseOptions</span><span class="p">(</span><span class="n">model_asset_path</span><span class="p">),</span> <span class="c1"># path for gesture recognizer file</span>
+</span><span id="Recognizer.initialize_gesture_recognizer-47"><a href="#Recognizer.initialize_gesture_recognizer-47"><span class="linenos">47</span></a>                                        <span class="n">running_mode</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">VisionRunningMode</span><span class="o">.</span><span class="n">LIVE_STREAM</span><span class="p">,</span> 
+</span><span id="Recognizer.initialize_gesture_recognizer-48"><a href="#Recognizer.initialize_gesture_recognizer-48"><span class="linenos">48</span></a>                                        <span class="n">result_callback</span><span class="o">=</span><span class="n">gesture_data</span><span class="o">.</span><span class="n">gesture_callback_from_recognizer</span><span class="p">)</span>
+</span><span id="Recognizer.initialize_gesture_recognizer-49"><a href="#Recognizer.initialize_gesture_recognizer-49"><span class="linenos">49</span></a>        
+</span><span id="Recognizer.initialize_gesture_recognizer-50"><a href="#Recognizer.initialize_gesture_recognizer-50"><span class="linenos">50</span></a>        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">GestureRecognizer</span><span class="o">.</span><span class="n">create_from_options</span><span class="p">(</span><span class="n">options</span><span class="p">)</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Initializes the recognizer model using <em>gesture_data</em>, a Gesture class object with callback.</p>
+</div>
+
+
+                            </div>
+                </section>
+                <section id="Gesture">
+                            <input id="Gesture-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">Gesture</span>:
+
+                <label class="view-source-button" for="Gesture-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Gesture"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Gesture-53"><a href="#Gesture-53"><span class="linenos"> 53</span></a><span class="k">class</span> <span class="nc">Gesture</span><span class="p">:</span>
+</span><span id="Gesture-54"><a href="#Gesture-54"><span class="linenos"> 54</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Contains all current gesture information and controls outputs to the haptic display.</span>
+</span><span id="Gesture-55"><a href="#Gesture-55"><span class="linenos"> 55</span></a><span class="sd">    </span>
+</span><span id="Gesture-56"><a href="#Gesture-56"><span class="linenos"> 56</span></a><span class="sd">    The class method *gesture_callback_from_recognizer()* must be an input in the initialization</span>
+</span><span id="Gesture-57"><a href="#Gesture-57"><span class="linenos"> 57</span></a><span class="sd">     of the Recognizer class. It is the callback function used to retrieve the detected </span>
+</span><span id="Gesture-58"><a href="#Gesture-58"><span class="linenos"> 58</span></a><span class="sd">     gesture.</span>
+</span><span id="Gesture-59"><a href="#Gesture-59"><span class="linenos"> 59</span></a><span class="sd">     </span>
+</span><span id="Gesture-60"><a href="#Gesture-60"><span class="linenos"> 60</span></a><span class="sd">    Here&#39;s how it works:</span>
+</span><span id="Gesture-61"><a href="#Gesture-61"><span class="linenos"> 61</span></a><span class="sd">    1. *__init__()* called upon initialize of Gesture object.</span>
+</span><span id="Gesture-62"><a href="#Gesture-62"><span class="linenos"> 62</span></a><span class="sd">    2. When *get_latest_gesture()* is called using a *Recognizer* class object, the *Recognizer* </span>
+</span><span id="Gesture-63"><a href="#Gesture-63"><span class="linenos"> 63</span></a><span class="sd">    calls *gesture_callback_from_recognizer()* and the latest detected gesture is retrieved.</span>
+</span><span id="Gesture-64"><a href="#Gesture-64"><span class="linenos"> 64</span></a><span class="sd">    3. This automatically calls *update()*, which calls *update_output()* and *update_gesture_count()*.</span>
+</span><span id="Gesture-65"><a href="#Gesture-65"><span class="linenos"> 65</span></a><span class="sd">    4. *update_output()* pops the latest intensity array from *output_list*, or sends zero array if empty.</span>
+</span><span id="Gesture-66"><a href="#Gesture-66"><span class="linenos"> 66</span></a><span class="sd">    5. *update_gesture_count()* adds to the *count_dict[&#39;Total&#39;]* value. When the value exceeds</span>
+</span><span id="Gesture-67"><a href="#Gesture-67"><span class="linenos"> 67</span></a><span class="sd">    *max_count*, it calls *update_active_gesture()*.</span>
+</span><span id="Gesture-68"><a href="#Gesture-68"><span class="linenos"> 68</span></a><span class="sd">    6. *update_active_gesture()* determines which gesture is &#39;active&#39; base on the margin variable.</span>
+</span><span id="Gesture-69"><a href="#Gesture-69"><span class="linenos"> 69</span></a><span class="sd">    After determining *gesture_active*, it calls *run_active_gesture()*.</span>
+</span><span id="Gesture-70"><a href="#Gesture-70"><span class="linenos"> 70</span></a><span class="sd">    7. *run_active_gesture()* populates *output_list* with the corresponding sequence of outputs </span>
+</span><span id="Gesture-71"><a href="#Gesture-71"><span class="linenos"> 71</span></a><span class="sd">    specified in *output_dict*. </span>
+</span><span id="Gesture-72"><a href="#Gesture-72"><span class="linenos"> 72</span></a><span class="sd">    8. The list is popped next time *update()* or *update_output()* is called.&quot;&quot;&quot;</span>
+</span><span id="Gesture-73"><a href="#Gesture-73"><span class="linenos"> 73</span></a>    
+</span><span id="Gesture-74"><a href="#Gesture-74"><span class="linenos"> 74</span></a>    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture-75"><a href="#Gesture-75"><span class="linenos"> 75</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span> <span class="o">=</span> <span class="p">{</span><span class="s1">&#39;None&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="Gesture-76"><a href="#Gesture-76"><span class="linenos"> 76</span></a>                           <span class="s1">&#39;Closed_Fist&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+</span><span id="Gesture-77"><a href="#Gesture-77"><span class="linenos"> 77</span></a>                           <span class="s1">&#39;Open_Palm&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+</span><span id="Gesture-78"><a href="#Gesture-78"><span class="linenos"> 78</span></a>                           <span class="s1">&#39;Pointing_Up&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> 
+</span><span id="Gesture-79"><a href="#Gesture-79"><span class="linenos"> 79</span></a>                           <span class="s1">&#39;Thumb_Down&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="Gesture-80"><a href="#Gesture-80"><span class="linenos"> 80</span></a>                           <span class="s1">&#39;Thumb_Up&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="Gesture-81"><a href="#Gesture-81"><span class="linenos"> 81</span></a>                           <span class="s1">&#39;Victory&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="Gesture-82"><a href="#Gesture-82"><span class="linenos"> 82</span></a>                           <span class="s1">&#39;ILoveYou&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="Gesture-83"><a href="#Gesture-83"><span class="linenos"> 83</span></a>                           <span class="s1">&#39;Total&#39;</span><span class="p">:</span> <span class="mi">0</span><span class="p">}</span>
+</span><span id="Gesture-84"><a href="#Gesture-84"><span class="linenos"> 84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initialize_active_gesture</span><span class="p">()</span> <span class="c1"># dictionary with pre-allocated output sequences</span>
+</span><span id="Gesture-85"><a href="#Gesture-85"><span class="linenos"> 85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span> <span class="c1"># latest gesture detected by the Recognizer class</span>
+</span><span id="Gesture-86"><a href="#Gesture-86"><span class="linenos"> 86</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span> <span class="c1"># gesture which is currently being executed (for output_list)</span>
+</span><span id="Gesture-87"><a href="#Gesture-87"><span class="linenos"> 87</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">max_count</span> <span class="o">=</span> <span class="mi">20</span> <span class="c1"># maximum cycles to count before obtaining gesture_active</span>
+</span><span id="Gesture-88"><a href="#Gesture-88"><span class="linenos"> 88</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">margin</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="c1"># percentage of total gestures to count as &#39;active&#39; gesture</span>
+</span><span id="Gesture-89"><a href="#Gesture-89"><span class="linenos"> 89</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">frame_rate</span> <span class="o">=</span> <span class="mi">24</span> <span class="c1"># frame rate of video stream</span>
+</span><span id="Gesture-90"><a href="#Gesture-90"><span class="linenos"> 90</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;None&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span> <span class="c1"># list of current haptic intensities</span>
+</span><span id="Gesture-91"><a href="#Gesture-91"><span class="linenos"> 91</span></a>
+</span><span id="Gesture-92"><a href="#Gesture-92"><span class="linenos"> 92</span></a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture-93"><a href="#Gesture-93"><span class="linenos"> 93</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the intensity array output to the haptic display and updates gesture count</span>
+</span><span id="Gesture-94"><a href="#Gesture-94"><span class="linenos"> 94</span></a><span class="sd">         if no more outputs are available.&quot;&quot;&quot;</span>
+</span><span id="Gesture-95"><a href="#Gesture-95"><span class="linenos"> 95</span></a>        
+</span><span id="Gesture-96"><a href="#Gesture-96"><span class="linenos"> 96</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">intensity_sequence</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1"># only run if output intensity sequence is empty</span>
+</span><span id="Gesture-97"><a href="#Gesture-97"><span class="linenos"> 97</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">update_gesture_count</span><span class="p">()</span>
+</span><span id="Gesture-98"><a href="#Gesture-98"><span class="linenos"> 98</span></a>
+</span><span id="Gesture-99"><a href="#Gesture-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">get_latest_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recognizer</span><span class="p">,</span> <span class="n">frame_timestamp_ms</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+</span><span id="Gesture-100"><a href="#Gesture-100"><span class="linenos">100</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Calls the Recognizer class object in livestream mode to obtain detected gesture on image frame.</span>
+</span><span id="Gesture-101"><a href="#Gesture-101"><span class="linenos">101</span></a><span class="sd">        </span>
+</span><span id="Gesture-102"><a href="#Gesture-102"><span class="linenos">102</span></a><span class="sd">        **Parameters** : </span>
+</span><span id="Gesture-103"><a href="#Gesture-103"><span class="linenos">103</span></a>
+</span><span id="Gesture-104"><a href="#Gesture-104"><span class="linenos">104</span></a><span class="sd">        &gt;&gt;&gt;**recognizer** : Recognizer.GestureRecognizer object</span>
+</span><span id="Gesture-105"><a href="#Gesture-105"><span class="linenos">105</span></a>
+</span><span id="Gesture-106"><a href="#Gesture-106"><span class="linenos">106</span></a><span class="sd">        &gt;&gt;&gt;**frame_timestamp_ms** : timestamp in milliseconds corresponding to captured video frame</span>
+</span><span id="Gesture-107"><a href="#Gesture-107"><span class="linenos">107</span></a><span class="sd">        </span>
+</span><span id="Gesture-108"><a href="#Gesture-108"><span class="linenos">108</span></a><span class="sd">        &gt;&gt;&gt;**frame** : numpy array of the video frame grabbed from OpenCV&quot;&quot;&quot;</span>
+</span><span id="Gesture-109"><a href="#Gesture-109"><span class="linenos">109</span></a>
+</span><span id="Gesture-110"><a href="#Gesture-110"><span class="linenos">110</span></a>        <span class="n">mp_image</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">image_format</span><span class="o">=</span><span class="n">mp</span><span class="o">.</span><span class="n">ImageFormat</span><span class="o">.</span><span class="n">SRGB</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">frame</span><span class="p">)</span>
+</span><span id="Gesture-111"><a href="#Gesture-111"><span class="linenos">111</span></a>        <span class="n">recognizer</span><span class="o">.</span><span class="n">recognize_async</span><span class="p">(</span><span class="n">mp_image</span><span class="p">,</span> <span class="n">frame_timestamp_ms</span><span class="p">)</span>
+</span><span id="Gesture-112"><a href="#Gesture-112"><span class="linenos">112</span></a>        <span class="c1"># recognizer initiates callback function, so it is equivalent here to running self.gesture_callback_from_recognizer()</span>
+</span><span id="Gesture-113"><a href="#Gesture-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span> <span class="c1"># update obtained gesture info!</span>
+</span><span id="Gesture-114"><a href="#Gesture-114"><span class="linenos">114</span></a>
+</span><span id="Gesture-115"><a href="#Gesture-115"><span class="linenos">115</span></a>    <span class="k">def</span> <span class="nf">gesture_callback_from_recognizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">output_image</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="n">timestamp_ms</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="c1">#I&#39;m not sure why, but the 3 inputs are required to work properly (even if unused)</span>
+</span><span id="Gesture-116"><a href="#Gesture-116"><span class="linenos">116</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Callback function for the Recognizer class object to retrieve gesture info.</span>
+</span><span id="Gesture-117"><a href="#Gesture-117"><span class="linenos">117</span></a><span class="sd">        </span>
+</span><span id="Gesture-118"><a href="#Gesture-118"><span class="linenos">118</span></a><span class="sd">        **Parameters** :</span>
+</span><span id="Gesture-119"><a href="#Gesture-119"><span class="linenos">119</span></a>
+</span><span id="Gesture-120"><a href="#Gesture-120"><span class="linenos">120</span></a><span class="sd">        &gt;&gt;&gt;**result** : Recognizer.GestureRecognizerResult object</span>
+</span><span id="Gesture-121"><a href="#Gesture-121"><span class="linenos">121</span></a>
+</span><span id="Gesture-122"><a href="#Gesture-122"><span class="linenos">122</span></a><span class="sd">        &gt;&gt;&gt;**output_image** : mediapipe (mp) Image object</span>
+</span><span id="Gesture-123"><a href="#Gesture-123"><span class="linenos">123</span></a>
+</span><span id="Gesture-124"><a href="#Gesture-124"><span class="linenos">124</span></a><span class="sd">        &gt;&gt;&gt;**timestamp_ms** : timestamp in milliseconds from the associate frame/gesture.</span>
+</span><span id="Gesture-125"><a href="#Gesture-125"><span class="linenos">125</span></a><span class="sd">        </span>
+</span><span id="Gesture-126"><a href="#Gesture-126"><span class="linenos">126</span></a><span class="sd">        NOTE: This is based on Google AI callback function. Although *output_image* and *timestamp_ms* are </span>
+</span><span id="Gesture-127"><a href="#Gesture-127"><span class="linenos">127</span></a><span class="sd">        unused in this method, they seem to be necessary in order for the GestureRecognizer callback to</span>
+</span><span id="Gesture-128"><a href="#Gesture-128"><span class="linenos">128</span></a><span class="sd">        function properly.&quot;&quot;&quot;</span>
+</span><span id="Gesture-129"><a href="#Gesture-129"><span class="linenos">129</span></a>
+</span><span id="Gesture-130"><a href="#Gesture-130"><span class="linenos">130</span></a>        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">gestures</span><span class="p">:</span> <span class="c1"># if gesture was detected (not empty)</span>
+</span><span id="Gesture-131"><a href="#Gesture-131"><span class="linenos">131</span></a>            <span class="c1"># result.gesture contains lots of info, we only need the name of the detected gesture:</span>
+</span><span id="Gesture-132"><a href="#Gesture-132"><span class="linenos">132</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">gestures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">category_name</span><span class="p">)</span>
+</span><span id="Gesture-133"><a href="#Gesture-133"><span class="linenos">133</span></a>        <span class="k">else</span><span class="p">:</span> <span class="c1"># no gesture was detected</span>
+</span><span id="Gesture-134"><a href="#Gesture-134"><span class="linenos">134</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+</span><span id="Gesture-135"><a href="#Gesture-135"><span class="linenos">135</span></a>
+</span><span id="Gesture-136"><a href="#Gesture-136"><span class="linenos">136</span></a>    <span class="k">def</span> <span class="nf">update_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture-137"><a href="#Gesture-137"><span class="linenos">137</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the active gesture based on the gesture that exceeds margin value.&quot;&quot;&quot;</span>
+</span><span id="Gesture-138"><a href="#Gesture-138"><span class="linenos">138</span></a>
+</span><span id="Gesture-139"><a href="#Gesture-139"><span class="linenos">139</span></a>        <span class="n">top_gesture</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Gesture-140"><a href="#Gesture-140"><span class="linenos">140</span></a>        <span class="n">top_gesture_count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="Gesture-141"><a href="#Gesture-141"><span class="linenos">141</span></a>
+</span><span id="Gesture-142"><a href="#Gesture-142"><span class="linenos">142</span></a>        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span> <span class="c1"># iterate through each count, find largest</span>
+</span><span id="Gesture-143"><a href="#Gesture-143"><span class="linenos">143</span></a>            <span class="k">if</span> <span class="n">value</span><span class="o">&gt;</span><span class="n">top_gesture_count</span> <span class="ow">and</span> <span class="n">key</span><span class="o">!=</span><span class="s1">&#39;Total&#39;</span><span class="p">:</span>
+</span><span id="Gesture-144"><a href="#Gesture-144"><span class="linenos">144</span></a>                <span class="n">top_gesture</span> <span class="o">=</span> <span class="n">key</span>
+</span><span id="Gesture-145"><a href="#Gesture-145"><span class="linenos">145</span></a>                <span class="n">top_gesture_count</span> <span class="o">=</span> <span class="n">value</span>
+</span><span id="Gesture-146"><a href="#Gesture-146"><span class="linenos">146</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># reset value</span>
+</span><span id="Gesture-147"><a href="#Gesture-147"><span class="linenos">147</span></a>            
+</span><span id="Gesture-148"><a href="#Gesture-148"><span class="linenos">148</span></a>        <span class="k">if</span> <span class="n">top_gesture</span><span class="o">!=</span><span class="s1">&#39;None&#39;</span> <span class="ow">and</span> <span class="n">top_gesture_count</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">max_count</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">margin</span><span class="p">:</span>
+</span><span id="Gesture-149"><a href="#Gesture-149"><span class="linenos">149</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span> <span class="o">=</span> <span class="n">top_gesture</span> <span class="c1"># active gesture is that which is above margin</span>
+</span><span id="Gesture-150"><a href="#Gesture-150"><span class="linenos">150</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Gesture-151"><a href="#Gesture-151"><span class="linenos">151</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+</span><span id="Gesture-152"><a href="#Gesture-152"><span class="linenos">152</span></a>
+</span><span id="Gesture-153"><a href="#Gesture-153"><span class="linenos">153</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">run_active_gesture</span><span class="p">()</span>
+</span><span id="Gesture-154"><a href="#Gesture-154"><span class="linenos">154</span></a>
+</span><span id="Gesture-155"><a href="#Gesture-155"><span class="linenos">155</span></a>    <span class="k">def</span> <span class="nf">update_gesture_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture-156"><a href="#Gesture-156"><span class="linenos">156</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the total gesture count to determine when to check for active gestures.</span>
+</span><span id="Gesture-157"><a href="#Gesture-157"><span class="linenos">157</span></a>
+</span><span id="Gesture-158"><a href="#Gesture-158"><span class="linenos">158</span></a><span class="sd">        The purpose of this method and the update_active_gesture() method are to make sure the</span>
+</span><span id="Gesture-159"><a href="#Gesture-159"><span class="linenos">159</span></a><span class="sd">        active gesture is one which is intentionally shown by the user in the video (i.e. ignores</span>
+</span><span id="Gesture-160"><a href="#Gesture-160"><span class="linenos">160</span></a><span class="sd">        gesture detection errors or &#39;noise&#39; in the detection method.)&quot;&quot;&quot;</span>
+</span><span id="Gesture-161"><a href="#Gesture-161"><span class="linenos">161</span></a>
+</span><span id="Gesture-162"><a href="#Gesture-162"><span class="linenos">162</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+</span><span id="Gesture-163"><a href="#Gesture-163"><span class="linenos">163</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+</span><span id="Gesture-164"><a href="#Gesture-164"><span class="linenos">164</span></a>
+</span><span id="Gesture-165"><a href="#Gesture-165"><span class="linenos">165</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_count</span><span class="p">:</span>
+</span><span id="Gesture-166"><a href="#Gesture-166"><span class="linenos">166</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">update_active_gesture</span><span class="p">()</span>
+</span><span id="Gesture-167"><a href="#Gesture-167"><span class="linenos">167</span></a>
+</span><span id="Gesture-168"><a href="#Gesture-168"><span class="linenos">168</span></a>    <span class="k">def</span> <span class="nf">initialize_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture-169"><a href="#Gesture-169"><span class="linenos">169</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-allocates the output intensity sequence for each active gesture. The sequence is</span>
+</span><span id="Gesture-170"><a href="#Gesture-170"><span class="linenos">170</span></a><span class="sd">         generated by generator functions in util.algo_functions.&quot;&quot;&quot;</span>
+</span><span id="Gesture-171"><a href="#Gesture-171"><span class="linenos">171</span></a>        
+</span><span id="Gesture-172"><a href="#Gesture-172"><span class="linenos">172</span></a>        <span class="n">output_dict</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="Gesture-173"><a href="#Gesture-173"><span class="linenos">173</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;None&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture-174"><a href="#Gesture-174"><span class="linenos">174</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Closed_Fist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture-175"><a href="#Gesture-175"><span class="linenos">175</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Open_Palm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture-176"><a href="#Gesture-176"><span class="linenos">176</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Pointing_Up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture-177"><a href="#Gesture-177"><span class="linenos">177</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Thumb_Down&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">checker_square</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="Gesture-178"><a href="#Gesture-178"><span class="linenos">178</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Thumb_Up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.42</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</span><span id="Gesture-179"><a href="#Gesture-179"><span class="linenos">179</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Victory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">sine_global</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="Gesture-180"><a href="#Gesture-180"><span class="linenos">180</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;ILoveYou&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture-181"><a href="#Gesture-181"><span class="linenos">181</span></a>        <span class="k">return</span> <span class="n">output_dict</span>
+</span><span id="Gesture-182"><a href="#Gesture-182"><span class="linenos">182</span></a>
+</span><span id="Gesture-183"><a href="#Gesture-183"><span class="linenos">183</span></a>    <span class="k">def</span> <span class="nf">run_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture-184"><a href="#Gesture-184"><span class="linenos">184</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Populates the output list with the pre-allocated output sequence for the given gesture.&quot;&quot;&quot;</span>
+</span><span id="Gesture-185"><a href="#Gesture-185"><span class="linenos">185</span></a>
+</span><span id="Gesture-186"><a href="#Gesture-186"><span class="linenos">186</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Contains all current gesture information and controls outputs to the haptic display.</p>
+
+<p>The class method <em>gesture_callback_from_recognizer()</em> must be an input in the initialization
+ of the Recognizer class. It is the callback function used to retrieve the detected 
+ gesture.</p>
+
+<p>Here's how it works:</p>
+
+<ol>
+<li><em>__init__()</em> called upon initialize of Gesture object.</li>
+<li>When <em>get_latest_gesture()</em> is called using a <em>Recognizer</em> class object, the <em>Recognizer</em> 
+calls <em>gesture_callback_from_recognizer()</em> and the latest detected gesture is retrieved.</li>
+<li>This automatically calls <em>update()</em>, which calls <em>update_output()</em> and <em>update_gesture_count()</em>.</li>
+<li><em>update_output()</em> pops the latest intensity array from <em>output_list</em>, or sends zero array if empty.</li>
+<li><em>update_gesture_count()</em> adds to the <em>count_dict['Total']</em> value. When the value exceeds
+<em>max_count</em>, it calls <em>update_active_gesture()</em>.</li>
+<li><em>update_active_gesture()</em> determines which gesture is 'active' base on the margin variable.
+After determining <em>gesture_active</em>, it calls <em>run_active_gesture()</em>.</li>
+<li><em>run_active_gesture()</em> populates <em>output_list</em> with the corresponding sequence of outputs 
+specified in <em>output_dict</em>. </li>
+<li>The list is popped next time <em>update()</em> or <em>update_output()</em> is called.</li>
+</ol>
+</div>
+
+
+                            <div id="Gesture.count_dict" class="classattr">
+                                <div class="attr variable">
+            <span class="name">count_dict</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Gesture.count_dict"></a>
+    
+    
+
+                            </div>
+                            <div id="Gesture.output_dict" class="classattr">
+                                <div class="attr variable">
+            <span class="name">output_dict</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Gesture.output_dict"></a>
+    
+    
+
+                            </div>
+                            <div id="Gesture.gesture_latest" class="classattr">
+                                <div class="attr variable">
+            <span class="name">gesture_latest</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Gesture.gesture_latest"></a>
+    
+    
+
+                            </div>
+                            <div id="Gesture.gesture_active" class="classattr">
+                                <div class="attr variable">
+            <span class="name">gesture_active</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Gesture.gesture_active"></a>
+    
+    
+
+                            </div>
+                            <div id="Gesture.max_count" class="classattr">
+                                <div class="attr variable">
+            <span class="name">max_count</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Gesture.max_count"></a>
+    
+    
+
+                            </div>
+                            <div id="Gesture.margin" class="classattr">
+                                <div class="attr variable">
+            <span class="name">margin</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Gesture.margin"></a>
+    
+    
+
+                            </div>
+                            <div id="Gesture.frame_rate" class="classattr">
+                                <div class="attr variable">
+            <span class="name">frame_rate</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Gesture.frame_rate"></a>
+    
+    
+
+                            </div>
+                            <div id="Gesture.output" class="classattr">
+                                <div class="attr variable">
+            <span class="name">output</span>
+
+        
+    </div>
+    <a class="headerlink" href="#Gesture.output"></a>
+    
+    
+
+                            </div>
+                            <div id="Gesture.update" class="classattr">
+                                        <input id="Gesture.update-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">update</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Gesture.update-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Gesture.update"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Gesture.update-92"><a href="#Gesture.update-92"><span class="linenos">92</span></a>    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture.update-93"><a href="#Gesture.update-93"><span class="linenos">93</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the intensity array output to the haptic display and updates gesture count</span>
+</span><span id="Gesture.update-94"><a href="#Gesture.update-94"><span class="linenos">94</span></a><span class="sd">         if no more outputs are available.&quot;&quot;&quot;</span>
+</span><span id="Gesture.update-95"><a href="#Gesture.update-95"><span class="linenos">95</span></a>        
+</span><span id="Gesture.update-96"><a href="#Gesture.update-96"><span class="linenos">96</span></a>        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output</span><span class="o">.</span><span class="n">intensity_sequence</span><span class="p">)</span><span class="o">==</span><span class="mi">0</span><span class="p">:</span> <span class="c1"># only run if output intensity sequence is empty</span>
+</span><span id="Gesture.update-97"><a href="#Gesture.update-97"><span class="linenos">97</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">update_gesture_count</span><span class="p">()</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Updates the intensity array output to the haptic display and updates gesture count
+if no more outputs are available.</p>
+</div>
+
+
+                            </div>
+                            <div id="Gesture.get_latest_gesture" class="classattr">
+                                        <input id="Gesture.get_latest_gesture-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">get_latest_gesture</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span>, </span><span class="param"><span class="n">recognizer</span>, </span><span class="param"><span class="n">frame_timestamp_ms</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">frame</span><span class="p">:</span> <span class="n">numpy</span><span class="o">.</span><span class="n">ndarray</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Gesture.get_latest_gesture-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Gesture.get_latest_gesture"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Gesture.get_latest_gesture-99"><a href="#Gesture.get_latest_gesture-99"><span class="linenos"> 99</span></a>    <span class="k">def</span> <span class="nf">get_latest_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">recognizer</span><span class="p">,</span> <span class="n">frame_timestamp_ms</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">frame</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span><span class="p">):</span>
+</span><span id="Gesture.get_latest_gesture-100"><a href="#Gesture.get_latest_gesture-100"><span class="linenos">100</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Calls the Recognizer class object in livestream mode to obtain detected gesture on image frame.</span>
+</span><span id="Gesture.get_latest_gesture-101"><a href="#Gesture.get_latest_gesture-101"><span class="linenos">101</span></a><span class="sd">        </span>
+</span><span id="Gesture.get_latest_gesture-102"><a href="#Gesture.get_latest_gesture-102"><span class="linenos">102</span></a><span class="sd">        **Parameters** : </span>
+</span><span id="Gesture.get_latest_gesture-103"><a href="#Gesture.get_latest_gesture-103"><span class="linenos">103</span></a>
+</span><span id="Gesture.get_latest_gesture-104"><a href="#Gesture.get_latest_gesture-104"><span class="linenos">104</span></a><span class="sd">        &gt;&gt;&gt;**recognizer** : Recognizer.GestureRecognizer object</span>
+</span><span id="Gesture.get_latest_gesture-105"><a href="#Gesture.get_latest_gesture-105"><span class="linenos">105</span></a>
+</span><span id="Gesture.get_latest_gesture-106"><a href="#Gesture.get_latest_gesture-106"><span class="linenos">106</span></a><span class="sd">        &gt;&gt;&gt;**frame_timestamp_ms** : timestamp in milliseconds corresponding to captured video frame</span>
+</span><span id="Gesture.get_latest_gesture-107"><a href="#Gesture.get_latest_gesture-107"><span class="linenos">107</span></a><span class="sd">        </span>
+</span><span id="Gesture.get_latest_gesture-108"><a href="#Gesture.get_latest_gesture-108"><span class="linenos">108</span></a><span class="sd">        &gt;&gt;&gt;**frame** : numpy array of the video frame grabbed from OpenCV&quot;&quot;&quot;</span>
+</span><span id="Gesture.get_latest_gesture-109"><a href="#Gesture.get_latest_gesture-109"><span class="linenos">109</span></a>
+</span><span id="Gesture.get_latest_gesture-110"><a href="#Gesture.get_latest_gesture-110"><span class="linenos">110</span></a>        <span class="n">mp_image</span> <span class="o">=</span> <span class="n">mp</span><span class="o">.</span><span class="n">Image</span><span class="p">(</span><span class="n">image_format</span><span class="o">=</span><span class="n">mp</span><span class="o">.</span><span class="n">ImageFormat</span><span class="o">.</span><span class="n">SRGB</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">frame</span><span class="p">)</span>
+</span><span id="Gesture.get_latest_gesture-111"><a href="#Gesture.get_latest_gesture-111"><span class="linenos">111</span></a>        <span class="n">recognizer</span><span class="o">.</span><span class="n">recognize_async</span><span class="p">(</span><span class="n">mp_image</span><span class="p">,</span> <span class="n">frame_timestamp_ms</span><span class="p">)</span>
+</span><span id="Gesture.get_latest_gesture-112"><a href="#Gesture.get_latest_gesture-112"><span class="linenos">112</span></a>        <span class="c1"># recognizer initiates callback function, so it is equivalent here to running self.gesture_callback_from_recognizer()</span>
+</span><span id="Gesture.get_latest_gesture-113"><a href="#Gesture.get_latest_gesture-113"><span class="linenos">113</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">()</span> <span class="c1"># update obtained gesture info!</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Calls the Recognizer class object in livestream mode to obtain detected gesture on image frame.</p>
+
+<p><strong>Parameters</strong> : </p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p><strong>recognizer</strong> : <a href="#Recognizer.GestureRecognizer">Recognizer.GestureRecognizer</a> object</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p><strong>frame_timestamp_ms</strong> : timestamp in milliseconds corresponding to captured video frame</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p><strong>frame</strong> : numpy array of the video frame grabbed from OpenCV</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+</div>
+
+
+                            </div>
+                            <div id="Gesture.gesture_callback_from_recognizer" class="classattr">
+                                        <input id="Gesture.gesture_callback_from_recognizer-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">gesture_callback_from_recognizer</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="bp">self</span>,</span><span class="param">	<span class="n">result</span>,</span><span class="param">	<span class="n">output_image</span><span class="p">:</span> <span class="n">mediapipe</span><span class="o">.</span><span class="n">python</span><span class="o">.</span><span class="n">_framework_bindings</span><span class="o">.</span><span class="n">image</span><span class="o">.</span><span class="n">Image</span>,</span><span class="param">	<span class="n">timestamp_ms</span><span class="p">:</span> <span class="nb">int</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Gesture.gesture_callback_from_recognizer-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Gesture.gesture_callback_from_recognizer"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Gesture.gesture_callback_from_recognizer-115"><a href="#Gesture.gesture_callback_from_recognizer-115"><span class="linenos">115</span></a>    <span class="k">def</span> <span class="nf">gesture_callback_from_recognizer</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">result</span><span class="p">,</span> <span class="n">output_image</span><span class="p">:</span> <span class="n">mp</span><span class="o">.</span><span class="n">Image</span><span class="p">,</span> <span class="n">timestamp_ms</span><span class="p">:</span> <span class="nb">int</span><span class="p">):</span> <span class="c1">#I&#39;m not sure why, but the 3 inputs are required to work properly (even if unused)</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-116"><a href="#Gesture.gesture_callback_from_recognizer-116"><span class="linenos">116</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Callback function for the Recognizer class object to retrieve gesture info.</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-117"><a href="#Gesture.gesture_callback_from_recognizer-117"><span class="linenos">117</span></a><span class="sd">        </span>
+</span><span id="Gesture.gesture_callback_from_recognizer-118"><a href="#Gesture.gesture_callback_from_recognizer-118"><span class="linenos">118</span></a><span class="sd">        **Parameters** :</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-119"><a href="#Gesture.gesture_callback_from_recognizer-119"><span class="linenos">119</span></a>
+</span><span id="Gesture.gesture_callback_from_recognizer-120"><a href="#Gesture.gesture_callback_from_recognizer-120"><span class="linenos">120</span></a><span class="sd">        &gt;&gt;&gt;**result** : Recognizer.GestureRecognizerResult object</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-121"><a href="#Gesture.gesture_callback_from_recognizer-121"><span class="linenos">121</span></a>
+</span><span id="Gesture.gesture_callback_from_recognizer-122"><a href="#Gesture.gesture_callback_from_recognizer-122"><span class="linenos">122</span></a><span class="sd">        &gt;&gt;&gt;**output_image** : mediapipe (mp) Image object</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-123"><a href="#Gesture.gesture_callback_from_recognizer-123"><span class="linenos">123</span></a>
+</span><span id="Gesture.gesture_callback_from_recognizer-124"><a href="#Gesture.gesture_callback_from_recognizer-124"><span class="linenos">124</span></a><span class="sd">        &gt;&gt;&gt;**timestamp_ms** : timestamp in milliseconds from the associate frame/gesture.</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-125"><a href="#Gesture.gesture_callback_from_recognizer-125"><span class="linenos">125</span></a><span class="sd">        </span>
+</span><span id="Gesture.gesture_callback_from_recognizer-126"><a href="#Gesture.gesture_callback_from_recognizer-126"><span class="linenos">126</span></a><span class="sd">        NOTE: This is based on Google AI callback function. Although *output_image* and *timestamp_ms* are </span>
+</span><span id="Gesture.gesture_callback_from_recognizer-127"><a href="#Gesture.gesture_callback_from_recognizer-127"><span class="linenos">127</span></a><span class="sd">        unused in this method, they seem to be necessary in order for the GestureRecognizer callback to</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-128"><a href="#Gesture.gesture_callback_from_recognizer-128"><span class="linenos">128</span></a><span class="sd">        function properly.&quot;&quot;&quot;</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-129"><a href="#Gesture.gesture_callback_from_recognizer-129"><span class="linenos">129</span></a>
+</span><span id="Gesture.gesture_callback_from_recognizer-130"><a href="#Gesture.gesture_callback_from_recognizer-130"><span class="linenos">130</span></a>        <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">gestures</span><span class="p">:</span> <span class="c1"># if gesture was detected (not empty)</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-131"><a href="#Gesture.gesture_callback_from_recognizer-131"><span class="linenos">131</span></a>            <span class="c1"># result.gesture contains lots of info, we only need the name of the detected gesture:</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-132"><a href="#Gesture.gesture_callback_from_recognizer-132"><span class="linenos">132</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">result</span><span class="o">.</span><span class="n">gestures</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">category_name</span><span class="p">)</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-133"><a href="#Gesture.gesture_callback_from_recognizer-133"><span class="linenos">133</span></a>        <span class="k">else</span><span class="p">:</span> <span class="c1"># no gesture was detected</span>
+</span><span id="Gesture.gesture_callback_from_recognizer-134"><a href="#Gesture.gesture_callback_from_recognizer-134"><span class="linenos">134</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Callback function for the Recognizer class object to retrieve gesture info.</p>
+
+<p><strong>Parameters</strong> :</p>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p><strong>result</strong> : <a href="#Recognizer.GestureRecognizerResult">Recognizer.GestureRecognizerResult</a> object</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p><strong>output_image</strong> : mediapipe (mp) Image object</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<blockquote>
+  <blockquote>
+    <blockquote>
+      <p><strong>timestamp_ms</strong> : timestamp in milliseconds from the associate frame/gesture.</p>
+    </blockquote>
+  </blockquote>
+</blockquote>
+
+<p>NOTE: This is based on Google AI callback function. Although <em>output_image</em> and <em>timestamp_ms</em> are 
+unused in this method, they seem to be necessary in order for the GestureRecognizer callback to
+function properly.</p>
+</div>
+
+
+                            </div>
+                            <div id="Gesture.update_active_gesture" class="classattr">
+                                        <input id="Gesture.update_active_gesture-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">update_active_gesture</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Gesture.update_active_gesture-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Gesture.update_active_gesture"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Gesture.update_active_gesture-136"><a href="#Gesture.update_active_gesture-136"><span class="linenos">136</span></a>    <span class="k">def</span> <span class="nf">update_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture.update_active_gesture-137"><a href="#Gesture.update_active_gesture-137"><span class="linenos">137</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Sets the active gesture based on the gesture that exceeds margin value.&quot;&quot;&quot;</span>
+</span><span id="Gesture.update_active_gesture-138"><a href="#Gesture.update_active_gesture-138"><span class="linenos">138</span></a>
+</span><span id="Gesture.update_active_gesture-139"><a href="#Gesture.update_active_gesture-139"><span class="linenos">139</span></a>        <span class="n">top_gesture</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Gesture.update_active_gesture-140"><a href="#Gesture.update_active_gesture-140"><span class="linenos">140</span></a>        <span class="n">top_gesture_count</span> <span class="o">=</span> <span class="mi">0</span>
+</span><span id="Gesture.update_active_gesture-141"><a href="#Gesture.update_active_gesture-141"><span class="linenos">141</span></a>
+</span><span id="Gesture.update_active_gesture-142"><a href="#Gesture.update_active_gesture-142"><span class="linenos">142</span></a>        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span> <span class="c1"># iterate through each count, find largest</span>
+</span><span id="Gesture.update_active_gesture-143"><a href="#Gesture.update_active_gesture-143"><span class="linenos">143</span></a>            <span class="k">if</span> <span class="n">value</span><span class="o">&gt;</span><span class="n">top_gesture_count</span> <span class="ow">and</span> <span class="n">key</span><span class="o">!=</span><span class="s1">&#39;Total&#39;</span><span class="p">:</span>
+</span><span id="Gesture.update_active_gesture-144"><a href="#Gesture.update_active_gesture-144"><span class="linenos">144</span></a>                <span class="n">top_gesture</span> <span class="o">=</span> <span class="n">key</span>
+</span><span id="Gesture.update_active_gesture-145"><a href="#Gesture.update_active_gesture-145"><span class="linenos">145</span></a>                <span class="n">top_gesture_count</span> <span class="o">=</span> <span class="n">value</span>
+</span><span id="Gesture.update_active_gesture-146"><a href="#Gesture.update_active_gesture-146"><span class="linenos">146</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span> <span class="c1"># reset value</span>
+</span><span id="Gesture.update_active_gesture-147"><a href="#Gesture.update_active_gesture-147"><span class="linenos">147</span></a>            
+</span><span id="Gesture.update_active_gesture-148"><a href="#Gesture.update_active_gesture-148"><span class="linenos">148</span></a>        <span class="k">if</span> <span class="n">top_gesture</span><span class="o">!=</span><span class="s1">&#39;None&#39;</span> <span class="ow">and</span> <span class="n">top_gesture_count</span><span class="o">/</span><span class="bp">self</span><span class="o">.</span><span class="n">max_count</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">margin</span><span class="p">:</span>
+</span><span id="Gesture.update_active_gesture-149"><a href="#Gesture.update_active_gesture-149"><span class="linenos">149</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span> <span class="o">=</span> <span class="n">top_gesture</span> <span class="c1"># active gesture is that which is above margin</span>
+</span><span id="Gesture.update_active_gesture-150"><a href="#Gesture.update_active_gesture-150"><span class="linenos">150</span></a>        <span class="k">else</span><span class="p">:</span>
+</span><span id="Gesture.update_active_gesture-151"><a href="#Gesture.update_active_gesture-151"><span class="linenos">151</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span> <span class="o">=</span> <span class="s1">&#39;None&#39;</span>
+</span><span id="Gesture.update_active_gesture-152"><a href="#Gesture.update_active_gesture-152"><span class="linenos">152</span></a>
+</span><span id="Gesture.update_active_gesture-153"><a href="#Gesture.update_active_gesture-153"><span class="linenos">153</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">run_active_gesture</span><span class="p">()</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Sets the active gesture based on the gesture that exceeds margin value.</p>
+</div>
+
+
+                            </div>
+                            <div id="Gesture.update_gesture_count" class="classattr">
+                                        <input id="Gesture.update_gesture_count-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">update_gesture_count</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Gesture.update_gesture_count-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Gesture.update_gesture_count"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Gesture.update_gesture_count-155"><a href="#Gesture.update_gesture_count-155"><span class="linenos">155</span></a>    <span class="k">def</span> <span class="nf">update_gesture_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture.update_gesture_count-156"><a href="#Gesture.update_gesture_count-156"><span class="linenos">156</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Updates the total gesture count to determine when to check for active gestures.</span>
+</span><span id="Gesture.update_gesture_count-157"><a href="#Gesture.update_gesture_count-157"><span class="linenos">157</span></a>
+</span><span id="Gesture.update_gesture_count-158"><a href="#Gesture.update_gesture_count-158"><span class="linenos">158</span></a><span class="sd">        The purpose of this method and the update_active_gesture() method are to make sure the</span>
+</span><span id="Gesture.update_gesture_count-159"><a href="#Gesture.update_gesture_count-159"><span class="linenos">159</span></a><span class="sd">        active gesture is one which is intentionally shown by the user in the video (i.e. ignores</span>
+</span><span id="Gesture.update_gesture_count-160"><a href="#Gesture.update_gesture_count-160"><span class="linenos">160</span></a><span class="sd">        gesture detection errors or &#39;noise&#39; in the detection method.)&quot;&quot;&quot;</span>
+</span><span id="Gesture.update_gesture_count-161"><a href="#Gesture.update_gesture_count-161"><span class="linenos">161</span></a>
+</span><span id="Gesture.update_gesture_count-162"><a href="#Gesture.update_gesture_count-162"><span class="linenos">162</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gesture_latest</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+</span><span id="Gesture.update_gesture_count-163"><a href="#Gesture.update_gesture_count-163"><span class="linenos">163</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">+=</span><span class="mi">1</span>
+</span><span id="Gesture.update_gesture_count-164"><a href="#Gesture.update_gesture_count-164"><span class="linenos">164</span></a>
+</span><span id="Gesture.update_gesture_count-165"><a href="#Gesture.update_gesture_count-165"><span class="linenos">165</span></a>        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">count_dict</span><span class="p">[</span><span class="s1">&#39;Total&#39;</span><span class="p">]</span><span class="o">&gt;=</span><span class="bp">self</span><span class="o">.</span><span class="n">max_count</span><span class="p">:</span>
+</span><span id="Gesture.update_gesture_count-166"><a href="#Gesture.update_gesture_count-166"><span class="linenos">166</span></a>            <span class="bp">self</span><span class="o">.</span><span class="n">update_active_gesture</span><span class="p">()</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Updates the total gesture count to determine when to check for active gestures.</p>
+
+<p>The purpose of this method and the update_active_gesture() method are to make sure the
+active gesture is one which is intentionally shown by the user in the video (i.e. ignores
+gesture detection errors or 'noise' in the detection method.)</p>
+</div>
+
+
+                            </div>
+                            <div id="Gesture.initialize_active_gesture" class="classattr">
+                                        <input id="Gesture.initialize_active_gesture-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">initialize_active_gesture</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Gesture.initialize_active_gesture-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Gesture.initialize_active_gesture"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Gesture.initialize_active_gesture-168"><a href="#Gesture.initialize_active_gesture-168"><span class="linenos">168</span></a>    <span class="k">def</span> <span class="nf">initialize_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture.initialize_active_gesture-169"><a href="#Gesture.initialize_active_gesture-169"><span class="linenos">169</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Pre-allocates the output intensity sequence for each active gesture. The sequence is</span>
+</span><span id="Gesture.initialize_active_gesture-170"><a href="#Gesture.initialize_active_gesture-170"><span class="linenos">170</span></a><span class="sd">         generated by generator functions in util.algo_functions.&quot;&quot;&quot;</span>
+</span><span id="Gesture.initialize_active_gesture-171"><a href="#Gesture.initialize_active_gesture-171"><span class="linenos">171</span></a>        
+</span><span id="Gesture.initialize_active_gesture-172"><a href="#Gesture.initialize_active_gesture-172"><span class="linenos">172</span></a>        <span class="n">output_dict</span> <span class="o">=</span> <span class="p">{}</span>
+</span><span id="Gesture.initialize_active_gesture-173"><a href="#Gesture.initialize_active_gesture-173"><span class="linenos">173</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;None&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture.initialize_active_gesture-174"><a href="#Gesture.initialize_active_gesture-174"><span class="linenos">174</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Closed_Fist&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture.initialize_active_gesture-175"><a href="#Gesture.initialize_active_gesture-175"><span class="linenos">175</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Open_Palm&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture.initialize_active_gesture-176"><a href="#Gesture.initialize_active_gesture-176"><span class="linenos">176</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Pointing_Up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture.initialize_active_gesture-177"><a href="#Gesture.initialize_active_gesture-177"><span class="linenos">177</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Thumb_Down&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">checker_square</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="Gesture.initialize_active_gesture-178"><a href="#Gesture.initialize_active_gesture-178"><span class="linenos">178</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Thumb_Up&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">sine</span><span class="p">(</span><span class="n">direction</span><span class="o">=</span><span class="s1">&#39;right&#39;</span><span class="p">,</span><span class="n">scale</span><span class="o">=</span><span class="mf">0.42</span><span class="p">,</span> <span class="n">freq</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+</span><span id="Gesture.initialize_active_gesture-179"><a href="#Gesture.initialize_active_gesture-179"><span class="linenos">179</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;Victory&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">sine_global</span><span class="p">(</span><span class="n">freq</span><span class="o">=</span><span class="mi">1</span><span class="p">))</span>
+</span><span id="Gesture.initialize_active_gesture-180"><a href="#Gesture.initialize_active_gesture-180"><span class="linenos">180</span></a>        <span class="n">output_dict</span><span class="p">[</span><span class="s1">&#39;ILoveYou&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">haptic_map</span><span class="o">.</span><span class="n">make_output_data</span><span class="p">(</span><span class="n">generator</span><span class="o">.</span><span class="n">zeros</span><span class="p">())</span>
+</span><span id="Gesture.initialize_active_gesture-181"><a href="#Gesture.initialize_active_gesture-181"><span class="linenos">181</span></a>        <span class="k">return</span> <span class="n">output_dict</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Pre-allocates the output intensity sequence for each active gesture. The sequence is
+generated by generator functions in util.algo_functions.</p>
+</div>
+
+
+                            </div>
+                            <div id="Gesture.run_active_gesture" class="classattr">
+                                        <input id="Gesture.run_active_gesture-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="def">def</span>
+        <span class="name">run_active_gesture</span><span class="signature pdoc-code condensed">(<span class="param"><span class="bp">self</span></span><span class="return-annotation">):</span></span>
+
+                <label class="view-source-button" for="Gesture.run_active_gesture-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#Gesture.run_active_gesture"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Gesture.run_active_gesture-183"><a href="#Gesture.run_active_gesture-183"><span class="linenos">183</span></a>    <span class="k">def</span> <span class="nf">run_active_gesture</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+</span><span id="Gesture.run_active_gesture-184"><a href="#Gesture.run_active_gesture-184"><span class="linenos">184</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Populates the output list with the pre-allocated output sequence for the given gesture.&quot;&quot;&quot;</span>
+</span><span id="Gesture.run_active_gesture-185"><a href="#Gesture.run_active_gesture-185"><span class="linenos">185</span></a>
+</span><span id="Gesture.run_active_gesture-186"><a href="#Gesture.run_active_gesture-186"><span class="linenos">186</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">output</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">output_dict</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">gesture_active</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Populates the output list with the pre-allocated output sequence for the given gesture.</p>
+</div>
+
+
+                            </div>
+                </section>
+    </main>
+</body>
+</html>

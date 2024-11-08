@@ -2,10 +2,10 @@
 
 """Preprocessing functions for the visual-haptic algorithm.
 
-This is the heart of the visual-haptic algorithm. The script defines the VisualHapticModel
+This is the heart of the visual-haptic algorithm. The script defines the ***VisualHapticModel***
 class, which contains all relevant functions for processing visual image data into intensities.
 
-The resultant intensity arrays can be passed to utils.haptic_funcs using the HapticMap class
+The resultant intensity arrays can be passed to *utils.haptic_funcs* using the ***HapticMap*** class
 to convert the intensities into haptic outputs of frequency and duty cycle.
 
 Visual-haptic processing scripts are located in /pre_processing/ directory"""
@@ -23,8 +23,9 @@ import matplotlib.animation as animation
 def grab_video_frame(source:cv2.VideoCapture):
     """Grabs the next frame from the video source.
     
-    Inputs:
-    -source: cv2.VideoCapture object which is the video source"""
+    **Parameters** :
+
+    >>>**source** : *cv2.VideoCapture* object which is the video source (webcam)"""
 
     ret = source.grab()
     if ret is False: # if no data is available from the source, return Nones
@@ -36,21 +37,29 @@ def grab_video_frame(source:cv2.VideoCapture):
 class VisualHapticModel:
     """Class wrapper for the visual haptic algorithm.
     
-    VisualHapticModel contains all processing steps of the algorithm as separate methods.
-    On __init__(), the user defines all parameters for the algorithm."""
+    *VisualHapticModel* contains all processing steps of the algorithm as separate methods.
+    On *__init__()*, the user defines all parameters for the algorithm."""
 
     def __init__(self, device:torch.device, resolution_attention:int = 75, depth_model_type:str = 'hybrid', threshold_value:float = 0.25, bias:float = 0.75, combine_method:str = 'sum', scaling_factor:int = 4, display_dim:tuple = (4,7)):
-        """Initialization of VisualHapticModel. Sets parameters and loads pretrained models.
+        """Initialization of *VisualHapticModel*. Sets parameters and loads pretrained models.
         
-        Inputs:
-        -device: device for PyTorch ("cpu" or "cuda")
-        -resolution_attention: resolution to scale the input image for attention model
-        -depth_model_type: type of model for MiDaS depth ("small", "hybrid", or "large")
-        -threshold_value: threshold for cutting off values in final output
-        -bias: bias towards attention in combination step
-        -combine_method: method to combine depth and attention ("sum" or "multiply")
-        -scaling_factor: resolution scaling factor for combination step
-        -display_dim: tuple of output dimensions (haptic display H x W)"""
+        **Parameters** :
+
+        >>>**device** : device for PyTorch ("cpu" or "cuda")
+        
+        >>>**resolution_attention** : resolution to scale the input image for attention model
+        
+        >>>**depth_model_type** : type of model for MiDaS depth ("small", "hybrid", or "large")
+        
+        >>>**threshold_value** : threshold for cutting off values in final output
+        
+        >>>**bias** : bias towards attention in combination step, within [0-1].
+        
+        >>>**combine_method** : method to combine depth and attention ("sum" or "multiply")
+        
+        >>>**scaling_factor** : resolution scaling factor for combination step
+        
+        >>>**display_dim** : tuple of output dimensions (haptic display H x W)"""
 
         self.device = device
         self.resolution_attention = resolution_attention
@@ -103,8 +112,10 @@ class VisualHapticModel:
     def single_run(self, frame):
         """Runs the visual-haptic processing for a single frame.
         
-        Inputs:
-        -frame: image of current frame grabbed from OpenCV source"""
+        **Parameters** :
+        
+        >>>**frame** : image of current frame grabbed from OpenCV source"""
+        
         self.attention_frame = self.get_attention(frame)
         self.depth_org_frame = self.get_depth(frame)
         self.depth_frame = self.remove_gradient(self.depth_org_frame)
@@ -112,13 +123,21 @@ class VisualHapticModel:
         self.threshold_frame = self.get_threshold(self.combined_frame)
         self.output = self.get_downsample(self.threshold_frame)
     
-    def full_run(self, video_source, file_prefix, num_frames):
-        """Runs the visual-haptic processing for a single frame.
+    def full_run(self, video_source, file_prefix: str, num_frames: int):
+        """Runs the visual-haptic processing for a single frame. 
+        Quit or stop the process prematurely using the 'q' keyboard key.
         
-        Inputs:
-        -video_source: open-cv video capture source.
+        **Parameters** :
         
-        Quit or stop the process prematurely using the 'q' keyboard key."""
+        >>>**video_source** : open-cv video capture source
+        
+        >>>**file_prefix** : string of the file name prefix used to save the data
+        
+        >>>**num_frames** : number of video frames to analyze from *video_source*
+
+        **Returns** : 
+        
+        >>>Saved data files (.mp4 animations and .txt raw data) of the algorithm output."""
 
         print("Starting full run...")
         while True:
@@ -144,6 +163,7 @@ class VisualHapticModel:
         return self.output
     
     def update_lists(self):
+        """@private"""
         self.attention_list.append(self.attention_frame)
         self.depth_org_list.append(self.depth_org_frame)
         self.depth_list.append(self.depth_frame)
@@ -153,6 +173,7 @@ class VisualHapticModel:
         self.frame_list.append(self.frame)
     
     def save(self, file_prefix):
+        """@private Saves the final data to video and text files."""
         print("Plotting and saving...")
 
         ims = []
@@ -205,7 +226,7 @@ class VisualHapticModel:
 
 
     def get_attention(self, frame):
-        """Gets self attention from video frame using DINO self.attention_model.
+        """@private Gets self attention from video frame using DINO self.attention_model.
         
         The frame is resized based on self.resolution_attention value."""
 
@@ -233,7 +254,7 @@ class VisualHapticModel:
         return attention_frame
 
     def get_depth(self, frame):
-        """Get depth estimation from video frame using MiDaS self.depth_model.
+        """@private Get depth estimation from video frame using MiDaS self.depth_model.
         
         The depth transformation must match the model (small model=small transform)."""
 
@@ -244,7 +265,7 @@ class VisualHapticModel:
         return depth_frame
 
     def remove_gradient(self, depth_frame):
-        """Subtracts a default depth gradient from the depth estimation.
+        """@private Subtracts a default depth gradient from the depth estimation.
         
         This assumes that the depth image is a typical landscape scene with foreground,
          midground, and background. The goal is to account for the closer depth of the 
@@ -261,7 +282,7 @@ class VisualHapticModel:
         return depth_frame_nograd
 
     def get_combined(self, depth_frame, attention_frame, method='sum', normalize:bool=True):
-        """Combine the depth and attention mappings.
+        """@private Combine the depth and attention mappings.
         
         Each depth/attention frame is resized and normalized before being combined. The
         'method' input specifies if the attention and depth are multiplied together or summed.
@@ -285,13 +306,13 @@ class VisualHapticModel:
 
     # threshold the combined map to threshold_val
     def get_threshold(self, combined_frame):
-        """Thresholds the input frame based on self.threshold_value. Only values
+        """@private Thresholds the input frame based on self.threshold_value. Only values
         above the threshold will be returned; lower values become zero."""
 
         return (combined_frame > self.threshold_value) * combined_frame
 
     def get_downsample(self, threshold_frame):
-        """Downsamples the input frame to the dimensions of the haptic display.
+        """@private Downsamples the input frame to the dimensions of the haptic display.
         
         I am performing a custom interpolation method to downsample the resolution. The goal
         of the method is to preserve high-valued intensities. E.g. for a given haptic pixel size,
@@ -324,6 +345,18 @@ class VisualHapticModel:
 
 
 def smooth(sequence:np.ndarray, size):
+    """Operates a median filter smoothing function.
+    
+    **Parameters** : 
+    
+    >>>**sequence** : list contain the data to be smoothed
+    
+    >>>**size** : length of filter (how many samples to take median)
+    
+    **Returns** : 
+    
+    >>>**med_filt** : median-filtered list of original *sequence*"""
+
     med_filt = sequence.copy()
     for row in range(sequence.shape[1]):
         for col in range(sequence.shape[2]):

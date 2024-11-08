@@ -1,31 +1,36 @@
 #!/usr/bin/env python3
 
-"""Sets up SerialWriter class to communicate with HV MINI switch via USB ports. 
-Also build packing functions to convert period and duty cycle values into byte strings for USB transfer."""
+"""Sets up ***SerialWriter*** class to communicate with HV MINI switch via USB ports. 
+Also contains packing functions to convert period and duty cycle values into byte strings for USB transfer.
+**TODO**: this can be adapted to send voltage commands directly to the switch circuits."""
 
 import numpy as np
 import serial
 
 class SerialWriter:
-    """SerialWriter class handles packing data and writing to USB serial to control MINI switches."""
+    """*SerialWriter* class handles packing data and writing to USB serial to control MINI switches."""
 
     def __init__(self, serial_ports: list = [], serial_active:bool=False):
         """Initializes the input ports for serial connection.
 
-        Inputs:
-        -serial_ports: list containing the serial ports to connect to. Expected format is [A, B, C] with A,B,C being the 
+        **Parameters** :
+
+        >>>**serial_ports** : list containing the serial ports to connect to. Expected format is [A, B, C] with A,B,C being the 
         string that defines the serial port. If A/B/C is None, the port will be ignored.
-        -serial_active: bool which allows SerialWriter to be enabled or disabled via user parameter in the main
-        demo script without having to modify code elsewhere. If False, no HV will be enabled and no data sent to USB"""
+        
+        >>>**serial_active** : bool which allows *SerialWriter* to be enabled or disabled via user parameter in the main
+        demo script without having to modify code elsewhere. If *False*, no HV will be enabled and no data sent to USB"""
+        
         self.serial_active = serial_active # SerialWriter will only write to USB if serial_active = True
         self.serial_list = []
         self.initialize_ports(serial_ports) #expects a list with each list object being a serial object.
 
     def initialize_ports(self, serial_ports: list):
-        """Connects to USB serial ports.
+        """@private Connects to USB serial ports. This is automatically called; you don't need to use this.
         
-        Inputs:
-        serial_ports: list of serial ports imported from __init__()"""
+        **Parameters** :
+        
+        >>>**serial_ports** : *list* of serial ports imported from *__init__()*"""
 
         if self.serial_active:
             for port in serial_ports:
@@ -45,20 +50,23 @@ class SerialWriter:
                 ser.write('D'.encode())
 
     def close_serial(self):
-        """Closes serial connection. NOTE: this is currently redundant/not needed to run."""
+        """Closes serial connection. 
+        NOTE: this is currently redundant/not needed to run, because the serial connection closes
+        automatically when a .py script finishes executing."""
         if self.serial_active:
             for ser in self.serial_list:
                 ser.close()
 
     def write_array_to_USB(self, duty_array, period_array):
-        """Writes the duty cycle and period data to USB.
+        """Writes the duty cycle and period data to USB. The write process is done in the order
+         given by serial_list, which assumes the order is [MINI rack A, MINI rack B, MINI rack C].
         
-        Inputs:
-        -duty_array: np.ndarray shape (30,) containing duty cycles [%]
-        -period_array: np.ndarray shape (30,) containing period values [ms]
+        **Parameters** :
         
-        The write process is done in the order given by serial_list, which assumes the order is
-        [MINI rack A, MINI rack B, MINI rack C]."""
+        >>>**duty_array** : np.ndarray of shape (30,) containing duty cycles [%]
+        
+        >>>**period_array** : np.ndarray of shape (30,) containing period values [ms]
+        """
 
         ind = 0
         if self.serial_active:
@@ -73,12 +81,13 @@ class SerialWriter:
                 ser.write(packet)
 
     def write_packets_to_USB(self, packet_list):
-        """Writes the duty cycle and period data to USB.
+        """Writes the duty cycle and period data to USB. The mapping from the (4,7) array
+         to the USB is explained in README.md of this repository.
         
-        Inputs:
-        -packet: list containing three byte string elements corresponding to COM_A, COM_B, COM_C
-        
-        The mapping from the (4,7) array to the USB is explained in README.md of this repository."""
+        **Parameters** :
+
+        >>>**packet** : list containing three byte string elements corresponding to *COM_A*, *COM_B*, *COM_C*
+        """
 
         if self.serial_active:
             for ser, packet in zip(self.serial_list, packet_list):
@@ -88,12 +97,14 @@ class SerialWriter:
 def make_packet(duties: np.ndarray, periods: np.ndarray):
     """Converts the duty cycle and period arrays into a USB-transferable packet.
     
-    Inputs:
-    -duties: np.ndarray of shape (10,) containing the duty cycle [%] of each MINI switch
-    -periods: np.ndarray of shape (10,) containing the total period [ms] of each MINI switch
+    **Parameters** :
+
+    >>>**duties** : np.ndarray of shape (10,) containing the duty cycle [%] of each MINI switch
     
-    Outputs:
-    -packet: combined byte string containing both period and total time [ms]"""
+    >>>**periods** : np.ndarray of shape (10,) containing the total period [ms] of each MINI switch
+    
+    **Returns** :
+    >>>**packet** : combined byte string containing both period and total time [ms]"""
 
     duties_abs = np.int32(np.floor(np.multiply(periods,duties))) # convert from % to msec
     packetlist = []
@@ -113,15 +124,17 @@ def make_packet(duties: np.ndarray, periods: np.ndarray):
 
 def make_packet_list(duty_array: np.ndarray = np.zeros((30,),dtype=int), period_array: np.ndarray = np.zeros((30,),dtype=int)):
     """Converts the duty cycle and period arrays into a list of USB-transferable packets.
+    This assumes mapping from (30,) array to 3 serial ports as explained in README.md of this repository.
     
-    Inputs:
-    -duties: np.ndarray of shape (30,) containing the duty cycle [%] of each MINI switch
-    -periods: np.ndarray of shape (30,) containing the total period [ms] of each MINI switch
+    **Parameters** :
+
+    >>>**duties** : np.ndarray of shape (30,) containing the duty cycle [%] of each MINI switch
     
-    Outputs:
-    -packet_list: list of combined byte strings containing both period and total time [ms]
+    >>>**periods** : np.ndarray of shape (30,) containing the total period [ms] of each MINI switch
     
-    This assumes mapping from (30,) array to 3 serial ports as explained in README.md of this repository."""
+    **Returns** :
+    >>>**packet_list** : list of combined byte strings containing both period and total time [ms]
+    """
     
     packet_list = []
     #iterate for each serial port:
@@ -150,13 +163,16 @@ def make_packet_sequence(duty_array_list:list, period_array_list:list):
     """Converts lists of duty cycle and period information into a list of USB packets.
     Intention is to pre-process all packets before running real-time codes.
     
-    Inputs:
-    -duty_array_list: list of duty cycle arrays. Each list element is flat np.ndarray, shape (30,)
-    -period_array_list: list of period arrays. Each list element is flat np.ndarray, shape (30,)
+    **Parameters** :
+
+    >>>**duty_array_list** : list of duty cycle arrays. Each list element is a flat np.ndarray of shape (30,)
     
-    Outputs:
-    -packet_sequence: list of packet_lists. Each element of packet_sequence is a list with
-     three elements [packet_A, packet_B, packet_C] with A/B/C corresponding to USB serial output."""
+    >>>**period_array_list** : list of period arrays. Each list element is a flat np.ndarray of shape (30,)
+    
+    **Returns** :
+    
+    >>>**packet_sequence** : list of packet_lists. Each element of *packet_sequence* is a list with
+     three elements *[packet_A, packet_B, packet_C]* with A/B/C corresponding to USB serial output."""
     packet_sequence = []
 
     for duty_array, period_array in zip(duty_array_list, period_array_list):
