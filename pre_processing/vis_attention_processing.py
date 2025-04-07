@@ -5,7 +5,7 @@
 NOTE: Work in progress!"""
 
 ###### USER SETTINGS ######
-VIDEO = "truck" # pick video suffix from algo_input_videos/ folder
+VIDEO = "koi" # pick video suffix from algo_input_videos/ folder
 RESOLUTION_ATT = 100 # resolution of get_attention for DINO model
 MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
 THRESHOLD_VAL = 0.35 # threshold of attention+depth combination
