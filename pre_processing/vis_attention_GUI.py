@@ -10,9 +10,9 @@ VIDEO_PATH = "algo_input_videos/video_koi.mp4" # path of desired test video
 FRAME_NUM = 1 # starting frame
 RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
 MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
-THRESHOLD_VAL = 0.25 # threshold of attention+depth combination
-BIAS = 0.6 # bias towards attention for attention+depth combination
-SCALE = 4 # scaling of combined array (scale*[16, 9])
+THRESHOLD_VAL = 0.5 # threshold of attention+depth combination
+BIAS = 0.9 # bias towards attention for attention+depth combination
+SCALE = 10 # scaling of combined array (scale*[16, 9])
 DISPLAY_W = 7 # HASEL haptic display width (pixels)
 DISPLAY_H = 4 # HASEL haptic display height (pixels)
 
@@ -215,7 +215,7 @@ def get_downsample():
             mean_slice = np.mean(frame_slice)
             std_slice = np.std(frame_slice)
             max_slice = np.max(frame_slice)
-            if mean_slice+3*std_slice > max_slice: # I'm doing some weird selection of max vs. mean depending on std of the frame slice
+            if mean_slice+5*std_slice > max_slice: # I'm doing some weird selection of max vs. mean depending on std of the frame slice
                 downsampled[rr, cc] = max_slice
             else:
                 downsampled[rr, cc] = mean_slice
