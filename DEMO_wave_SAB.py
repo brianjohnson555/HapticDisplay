@@ -23,23 +23,30 @@ serial_writer = USB.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 time.sleep(1)
 
 # prepare preprogrammed sequence:
-fps = 20
+fps = 10
 output_data1 = haptic_map.make_output_data(generator.sawtooth(total_time=40, freq=4, scale=1.5),
                                         freq_range=(0,50),
                                         duty_range=(0.2,0.5))
 
-output_data2 = haptic_map.make_output_data(generator.sine(total_time=40, frame_rate=fps, freq=1, scale=0.94),
-                                        freq_range=(50,50),
-                                        duty_range=(0,0.5))
+output_data2 = haptic_map.make_output_data(generator.sine(total_time=20, frame_rate=fps, freq=0.2, scale=0.2),
+                                        freq_range=(0,50),
+                                        duty_range=(0.4,0.4))
 
 output_data3 = haptic_map.make_output_data(generator.sine_global(total_time=40, frame_rate=fps, freq=0.1),
                                         freq_range=(0,100),
                                         duty_range=(0.25,0.5))
 
-output_data4 = haptic_map.make_output_data(generator.ramp(total_time=5, frame_rate=10, direction=1),
+output_data4 = haptic_map.make_output_data(generator.ramp(total_time=50, frame_rate=10, direction=1),
                                         freq_range=(100,100),
                                         duty_range=(0.05,0.05))
-output_data = output_data3
+
+output_data_SAB = haptic_map.make_output_data(generator.sine(total_time=20, frame_rate=fps, freq=0.2, scale=0.2),
+                                        freq_range=(0,50),
+                                        duty_range=(0.4,0.4))
+
+output_data = output_data_SAB
+
+
 
 # Enable HV!!!
 serial_writer.HV_enable()
