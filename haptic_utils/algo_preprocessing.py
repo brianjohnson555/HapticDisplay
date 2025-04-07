@@ -334,7 +334,7 @@ class VisualHapticModel:
                 std_slice = np.std(frame_slice)
                 max_slice = np.max(frame_slice)
                 # selection:
-                if mean_slice+3*std_slice > max_slice: # I'm doing some weird selection of max vs. mean depending on std of the frame slice
+                if mean_slice+5*std_slice > max_slice: # I'm doing some weird selection of max vs. mean depending on std of the frame slice
                     downsampled_frame[rr, cc] = max_slice # important feature detected; keep max value
                 else:
                     downsampled_frame[rr, cc] = mean_slice # not important enough; use mean value

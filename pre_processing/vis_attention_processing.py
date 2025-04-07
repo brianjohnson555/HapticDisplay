@@ -8,11 +8,11 @@ NOTE: Work in progress!"""
 VIDEO = "koi" # pick video suffix from algo_input_videos/ folder
 RESOLUTION_ATT = 150 # resolution of get_attention for DINO model
 MODEL = 'hybrid' # MiDaS model type ('small', 'hybrid', 'large')
-THRESHOLD_VAL = 0.5 # threshold of attention+depth combination
+THRESHOLD_VAL = 0.4 # threshold of attention+depth combination
 BIAS = 0.9 # bias towards attention for attention+depth combination
 SCALE = 10 # scaling of combined array (scale*[16, 9])
 DISPLAY_DIMS = (4,7) # HASEL haptic display dimensions, H x W (pixels)
-FRAME_SKIP = 10 # interval for how often to calculate algorithm (then interpolate between)
+FRAME_SKIP = 15 # interval for how often to calculate algorithm (then interpolate between)
 FRAME_RATE = 29.97 # video frame rate (must check video properties!!)
 # note on FRAME_SKIP: only needed when you want fast processing time. Otherwise set to 0.
 DEVICE = "cpu"
