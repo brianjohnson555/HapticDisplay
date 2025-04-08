@@ -10,7 +10,7 @@ visual-haptic algorithm preprocessing code."""
 ###### USER SETTINGS ######
 FILENAME = "algo_input_data/datakoi_output_15FPS.txt"
 VIDEONAME = "algo_input_videos/video_koi.mp4"
-SERIAL_ACTIVE = False # if False, just runs the algorithm without sending to HV switches
+SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
 COM_A = "COM10" # port for MINI switches 1-10
 COM_B = "COM7" # port for MINI switches 11-20
 COM_C = "COM9" # port for MINI swiches 21-28
@@ -65,7 +65,7 @@ serial_writer = USB.SerialWriter(serial_ports, serial_active=SERIAL_ACTIVE)
 
 # Preprocess data:
 output_data = haptic_map.make_output_data(data_sequence,
-                                        freq_range=(0,50),
+                                        freq_range=(5,40),
                                         duty_range=(0.5,0.5))
 
 # Preprocess video:
