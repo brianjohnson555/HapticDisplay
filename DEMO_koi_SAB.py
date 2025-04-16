@@ -11,9 +11,15 @@ visual-haptic algorithm preprocessing code."""
 FILENAME = "algo_input_data/datakoi_output_15FPS.txt"
 VIDEONAME = "algo_input_videos/video_koi.mp4"
 SERIAL_ACTIVE = True # if False, just runs the algorithm without sending to HV switches
+# Hongyan's computer:
 COM_A = "COM10" # port for MINI switches 1-10
 COM_B = "COM7" # port for MINI switches 11-20
 COM_C = "COM9" # port for MINI swiches 21-28
+
+#Toshi's computer:
+# COM_A = "COM10" # port for MINI switches 1-10
+# COM_B = "COM16" # port for MINI switches 11-20
+# COM_C = "COM11" # port for MINI swiches 21-28
 
 ###### INITIALIZATIONS ######
 # import cv2
